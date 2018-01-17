@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>io.flexio.io</groupId>
-    <artifactId>flexio-mongo-repository</artifactId>
+    <artifactId>flexio-mongo-io-repository</artifactId>
 
     <dependencies>
         <dependency>
