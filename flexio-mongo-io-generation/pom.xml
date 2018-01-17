@@ -47,7 +47,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.flexio.services</groupId>
+            <groupId>io.flexio.commons</groupId>
             <artifactId>flexio-mongo-tests</artifactId>
             <scope>test</scope>
         </dependency>
