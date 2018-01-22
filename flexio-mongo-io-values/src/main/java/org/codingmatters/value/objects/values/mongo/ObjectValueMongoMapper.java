@@ -1,6 +1,8 @@
-package org.codingmatters.value.objects.values;
+package org.codingmatters.value.objects.values.mongo;
 
 import org.bson.Document;
+import org.codingmatters.value.objects.values.ObjectValue;
+import org.codingmatters.value.objects.values.PropertyValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

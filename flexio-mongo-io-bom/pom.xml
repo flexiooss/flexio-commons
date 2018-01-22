@@ -25,6 +25,11 @@
                 <artifactId>flexio-mongo-io-repository</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.flexio.io</groupId>
+                <artifactId>flexio-mongo-io-values</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     
