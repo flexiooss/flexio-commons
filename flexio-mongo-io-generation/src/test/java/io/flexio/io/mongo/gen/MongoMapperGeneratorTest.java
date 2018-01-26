@@ -394,7 +394,6 @@ public class MongoMapperGeneratorTest {
                                 .hints(new HashSet<>(Arrays.asList("mongo:object-id")))
                                 .type(type().cardinality(PropertyCardinality.LIST).typeKind(TypeKind.JAVA_TYPE).typeRef(String.class.getName()))))
                 .build());
-        this.fileHelper.printFile(this.dir.getRoot(), "TestMongoMapper.java");
 
 
         ObjectHelper mapper = classes.get("org.generated.mongo.TestMongoMapper").newInstance();
@@ -415,6 +414,37 @@ public class MongoMapperGeneratorTest {
         assertThat(
                 actualValue,
                 is(value)
+        );
+    }
+
+    @Test
+    public void fieldWithTransientHitIsIgnored() throws Exception {
+        ClassLoaderHelper classes = this.generate(Spec.spec()
+                .addValue(valueSpec().name("Test")
+                        .addProperty(property().name("stored").type(type().typeKind(TypeKind.JAVA_TYPE).typeRef(String.class.getName())))
+                        .addProperty(property().name("notStored")
+                                .hints(new HashSet<>(Arrays.asList("storage:transient")))
+                                .type(type().typeKind(TypeKind.JAVA_TYPE).typeRef(String.class.getName())))
+                ).build());
+
+        ObjectHelper mapper = classes.get("org.generated.mongo.TestMongoMapper").newInstance();
+
+        Object value = classes.get("org.generated.Test").call("builder")
+                .call("stored", String.class).with("value")
+                .call("notStored", String.class).with("value")
+                .call("build").get();
+
+        Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
+        assertThat(
+                doc,
+                is(Document.parse("{\"stored\": \"value\"}"))
+        );
+
+        assertThat(
+                mapper.call("toValue", Document.class).with(doc).get(),
+                is(classes.get("org.generated.Test").call("builder")
+                        .call("stored", String.class).with("value")
+                        .call("build").get())
         );
     }
 

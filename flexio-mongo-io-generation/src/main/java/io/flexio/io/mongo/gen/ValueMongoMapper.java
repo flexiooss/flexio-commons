@@ -182,15 +182,17 @@ public class ValueMongoMapper {
 
         mainMethod.addStatement("$T document = new $T()", Document.class, Document.class);
         for (PropertySpec propertySpec : this.mapperConfig.valueSpec().propertySpecs()) {
-            mainMethod.beginControlFlow("if(value.$L() != null)", propertySpec.name());
-            if(propertySpec.typeSpec().typeKind().isValueObject()) {
-                this.valueObjectToDocumentStatement(mainMethod, propertySpec);
-            } else {
-                this.documentSimplePropertySetterStatement(mainMethod, propertySpec);
+            if(! this.isTransient(propertySpec)) {
+                mainMethod.beginControlFlow("if(value.$L() != null)", propertySpec.name());
+                if (propertySpec.typeSpec().typeKind().isValueObject()) {
+                    this.valueObjectToDocumentStatement(mainMethod, propertySpec);
+                } else {
+                    this.documentSimplePropertySetterStatement(mainMethod, propertySpec);
+                }
+                mainMethod.nextControlFlow("else")
+                        .addStatement("document.put($S, null)", this.documentProperty(propertySpec))
+                        .endControlFlow();
             }
-            mainMethod.nextControlFlow("else")
-                    .addStatement("document.put($S, null)", this.documentProperty(propertySpec))
-                    .endControlFlow();
         }
         mainMethod.addStatement("return document");
 
@@ -315,4 +317,15 @@ public class ValueMongoMapper {
         }
         return false;
     }
+
+    private boolean isTransient(PropertySpec propertySpec) {
+        for (String hint : propertySpec.hints("storage:")) {
+            if(hint.equals("storage:transient")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 }
