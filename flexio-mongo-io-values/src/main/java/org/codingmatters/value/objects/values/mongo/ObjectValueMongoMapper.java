@@ -1,6 +1,7 @@
 package org.codingmatters.value.objects.values.mongo;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.codingmatters.value.objects.values.ObjectValue;
 import org.codingmatters.value.objects.values.PropertyValue;
 import org.slf4j.Logger;
@@ -49,6 +50,8 @@ public class ObjectValueMongoMapper {
             } else {
                 if(value instanceof Document) {
                     builder.property(name, p -> p.objectValue(this.toValue((Document) value)));
+                } else if(value instanceof ObjectId) {
+                    builder.property(name, p -> p.stringValue(((ObjectId)value).toString()));
                 } else {
                     PropertyValue.Type type = PropertyValue.Type.fromObject(value);
                     builder.property(name, v -> type.set(v, value));
