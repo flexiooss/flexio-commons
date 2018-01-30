@@ -59,18 +59,39 @@ public class ValueMongoMapper {
     }
 
     private void enumToValue(MethodSpec.Builder result, PropertySpec propertySpec) {
-        /*
-      for (Error.Code code : Error.Code.values()) {
-        if(document.get("code").toString().equalsIgnoreCase(code.name())) {
-          builder.code(code);
-        }
-      }
-         */
-        result.beginControlFlow("for($T enumValue : $T.values())", this.mapperConfig.propertyType(propertySpec), this.mapperConfig.propertyType(propertySpec))
-                    .beginControlFlow("if(document.get($S).toString().equalsIgnoreCase(enumValue.name()))", propertySpec.name())
-                        .addStatement("builder.$L(enumValue)", propertySpec.name())
+        if(propertySpec.typeSpec().cardinality().isCollection()) {
+            result.addStatement("$T<$T> $LDocumentValues = ($T)document.get($S)",
+                    List.class,
+                    String.class,
+                    propertySpec.name(),
+                    List.class,
+                    this.documentProperty(propertySpec)
+            );
+            result.addStatement("$T[] $LValues = new $T[$LDocumentValues.size()]",
+                    this.mapperConfig.propertySingleType(propertySpec),
+                    propertySpec.name(),
+                    this.mapperConfig.propertySingleType(propertySpec),
+                    propertySpec.name()
+            );
+            result.beginControlFlow("for(int i = 0 ; i < $LValues.length ; i++)", propertySpec.name())
+                    .beginControlFlow("for($T enumValue : $T.values())",
+                            this.mapperConfig.propertySingleType(propertySpec),
+                            this.mapperConfig.propertySingleType(propertySpec))
+                        .beginControlFlow("if($LDocumentValues.get(i).toString().equalsIgnoreCase(enumValue.name()))", propertySpec.name())
+                            .addStatement("$LValues[i] = enumValue", propertySpec.name())
+                        .endControlFlow()
                     .endControlFlow()
                 .endControlFlow();
+            result.addStatement("builder.$L($LValues)", propertySpec.name(), propertySpec.name());
+        } else {
+            result.beginControlFlow("for($T enumValue : $T.values())",
+                    this.mapperConfig.propertySingleType(propertySpec),
+                    this.mapperConfig.propertySingleType(propertySpec))
+                    .beginControlFlow("if(document.get($S).toString().equalsIgnoreCase(enumValue.name()))", propertySpec.name())
+                    .addStatement("builder.$L(enumValue)", propertySpec.name())
+                    .endControlFlow()
+                    .endControlFlow();
+        }
     }
 
     private void valueObjectToValue(MethodSpec.Builder result, PropertySpec propertySpec) {
@@ -184,7 +205,9 @@ public class ValueMongoMapper {
         for (PropertySpec propertySpec : this.mapperConfig.valueSpec().propertySpecs()) {
             if(! this.isTransient(propertySpec)) {
                 mainMethod.beginControlFlow("if(value.$L() != null)", propertySpec.name());
-                if (propertySpec.typeSpec().typeKind().isValueObject()) {
+                if(propertySpec.typeSpec().typeKind().equals(TypeKind.ENUM)) {
+                    this.enumToDocument(mainMethod, propertySpec);
+                } else if (propertySpec.typeSpec().typeKind().isValueObject()) {
                     this.valueObjectToDocumentStatement(mainMethod, propertySpec);
                 } else {
                     this.documentSimplePropertySetterStatement(mainMethod, propertySpec);
@@ -197,6 +220,26 @@ public class ValueMongoMapper {
         mainMethod.addStatement("return document");
 
         return mainMethod.build();
+    }
+
+    private void enumToDocument(MethodSpec.Builder method, PropertySpec propertySpec) {
+        method.beginControlFlow("if(value.$L() != null)", propertySpec.name());
+        if(propertySpec.typeSpec().cardinality().isCollection()) {
+            method
+                    .addStatement("$T<$T> values = new $T<>()", List.class, String.class, LinkedList.class)
+                    .beginControlFlow("for($T val : value.$L())",
+                            this.mapperConfig.propertySingleType(propertySpec),
+                            propertySpec.name())
+                        .addStatement("values.add(val != null ? val.name() : null)")
+                    .endControlFlow()
+                    .addStatement("document.put($S, values)", this.documentProperty(propertySpec))
+            ;
+        } else {
+            method.addStatement("document.put($S, value.$L().name())",
+                this.documentProperty(propertySpec),
+                propertySpec.name());
+        }
+        method.endControlFlow();
     }
 
     private void valueObjectToDocumentStatement(MethodSpec.Builder method, PropertySpec propertySpec) {

@@ -5,6 +5,7 @@ import org.bson.types.ObjectId;
 import org.codingmatters.tests.compile.CompiledCode;
 import org.codingmatters.tests.compile.FileHelper;
 import org.codingmatters.tests.compile.helpers.ClassLoaderHelper;
+import org.codingmatters.tests.compile.helpers.helpers.ClassHelper;
 import org.codingmatters.tests.compile.helpers.helpers.ObjectHelper;
 import org.codingmatters.value.objects.generation.SpecCodeGenerator;
 import org.codingmatters.value.objects.spec.PropertyCardinality;
@@ -445,6 +446,66 @@ public class MongoMapperGeneratorTest {
                 is(classes.get("org.generated.Test").call("builder")
                         .call("stored", String.class).with("value")
                         .call("build").get())
+        );
+    }
+
+
+
+    @Test
+    public void enumProperty() throws Exception {
+        ClassLoaderHelper classes = this.generate(Spec.spec()
+                .addValue(valueSpec().name("Test")
+                        .addProperty(property().name("p").type(type().typeKind(TypeKind.ENUM).enumValues("A", "B"))))
+                .build());
+        this.fileHelper.printJavaContent("", this.dir.getRoot());
+        this.fileHelper.printFile(this.dir.getRoot(), "Test.java");
+
+        ObjectHelper mapper = classes.get("org.generated.mongo.TestMongoMapper").newInstance();
+
+        ClassHelper enumP = classes.get("org.generated.Test$P");
+        Object value = classes.get("org.generated.Test").call("builder")
+                .call("p", enumP.get()).with(
+                        enumP.call("valueOf", String.class).with("A").get()
+                )
+                .call("build").get();
+        Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
+        assertThat(
+                doc,
+                is(Document.parse("{\"p\": \"A\"}"))
+        );
+
+        assertThat(
+                mapper.call("toValue", Document.class).with(doc).get(),
+                is(value)
+        );
+    }
+
+    @Test
+    public void enumArrayProperty() throws Exception {
+        ClassLoaderHelper classes = this.generate(Spec.spec()
+                .addValue(valueSpec().name("Test")
+                        .addProperty(property().name("p").type(type().cardinality(PropertyCardinality.LIST).typeKind(TypeKind.ENUM).enumValues("A", "B"))))
+                .build());
+        this.fileHelper.printJavaContent("", this.dir.getRoot());
+        this.fileHelper.printFile(this.dir.getRoot(), "TestMongoMapper.java");
+
+        ObjectHelper mapper = classes.get("org.generated.mongo.TestMongoMapper").newInstance();
+
+        ClassHelper enumP = classes.get("org.generated.Test$P");
+        Object value = classes.get("org.generated.Test").call("builder")
+                .call("p", enumP.array().get()).with(
+                        enumP.array().newArray(enumP.call("valueOf", String.class).with("A").get()).get()
+                )
+                .call("build").get();
+        Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
+        assertThat(
+                doc,
+                is(Document.parse("{\"p\": [\"A\"]}"))
+        );
+
+        assertThat(
+                mapper.call("toValue", Document.class).with(doc).get(),
+                is(value)
         );
     }
 
