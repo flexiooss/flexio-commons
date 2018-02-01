@@ -46,6 +46,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         private final String databaseName;
         private final String collectionName;
         private Function<Q, Bson> filter = q -> null;
+        private Function<Q, Bson> sort = q -> null;
         private Function<V, Document> toDocument;
         private Function<Document,V> toValue;
 
@@ -56,6 +57,11 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
         public Builder withFilter(Function<Q, Bson> filter) {
             this.filter = filter;
+            return this;
+        }
+
+        public Builder withSort(Function<Q, Bson> sort) {
+            this.sort = sort;
             return this;
         }
 
@@ -70,13 +76,25 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         }
 
         public Repository<V, Q> build(MongoClient mongoClient) {
-            return new MongoCollectionRepository<>(mongoClient, this.databaseName, this.collectionName, this.filter, this.toDocument, this.toValue);
+            return new MongoCollectionRepository<>(
+                    mongoClient,
+                    this.databaseName,
+                    this.collectionName,
+                    this.filter,
+                    this.sort,
+                    this.toDocument,
+                    this.toValue);
         }
     }
 
     private Bson filterFrom(Q query) {
         return this.filter.apply(query);
     }
+
+    private Bson sortFrom(Q query) {
+        return sort.apply(query);
+    }
+
     private Document toDocument(V value) {
         return this.toDocument.apply(value);
     }
@@ -88,14 +106,16 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     private final String databaseName;
     private final String collectionName;
     private final Function<Q, Bson> filter;
+    private final Function<Q, Bson> sort;
     private final Function<V, Document> toDocument;
     private final Function<Document, V> toValue;
 
-    public MongoCollectionRepository(MongoClient mongoClient, String databaseName, String collectionName, Function<Q, Bson> filter, Function<V, Document> toDocument, Function<Document, V> toValue) {
+    public MongoCollectionRepository(MongoClient mongoClient, String databaseName, String collectionName, Function<Q, Bson> filter, Function<Q, Bson> sort, Function<V, Document> toDocument, Function<Document, V> toValue) {
         this.mongoClient = mongoClient;
         this.databaseName = databaseName;
         this.collectionName = collectionName;
         this.filter = filter;
+        this.sort = sort;
         this.toDocument = toDocument;
         this.toValue = toValue;
     }
@@ -146,16 +166,19 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
     @Override
     public PagedEntityList<V> all(long startIndex, long endIndex) throws RepositoryException {
-        return this.filteredQuery(startIndex, endIndex, null, this.mongoClient);
+        return this.filteredQuery(null, startIndex, endIndex, this.mongoClient);
     }
 
     @Override
     public PagedEntityList<V> search(Q query, long startIndex, long endIndex) throws RepositoryException {
-        return this.filteredQuery(startIndex, endIndex, filterFrom(query), this.mongoClient);
+        return this.filteredQuery(query, startIndex, endIndex, this.mongoClient);
     }
 
 
-    private PagedEntityList<V> filteredQuery(long startIndex, long endIndex, Bson filter, MongoClient mongoClient) {
+    private PagedEntityList<V> filteredQuery(Q query, long startIndex, long endIndex, MongoClient mongoClient) {
+        Bson filter = query != null ? this.filterFrom(query) : null;
+        Bson sort = query != null ? this.sortFrom(query) : null;
+
         MongoCollection<Document> collection = this.resourceCollection(mongoClient);
 
         long totalCount = filter != null ? collection.count(filter) : collection.count();
@@ -163,7 +186,10 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             return new PagedEntityList.DefaultPagedEntityList<>(0L, 0L, totalCount, new ArrayList<>());
         }
 
+        System.out.println("SORT=" + sort);
+
         FindIterable<Document> result = (filter != null ? collection.find(filter) : collection.find())
+                .sort(sort)
                 .skip((int) startIndex)
                 .limit((int) (endIndex - startIndex + 1));
 
