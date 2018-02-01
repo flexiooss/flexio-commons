@@ -186,8 +186,6 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             return new PagedEntityList.DefaultPagedEntityList<>(0L, 0L, totalCount, new ArrayList<>());
         }
 
-        System.out.println("SORT=" + sort);
-
         FindIterable<Document> result = (filter != null ? collection.find(filter) : collection.find())
                 .sort(sort)
                 .skip((int) startIndex)
