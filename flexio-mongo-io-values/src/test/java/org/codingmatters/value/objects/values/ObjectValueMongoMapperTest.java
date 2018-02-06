@@ -4,7 +4,12 @@ import org.bson.Document;
 import org.codingmatters.value.objects.values.mongo.ObjectValueMongoMapper;
 import org.junit.Test;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.Matchers.arrayContaining;
@@ -68,6 +73,45 @@ public class ObjectValueMongoMapperTest {
 
         ObjectValue value = this.mapper.toValue(doc);
         assertThat(value.property("prop").single().bytesValue(), is("HELLO".getBytes()));
+    }
+
+    @Test
+    public void dateProperty() {
+        LocalDate now = LocalDate.now();
+        ObjectValue initial = ObjectValue.builder().property("prop", p -> p.dateValue(now)).build();
+
+        Document doc = this.mapper.toDocument(initial);
+        assertThat(doc.get("prop"), is(Date.from(now.atStartOfDay().toInstant(ZoneOffset.UTC))));
+
+        ObjectValue value = this.mapper.toValue(doc);
+        assertThat(value.property("prop").type(), is(PropertyValue.Type.DATETIME));
+        assertThat(value.property("prop").single().datetimeValue(), is(now.atStartOfDay()));
+    }
+
+    @Test
+    public void timeProperty() {
+        LocalTime now = LocalTime.now();
+        ObjectValue initial = ObjectValue.builder().property("prop", p -> p.timeValue(now)).build();
+
+        Document doc = this.mapper.toDocument(initial);
+        assertThat(doc.get("prop"), is(Date.from(now.atDate(LocalDate.ofYearDay(1970, 1)).toInstant(ZoneOffset.UTC))));
+
+        ObjectValue value = this.mapper.toValue(doc);
+        assertThat(value.property("prop").type(), is(PropertyValue.Type.DATETIME));
+        assertThat(value.property("prop").single().datetimeValue(), is(now.atDate(LocalDate.ofYearDay(1970, 1))));
+    }
+
+    @Test
+    public void datetimeProperty() {
+        LocalDateTime now = LocalDateTime.now();
+        ObjectValue initial = ObjectValue.builder().property("prop", p -> p.datetimeValue(now)).build();
+
+        Document doc = this.mapper.toDocument(initial);
+        assertThat(doc.get("prop"), is(Date.from(now.toInstant(ZoneOffset.UTC))));
+
+        ObjectValue value = this.mapper.toValue(doc);
+        assertThat(value.property("prop").type(), is(PropertyValue.Type.DATETIME));
+        assertThat(value.property("prop").single().datetimeValue(), is(now));
     }
 
     @Test
