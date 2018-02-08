@@ -105,7 +105,7 @@ public interface DockerResource extends TestRule {
         }
 
         private final Map<String, ContainerStates> managedContainers = Collections.synchronizedMap(new HashMap<>());
-        private final DockerClient dockerClient = new DockerClient(new OkHttpClient.Builder().build(), "http://localhost:2375");
+        private final DockerClient dockerClient = new DockerClient(new OkHttpClient.Builder().build(), System.getProperty("docker.resource.docker.url", "http://localhost:2375"));
 
         @Override
         public ContainerInitialStatus with(String containerName, ContainerCreationData container) {
