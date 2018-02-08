@@ -31,7 +31,7 @@ public class DockerClientTest {
     static private final Logger log = LoggerFactory.getLogger(DockerClientTest.class);
 
     private OkHttpClient http = new OkHttpClient.Builder().build();
-    private DockerClient dockerClient = new DockerClient(http, "http://localhost:2375");
+    private DockerClient dockerClient = new DockerClient(http, DockerResource.resolveDockerUrl());
 
     static private final LinkedList<String> CONTAINERS = new LinkedList<String>() {{
         this.add("not-created");
@@ -43,7 +43,7 @@ public class DockerClientTest {
     @Before
     public void setUp() throws Exception {
         DockerEngineAPIClient client = new DockerEngineAPIRequesterClient(
-                new OkHttpRequesterFactory(http), new JsonFactory(), "http://localhost:2375"
+                new OkHttpRequesterFactory(http), new JsonFactory(), DockerResource.resolveDockerUrl()
         );
         this.cleanUpContainers(client);
 
@@ -68,7 +68,7 @@ public class DockerClientTest {
     @After
     public void tearDown() throws Exception {
         DockerEngineAPIClient client = new DockerEngineAPIRequesterClient(
-                new OkHttpRequesterFactory(http), new JsonFactory(), "http://localhost:2375///"
+                new OkHttpRequesterFactory(http), new JsonFactory(), DockerResource.resolveDockerUrl() //"http://localhost:2375///"
         );
         this.cleanUpContainers(client);
     }
