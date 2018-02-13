@@ -25,6 +25,8 @@ import java.util.function.Function;
 
 public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
+    public static final String VERSION_FIELD = "__version";
+
     static public <V, Q> MandatoryToDocument<V, Q> repository(String database, String collection) {
         return new Builder<>(database, collection);
     }
@@ -126,6 +128,8 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
             Document doc = this.toDocument(withValue);
             doc.put("_id", new ObjectId());
+            doc.put(VERSION_FIELD, BigInteger.ONE.longValue());
+
             collection.insertOne(doc);
 
             return new ImmutableEntity<>(doc.get("_id").toString(), BigInteger.ONE, this.toValue(doc));
@@ -139,7 +143,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
         Document doc = collection.find(this.idFilter(id)).limit(1).first();
         if (doc != null) {
-            return new ImmutableEntity<>(id, BigInteger.ONE, this.toValue(doc));
+            return new ImmutableEntity<>(id, BigInteger.valueOf(doc.getLong(VERSION_FIELD)), this.toValue(doc));
         } else {
             return null;
         }
@@ -147,10 +151,15 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
     @Override
     public Entity<V> update(Entity<V> entity, V withValue) throws RepositoryException {
+        Entity<V> stored = this.retrieve(entity.id());
         Document newDoc = this.toDocument(withValue);
+
+        BigInteger newVersion = stored.version().add(BigInteger.ONE);
+        newDoc.put(VERSION_FIELD, newVersion.longValue());
+
         UpdateResult results = this.resourceCollection(this.mongoClient).replaceOne(this.idFilter(entity.id()), newDoc);
         if(results.getModifiedCount() <= 1) {
-            return new ImmutableEntity<>(entity.id(), BigInteger.ONE, withValue);
+            return new ImmutableEntity<>(entity.id(), newVersion, withValue);
         } else {
             throw new RepositoryException("failed updating entity " + entity.id() + " (updated count was " + results.getModifiedCount() + ")");
         }
