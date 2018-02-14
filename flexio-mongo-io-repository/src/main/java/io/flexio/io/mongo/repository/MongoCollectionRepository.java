@@ -143,10 +143,15 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
         Document doc = collection.find(this.idFilter(id)).limit(1).first();
         if (doc != null) {
-            return new ImmutableEntity<>(id, BigInteger.valueOf(doc.getLong(VERSION_FIELD)), this.toValue(doc));
+            return new ImmutableEntity<>(id, BigInteger.valueOf(documentVersion(doc)), this.toValue(doc));
         } else {
             return null;
         }
+    }
+
+    private Long documentVersion(Document doc) {
+        Long version = doc.getLong(VERSION_FIELD);
+        return version != null ? version : 1L;
     }
 
     @Override
