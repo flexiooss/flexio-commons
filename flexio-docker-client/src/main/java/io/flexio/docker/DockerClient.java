@@ -16,6 +16,8 @@ import io.flexio.docker.descriptors.ContainerStartLog;
 import io.flexio.docker.descriptors.ContainerStopLog;
 import okhttp3.OkHttpClient;
 import org.codingmatters.rest.api.client.okhttp.OkHttpRequesterFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.function.Supplier;
@@ -75,12 +77,14 @@ public class DockerClient {
         }
     }
 
+    static private final Logger log = LoggerFactory.getLogger(DockerClient.class);
+
     private void ensureImageIsUpToDate(String imageTag) {
         try {
             CreateImagePostResponse response = this.client.images().createImage().post(req -> req.fromImage(imageTag));
             response.opt().status200().orElseThrow(assertFails("couldn't update image %s : %s", imageTag, response));
         } catch (IOException e) {
-            throw communicationError(this.baseUrl);
+            log.error(String.format("couldn't update image %s : communication failure", imageTag), e);
         }
     }
 
