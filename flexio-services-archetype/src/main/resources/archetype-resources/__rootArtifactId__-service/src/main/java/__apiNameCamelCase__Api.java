@@ -1,8 +1,8 @@
 package ${package};
 
-import io.flexio.services.object.storage.api.ObjectStorageAPIHandlers;
 import io.flexio.services.support.api.Api;
 import org.codingmatters.rest.api.Processor;
+
 
 public class ${apiNameCamelCase}Api implements Api {
 
@@ -11,7 +11,7 @@ public class ${apiNameCamelCase}Api implements Api {
     private ${apiNameCamelCase}Processor processor;
 
     public ${apiNameCamelCase}Api(){
-        this.handlers = new ${apiNameCamelCase}Handlers.Builder().
+        this.handlers = new ${apiNameCamelCase}Handlers
         .build();
 
         this.processor = new ${apiNameCamelCase}Processor(path, new JsonFactory(), handlers);
