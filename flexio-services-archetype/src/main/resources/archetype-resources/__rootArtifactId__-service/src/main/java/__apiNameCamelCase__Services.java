@@ -3,9 +3,6 @@ package ${package};
 import io.flexio.services.support.args.Arguments;
 import io.flexio.services.support.args.ArgumentsException;
 import io.flexio.services.support.api.ApiService;
-import io.flexio.services.support.mondo.MongoProvider;
-import com.mongodb.MongoClient;
-
 
 public class ${apiNameCamelCase}Services {
     
@@ -17,11 +14,11 @@ public class ${apiNameCamelCase}Services {
             e.printStackTrace();
             System.exit(1);
         }
+        System.exit(0);
     }
 
-    public static ApiService fromArguments(Arguments arguments) throws ArgumentException {
-        MongoClient mongoClient = MongoProvider.fromArguments(arguments);
-        return new ApiService(arguments.mandatoryInteger("port"), mongoClient::close, handlers, notificationService);
+    public static ApiService fromArguments(Arguments arguments) throws ArgumentsException {
+        return new ApiService(arguments.mandatoryInteger("port"), null, null);
     }
     
 }
