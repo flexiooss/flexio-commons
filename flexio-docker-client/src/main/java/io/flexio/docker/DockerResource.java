@@ -6,11 +6,15 @@ import io.flexio.docker.api.types.optional.OptionalContainer;
 import okhttp3.OkHttpClient;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TestRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
 
 public interface DockerResource extends TestRule {
+
+    Logger log = LoggerFactory.getLogger(DockerResource.class);
 
     static DockerResource client() {
         return new DockerResourceImpl();
@@ -177,11 +181,13 @@ public interface DockerResource extends TestRule {
     }
 
     static public String resolveDockerUrl() {
-        return System.getProperty("docker.resource.docker.url",
+        String property = System.getProperty("docker.resource.docker.url",
                 System.getenv("docker.resource.docker.url".replaceAll(".", "_").toUpperCase()) != null ?
                         System.getenv("docker.resource.docker.url") :
                         "http://localhost:2375"
         );
+        log.debug("docker url : {}", property);
+        return property;
     }
 
 
