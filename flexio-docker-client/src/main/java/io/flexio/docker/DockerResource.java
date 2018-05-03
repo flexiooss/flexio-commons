@@ -186,7 +186,6 @@ public interface DockerResource extends TestRule {
                         System.getenv("docker.resource.docker.url") :
                         "http://localhost:2375"
         );
-        log.debug("docker url : {}", property);
         return property;
     }
 
