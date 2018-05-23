@@ -1,0 +1,24 @@
+2017-12-14T15:43:14.495+0000	connected to: localhost
+{"_id":"-FlexLogs-59fc2c5e86ee7","name":"_FlexLogs","slug":"flex-log"}
+{"_id":"-FlexLogCategory-59fc2c5e89417","name":"_FlexLogCategory","slug":"flex-category"}
+{"_id":{"$oid":"59fc47acef850400c41f8f57"},"name":"tweet","slug":"tweet"}
+{"_id":{"$oid":"5a00406dd5c64000170dc7f9"},"name":"Fonctionalité","slug":"fonctionalite"}
+{"_id":{"$oid":"5a0040ebd5c6400018318da3"},"name":"Bug","slug":"bug"}
+{"_id":{"$oid":"5a004121d5c64000155c6b25"},"name":"Client","slug":"client"}
+{"_id":{"$oid":"5a004180d5c64000155c6b26"},"name":"Version","slug":"version"}
+{"_id":{"$oid":"5a008900d5c64000db62db6b"},"name":"Vote","slug":"vote"}
+{"_id":{"$oid":"5a0188c7d5c64000165d50bd"},"name":"Commentaire","slug":"commentaire"}
+{"_id":{"$oid":"5a04194264723500d1773812"},"name":"Notification","slug":"notification"}
+{"_id":{"$oid":"5a1e6db99c3e84001528abbb"},"name":"TEST2","slug":"test2"}
+{"_id":{"$oid":"5a1e6db99c3e84001528aaaa"},"name":"Blup","slug":"blub0"}
+{"_id":{"$oid":"5a1e6db99c3e84001528aaab"},"name":"Blup","slug":"blub1"}
+{"_id":{"$oid":"5a1e6db99c3e84001528aaac"},"name":"Blup","slug":"blub2"}
+{"_id":{"$oid":"5a1e6db99c3e84001528aaad"},"name":"Blup","slug":"blub3"}
+{"_id":{"$oid":"5a1e6db99c3e84001528aaae"},"name":"Blup","slug":"blub4"}
+{"_id":{"$oid":"5a1e6db99c3e84001528aaaf"},"name":"Blup","slug":"blub5"}
+{"_id":{"$oid":"5a1e6db99c3e84001528aaba"},"name":"Blup","slug":"blub6"}
+{"_id":{"$oid":"5a1e6db99c3e84001528aabb"},"name":"Blup","slug":"blub7"}
+{"_id":{"$oid":"5a1e6db99c3e84001528aabc"},"name":"Blup","slug":"blub8"}
+{"_id":{"$oid":"5a1e6db99c3e84001528aabd"},"name":"Blup","slug":"blub9"}
+{"_id":{"$oid":"5a1e6db99c3e84001528aabe"},"name":"Blup","slug":"blub10"}
+2017-12-14T15:43:14.498+0000	exported 11 records
