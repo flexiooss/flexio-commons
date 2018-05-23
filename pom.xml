@@ -13,7 +13,8 @@
         <module>flexio-commons-bom</module>
         <module>flexio-docker-client</module>
         <module>flexio-mongo-tests</module>
-        <module>flexio-services-archetype</module>
+	<module>flexio-services-archetype</module>
+	<module>flexio-mongo-io</module>
     </modules>
 
     <dependencies>
@@ -50,6 +51,13 @@
             <dependency>
                 <groupId>io.flexio.commons</groupId>
                 <artifactId>flexio-commons-bom</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>io.flexio.io</groupId>
+                <artifactId>flexio-mongo-io-bom</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
                 <scope>import</scope>
                 <type>pom</type>
