@@ -3,6 +3,7 @@ package io.flexio.io.mongo.gen;
 import com.mongodb.MongoClient;
 import io.flexio.docker.DockerResource;
 import io.flexio.services.tests.mongo.MongoResource;
+import io.flexio.services.tests.mongo.MongoTest;
 import org.bson.Document;
 import org.codingmatters.tests.compile.CompiledCode;
 import org.codingmatters.tests.compile.FileHelper;
@@ -22,6 +23,7 @@ import org.junit.rules.TemporaryFolder;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.flexio.services.tests.mongo.MongoTest.MONGO;
 import static org.codingmatters.value.objects.spec.AnonymousValueSpec.anonymousValueSpec;
 import static org.codingmatters.value.objects.spec.PropertySpec.property;
 import static org.codingmatters.value.objects.spec.PropertyTypeSpec.type;
@@ -41,11 +43,8 @@ public class MongoIOFromMapperTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    public static final String MONGO = "mongo-ut";
-
     @ClassRule
-    static public DockerResource docker = DockerResource.client()
-            .with(MONGO, container -> container.image("mongo:3.4.10"))
+    static public DockerResource docker = MongoTest.docker()
             .started().finallyStarted();
 
     @Rule
