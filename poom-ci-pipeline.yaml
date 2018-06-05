@@ -30,9 +30,11 @@ stages:
       - branch in (master, develop)
 
 onSuccess:
-  - name: notify-flexio
+  - name: metadata
     exec:
       - $UPLOAD_PROJECT_METADATA $DEPENDENCIES_URL $SRC
+  - name: notify-flexio
+    exec:
       - $NOTIFY --data-urlencode "status=0" --data-urlencode "current-stage="
 
 
