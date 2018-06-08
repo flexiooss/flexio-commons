@@ -7,27 +7,27 @@ stages:
       - docker pull $CI_TOOLS_IMAGE
       - mkdir -p $WORKSPACE/.m2
 
-#  - name: build
-#    timeout: 20
-#    exec:
-#      - $NOTIFY --data-urlencode "status=2" --data-urlencode "current-stage=$STAGE"
-#      - $MVN clean install -Ddocker.resource.docker.url=http://172.17.0.1:2375
-#
-#  - name: deploy
-#    timeout: 15
-#    exec:
-#      - $NOTIFY --data-urlencode "status=2" --data-urlencode "current-stage=$STAGE"
-#      - $MVN deploy -DskipTests
-#    onlyWhen:
-#      - branch in (master, develop)
-#
-#  - name: build-an-deploy-docker-images
-#    timeout: 15
-#    exec:
-#      - $DOCKER_BUILD $SRC build
-#      - $DOCKER_BUILD $SRC push
-#    onlyWhen:
-#      - branch in (master, develop)
+  - name: build
+    timeout: 20
+    exec:
+      - $NOTIFY --data-urlencode "status=2" --data-urlencode "current-stage=$STAGE"
+      - $MVN clean install -Ddocker.resource.docker.url=http://172.17.0.1:2375
+
+  - name: deploy
+    timeout: 15
+    exec:
+      - $NOTIFY --data-urlencode "status=2" --data-urlencode "current-stage=$STAGE"
+      - $MVN deploy -DskipTests
+    onlyWhen:
+      - branch in (master, develop)
+
+  - name: build-an-deploy-docker-images
+    timeout: 15
+    exec:
+      - $DOCKER_BUILD $SRC build
+      - $DOCKER_BUILD $SRC push
+    onlyWhen:
+      - branch in (master, develop)
 
 onSuccess:
   - name: metadata
@@ -57,7 +57,6 @@ env:
   - MVN: docker run --rm -v $SRC:/src -v $WORKSPACE/.m2:/root/.m2 -v $WORKSPACE/secrets/settings.xml:/root/.m2/settings.xml $CI_TOOLS_IMAGE mvn $MVN_OPTS
   - NOTIFY: curl -G "https://my.flexio.io/channelApi/flexHttpInOut/59d3a0105d443519843d0496/5adf40aededdbb452368cfca" --data-urlencode "repository=$REPOSITORY" --data-urlencode "branch=$BRANCH" --data-urlencode "pipeline-id=$PIPELINE_ID"
   - DOCKER_BUILD: $WORKSPACE/flexio-ci-scripts/bin/docker-compose-build.sh
-#  - UPLOAD_PROJECT_METADATA: $WORKSPACE/flexio-ci-scripts/bin/upload-project-metadata.sh http://master.ci.flexio.io:6545/dependencies $SRC
   - UPLOAD_PROJECT_METADATA: docker run --rm  --env REPOSITORY_ID="$REPOSITORY_ID" --env REPOSITORY="$REPOSITORY" --env CHECKOUT_SPEC="$CHECKOUT_SPEC" -v $SRC:/src -v $WORKSPACE/.m2:/root/.m2 -v $WORKSPACE/secrets/settings.xml:/root/.m2/settings.xml -v $WORKSPACE/flexio-ci-scripts:/flexio-ci-scripts $CI_TOOLS_IMAGE /flexio-ci-scripts/bin/upload-project-metadata.sh http://master.ci.flexio.io:6545/dependencies /src
 secrets:
   - name: settings.xml
