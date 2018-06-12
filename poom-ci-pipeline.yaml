@@ -50,7 +50,9 @@ cleanup:
     exec:
       - docker kill ${PIPELINE_ID}-mongo-ut
       - docker rm ${PIPELINE_ID}-mongo-ut
-
+  - name: maven-clean
+    exec:
+      - $MVN clean
 env:
   - FLEXIO_SCRIPTS: git@github.com:Flexio-corp/flexio-ci-scripts.git
   - FLEXIO_SCRIPTS_BRANCH: master
