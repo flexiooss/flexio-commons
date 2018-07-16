@@ -35,9 +35,14 @@ public class ObjectValueMongoMapper {
                 List<PropertyValue.Value> values = new LinkedList<>();
                 PropertyValue.Type propertyType = null;
                 for (Object element : ((List) value)) {
-                    PropertyValue.Type elementType = element instanceof Document ?
-                            PropertyValue.Type.OBJECT :
-                            PropertyValue.Type.fromObject(element);
+                    PropertyValue.Type elementType;
+                    if (element instanceof Document) {
+                        elementType = PropertyValue.Type.OBJECT;
+                    } else if (element instanceof Date) {
+                        elementType = PropertyValue.Type.DATETIME;
+                    } else {
+                        elementType = PropertyValue.Type.fromObject(element);
+                    }
                     if (propertyType == null) {
                         propertyType = elementType;
                     }
@@ -45,6 +50,9 @@ public class ObjectValueMongoMapper {
                     PropertyValue.Builder elementBuilder = PropertyValue.builder();
                     if(element instanceof Document) {
                         elementType.set(elementBuilder, this.toValue((Document) element));
+                    } else if (element instanceof Date) {
+                        LocalDateTime ldt = LocalDateTime.ofInstant(((Date) element).toInstant(), ZoneOffset.UTC);
+                        elementType.set(elementBuilder, ldt);
                     } else {
                         propertyType.set(elementBuilder, element);
                     }
@@ -103,6 +111,12 @@ public class ObjectValueMongoMapper {
         for (PropertyValue.Value value : values) {
             if(PropertyValue.Type.OBJECT.equals(value.type())) {
                 v.add(this.toDocument(value.objectValue()));
+            } else if (PropertyValue.Type.DATETIME.equals(value.type())) {
+                v.add(Date.from(value.datetimeValue().toInstant(ZoneOffset.UTC)));
+            } else if (PropertyValue.Type.DATE.equals(value.type())) {
+                v.add(Date.from(value.dateValue().atStartOfDay().toInstant(ZoneOffset.UTC)));
+            } else if (PropertyValue.Type.TIME.equals(value.type())) {
+                v.add(Date.from(value.timeValue().atDate(START_OF_TIME).toInstant(ZoneOffset.UTC)));
             } else {
                 v.add(value.rawValue());
             }
