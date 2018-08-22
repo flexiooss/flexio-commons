@@ -29,6 +29,7 @@ import static org.junit.Assert.assertThat;
 public class DockerClientTest {
 
     static private final Logger log = LoggerFactory.getLogger(DockerClientTest.class);
+    public static final String ALPINE_IMAGE = "alpine:3.8";
 
     private OkHttpClient http = new OkHttpClient.Builder().build();
     private DockerClient dockerClient = new DockerClient(http, DockerResource.resolveDockerUrl());
@@ -49,17 +50,17 @@ public class DockerClientTest {
 
 
         client.containers().createContainer().post(req ->
-                req.name("already-created").payload(payload -> payload.image("alpine:latest").cmd("echo", "hello world"))
+                req.name("already-created").payload(payload -> payload.image(ALPINE_IMAGE).cmd("echo", "hello world"))
         );
 
         String notStartedId = client.containers().createContainer().post(req ->
-                req.name("not-started").payload(payload -> payload.image("alpine:latest").cmd("/bin/sh", "-c", "while true; do sleep 1000; done"))
+                req.name("not-started").payload(payload -> payload.image(ALPINE_IMAGE).cmd("/bin/sh", "-c", "while true; do sleep 1000; done"))
         ).status201().payload().id();
 
         client.containers().container().stop().post(req->req.containerId(notStartedId));
 
         String startedId = client.containers().createContainer().post(req ->
-                req.name("already-started").payload(payload -> payload.image("alpine:latest").cmd("/bin/sh", "-c", "while true; do sleep 1000; done"))
+                req.name("already-started").payload(payload -> payload.image(ALPINE_IMAGE).cmd("/bin/sh", "-c", "while true; do sleep 1000; done"))
         ).status201().payload().id();
 
         client.containers().container().start().post(req->req.containerId(startedId));
@@ -76,7 +77,7 @@ public class DockerClientTest {
     @Test
     public void givenContainerIsNotCreated_whenEnsureContainerCreated_thenContainerIsCreatedAndContainerStatusIsStopped() throws Exception {
         Container totoContainer = Container.builder()
-                .image("alpine:latest")
+                .image(ALPINE_IMAGE)
                 .names("not-created")
                 .build();
 
@@ -91,7 +92,7 @@ public class DockerClientTest {
     @Test
     public void givenContainerIsAlreadyCreated_whenEnsureContainerCreated_thenNothingDoneAndContainerStatusIsCreated() throws Exception {
         Container container = Container.builder()
-                .image("alpine:latest")
+                .image(ALPINE_IMAGE)
                 .names("already-created")
                 .build();
 
@@ -106,7 +107,7 @@ public class DockerClientTest {
     @Test
     public void givenContainerIsAlreadyStarted_whenEnsureContainerCreated_thenNothindDoneAndContainerStatusIsStarted() throws Exception {
         Container container = Container.builder()
-                .image("alpine:latest")
+                .image(ALPINE_IMAGE)
                 .names("already-started")
                 .build();
 
@@ -121,7 +122,7 @@ public class DockerClientTest {
     @Test
     public void givenContainerIsNotStarted_whenEnsureContainerStarted_thenContainerIsStarted() throws Exception {
         Container container = Container.builder()
-                .image("alpine:latest")
+                .image(ALPINE_IMAGE)
                 .names("not-started")
                 .build();
 
@@ -136,7 +137,7 @@ public class DockerClientTest {
     @Test
     public void givenContainerIsAlreadyStarted_whenEnsureContainerStarted_thenNothingAppens() throws Exception {
         Container container = Container.builder()
-                .image("alpine:latest")
+                .image(ALPINE_IMAGE)
                 .names("already-started")
                 .build();
 
@@ -152,7 +153,7 @@ public class DockerClientTest {
     @Test
     public void givenContainerIsNotCreated_whenEnsureContainerStarted_thenFailureNothingHappens() throws Exception {
         Container container = Container.builder()
-                .image("alpine:latest")
+                .image(ALPINE_IMAGE)
                 .names("not-created")
                 .build();
 
