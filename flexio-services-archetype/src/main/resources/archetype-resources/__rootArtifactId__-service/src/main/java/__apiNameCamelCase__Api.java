@@ -2,19 +2,21 @@ package ${package};
 
 import io.flexio.services.support.api.Api;
 import org.codingmatters.rest.api.Processor;
-
+import com.fasterxml.jackson.core.JsonFactory;
+import io.flexio.services.tabular.api.${apiNameCamelCase}Handlers;
+import io.flexio.services.tabular.service.${apiNameCamelCase}Processor;
 
 public class ${apiNameCamelCase}Api implements Api {
 
-    private final String path = "/${apiNameTiret}/v1";
+    private final String name = "${apiNameTiret}";
     private ${apiNameCamelCase}Handlers handlers;
     private ${apiNameCamelCase}Processor processor;
 
     public ${apiNameCamelCase}Api(){
-        this.handlers = new ${apiNameCamelCase}Handlers
-        .build();
+        this.handlers = new ${apiNameCamelCase}Handlers.Builder()
+                            .build();
 
-        this.processor = new ${apiNameCamelCase}Processor(path, new JsonFactory(), handlers);
+        this.processor = new ${apiNameCamelCase}Processor(this.path(), new JsonFactory(), handlers);
     }
 
     @Override
@@ -29,8 +31,17 @@ public class ${apiNameCamelCase}Api implements Api {
 
     @Override
     public String path() {
-        return this.path;
+        return "/" + this.name;
     }
 
+    @Override
+    public String name() {
+        return this.name;
+    }
+
+    @Override
+    public String version() {
+        return "v2";
+    }
 }
 

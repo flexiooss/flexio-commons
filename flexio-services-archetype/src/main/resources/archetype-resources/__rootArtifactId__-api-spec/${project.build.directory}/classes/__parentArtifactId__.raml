@@ -120,16 +120,3 @@ resourceTypes:
                  description: UNEXPECTED_ERROR.
                  body: Error
 
-types:
-   Error:
-    type: object
-    properties:
-        token: string
-        code:
-            enum: [
-            ILLEGAL_RANGE_SPEC,
-            UNEXPECTED_ERROR,
-            RESOURCE_NOT_FOUND,
-            ILLEGAL_RESOURCE_CREATION, ILLEGAL_RESOURCE_CHANGE,
-            INVALID_ACCOUNT]
-        description: string

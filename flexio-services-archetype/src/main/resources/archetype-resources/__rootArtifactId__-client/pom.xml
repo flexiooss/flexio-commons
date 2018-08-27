@@ -8,6 +8,7 @@
         <version>${version}</version>
     </parent>
 
+    <groupId>${package}</groupId>
     <artifactId>${artifactId}</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
 

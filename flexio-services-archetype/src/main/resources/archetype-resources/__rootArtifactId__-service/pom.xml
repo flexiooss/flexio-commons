@@ -8,16 +8,17 @@
         <version>${version}</version>
     </parent>
 
+    <groupId>${package}</groupId>
     <artifactId>${artifactId}</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
 
     <dependencies>
         <dependency>
-            <groupId>${project.parent.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-api-spec</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.parent.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-api</artifactId>
         </dependency>
         <dependency>

@@ -1,8 +1,13 @@
 package ${package};
 
+import io.flexio.services.metrics.HealthCheckProcessor;
+import io.flexio.services.support.api.ApiService;
 import io.flexio.services.support.args.Arguments;
 import io.flexio.services.support.args.ArgumentsException;
-import io.flexio.services.support.api.ApiService;
+import org.codingmatters.value.objects.values.ObjectValue;
+
+import static org.codingmatters.poom.services.support.Env.SERVICE_HOST;
+import static org.codingmatters.poom.services.support.Env.SERVICE_PORT;
 
 public class ${apiNameCamelCase}Services {
     
@@ -17,8 +22,13 @@ public class ${apiNameCamelCase}Services {
         System.exit(0);
     }
 
-    public static ApiService fromArguments(Arguments arguments) throws ArgumentsException {
-        return new ApiService(arguments.mandatoryInteger("port"), null, null);
+    public static ApiService fromArguments( Arguments arguments ) throws ArgumentsException {
+        return new ApiService(
+                arguments.mandatoryString( SERVICE_HOST ),
+                arguments.mandatoryInteger( SERVICE_PORT ),
+                ()->{},
+                HealthCheckProcessor.defaultHealthProcessor( ObjectValue.builder()::build )
+        );
     }
     
 }
