@@ -11,7 +11,7 @@
   <artifactId>flexio-services-archetype</artifactId>
   <packaging>maven-archetype</packaging>
 
-  <name>flexio-resources-archetype</name>
+  <name>${project.groupId}${project.artifactId}</name>
 
   <build>
     <extensions>

@@ -14,6 +14,8 @@
     <artifactId>flexio-mongo-io</artifactId>
     <packaging>pom</packaging>
 
+    <name>${project.groupId}${project.artifactId}</name>
+
     <modules>
         <module>flexio-mongo-io-bom</module>
         <module>flexio-mongo-io-generation</module>
