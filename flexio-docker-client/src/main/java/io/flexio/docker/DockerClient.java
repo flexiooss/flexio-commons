@@ -14,7 +14,7 @@ import io.flexio.docker.descriptors.ContainerCreationLog;
 import io.flexio.docker.descriptors.ContainerDeletionLog;
 import io.flexio.docker.descriptors.ContainerStartLog;
 import io.flexio.docker.descriptors.ContainerStopLog;
-import okhttp3.OkHttpClient;
+import org.codingmatters.rest.api.client.okhttp.HttpClientWrapper;
 import org.codingmatters.rest.api.client.okhttp.OkHttpRequesterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class DockerClient {
     private final DockerEngineAPIClient client;
     private final String baseUrl;
 
-    public DockerClient(OkHttpClient http, String baseUrl) {
+    public DockerClient(HttpClientWrapper http, String baseUrl) {
         this.client = new DockerEngineAPIRequesterClient(new OkHttpRequesterFactory(http), new JsonFactory(), baseUrl);
         this.baseUrl = baseUrl;
     }

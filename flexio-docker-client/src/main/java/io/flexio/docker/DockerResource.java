@@ -3,7 +3,7 @@ package io.flexio.docker;
 import io.flexio.docker.api.types.Container;
 import io.flexio.docker.api.types.ContainerCreationData;
 import io.flexio.docker.api.types.optional.OptionalContainer;
-import okhttp3.OkHttpClient;
+import org.codingmatters.rest.api.client.okhttp.OkHttpClientWrapper;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TestRule;
 import org.slf4j.Logger;
@@ -110,7 +110,7 @@ public interface DockerResource extends TestRule {
 
         private final Map<String, ContainerStates> managedContainers = Collections.synchronizedMap(new HashMap<>());
         private final DockerClient dockerClient = new DockerClient(
-                new OkHttpClient.Builder().build(),
+                OkHttpClientWrapper.build(),
                 resolveDockerUrl()
         );
 

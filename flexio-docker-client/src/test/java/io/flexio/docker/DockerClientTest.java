@@ -10,7 +10,8 @@ import io.flexio.docker.api.types.Container;
 import io.flexio.docker.api.types.container.State;
 import io.flexio.docker.descriptors.ContainerCreationLog;
 import io.flexio.docker.descriptors.ContainerStartLog;
-import okhttp3.OkHttpClient;
+import org.codingmatters.rest.api.client.okhttp.HttpClientWrapper;
+import org.codingmatters.rest.api.client.okhttp.OkHttpClientWrapper;
 import org.codingmatters.rest.api.client.okhttp.OkHttpRequesterFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -31,7 +32,7 @@ public class DockerClientTest {
     static private final Logger log = LoggerFactory.getLogger(DockerClientTest.class);
     public static final String ALPINE_IMAGE = "alpine:3.8";
 
-    private OkHttpClient http = new OkHttpClient.Builder().build();
+    private HttpClientWrapper http = OkHttpClientWrapper.build();
     private DockerClient dockerClient = new DockerClient(http, DockerResource.resolveDockerUrl());
 
     static private final LinkedList<String> CONTAINERS = new LinkedList<String>() {{
