@@ -7,9 +7,8 @@ import io.flexio.docker.api.client.DockerEngineAPIRequesterClient;
 import io.flexio.docker.api.types.ContainerCreationResult;
 import io.flexio.docker.api.types.ContainerInList;
 import io.flexio.docker.api.types.Image;
-import okhttp3.Call;
-import okhttp3.EventListener;
-import okhttp3.OkHttpClient;
+import org.codingmatters.rest.api.client.okhttp.HttpClientWrapper;
+import org.codingmatters.rest.api.client.okhttp.OkHttpClientWrapper;
 import org.codingmatters.rest.api.client.okhttp.OkHttpRequesterFactory;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -25,15 +24,7 @@ public class ClientTest {
 
     static private final Logger log = LoggerFactory.getLogger(ClientTest.class);
 
-    private OkHttpClient http = new OkHttpClient.Builder().eventListener(
-            new EventListener() {
-                @Override
-                public void callStart(Call call) {
-                    super.callStart(call);
-                    System.out.println("calling : " + call.request().url());
-                }
-            }
-    ).build();
+    private HttpClientWrapper http = OkHttpClientWrapper.build();
     private DockerEngineAPIClient client = new DockerEngineAPIRequesterClient(
             new OkHttpRequesterFactory(http), new JsonFactory(), "http://localhost:2375///"
     );
