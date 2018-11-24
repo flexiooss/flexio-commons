@@ -27,7 +27,7 @@ public class DockerClient {
     private final String baseUrl;
 
     public DockerClient(HttpClientWrapper http, String baseUrl) {
-        this.client = new DockerEngineAPIRequesterClient(new OkHttpRequesterFactory(http), new JsonFactory(), baseUrl);
+        this.client = new DockerEngineAPIRequesterClient(new OkHttpRequesterFactory(http, () -> baseUrl), new JsonFactory(), baseUrl);
         this.baseUrl = baseUrl;
     }
 

@@ -45,7 +45,7 @@ public class DockerClientTest {
     @Before
     public void setUp() throws Exception {
         DockerEngineAPIClient client = new DockerEngineAPIRequesterClient(
-                new OkHttpRequesterFactory(http), new JsonFactory(), DockerResource.resolveDockerUrl()
+                new OkHttpRequesterFactory(http, () -> DockerResource.resolveDockerUrl()), new JsonFactory(), DockerResource.resolveDockerUrl()
         );
         this.cleanUpContainers(client);
 
@@ -70,7 +70,7 @@ public class DockerClientTest {
     @After
     public void tearDown() throws Exception {
         DockerEngineAPIClient client = new DockerEngineAPIRequesterClient(
-                new OkHttpRequesterFactory(http), new JsonFactory(), DockerResource.resolveDockerUrl() //"http://localhost:2375///"
+                new OkHttpRequesterFactory(http, () -> DockerResource.resolveDockerUrl()), new JsonFactory(), DockerResource.resolveDockerUrl() //"http://localhost:2375///"
         );
         this.cleanUpContainers(client);
     }

@@ -26,7 +26,7 @@ public class ClientTest {
 
     private HttpClientWrapper http = OkHttpClientWrapper.build();
     private DockerEngineAPIClient client = new DockerEngineAPIRequesterClient(
-            new OkHttpRequesterFactory(http), new JsonFactory(), "http://localhost:2375///"
+            new OkHttpRequesterFactory(http, () -> "http://localhost:2375///"), new JsonFactory(), "http://localhost:2375///"
     );
 
     @Test

@@ -50,7 +50,10 @@ public class DockerResourceTest {
     @After
     public void tearDown() throws Exception {
         this.cleanUpContainers(
-                new DockerEngineAPIRequesterClient(new OkHttpRequesterFactory(OkHttpClientWrapper.build()), new JsonFactory(), "http://localhost:2375"),
+                new DockerEngineAPIRequesterClient(
+                        new OkHttpRequesterFactory(OkHttpClientWrapper.build(), () -> "http://localhost:2375"),
+                        new JsonFactory(),
+                        "http://localhost:2375"),
                 Arrays.asList("started-started", "started-stopped", "stopped-started", "stopped-deleted"));
     }
 
