@@ -41,6 +41,7 @@
     <modules>
         <module>flexio-commons-bom</module>
         <module>flexio-docker-client</module>
+        <module>flexio-opentsdb-client</module>
         <module>flexio-mongo-tests</module>
         <module>flexio-services-archetype</module>
         <module>flexio-mongo-io</module>
