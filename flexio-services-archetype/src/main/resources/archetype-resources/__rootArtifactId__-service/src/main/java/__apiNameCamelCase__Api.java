@@ -3,8 +3,8 @@ package ${package};
 import io.flexio.services.support.api.Api;
 import org.codingmatters.rest.api.Processor;
 import com.fasterxml.jackson.core.JsonFactory;
-import io.flexio.services.tabular.api.${apiNameCamelCase}Handlers;
-import io.flexio.services.tabular.service.${apiNameCamelCase}Processor;
+import ${package}.api.${apiNameCamelCase}Handlers;
+import ${package}.service.${apiNameCamelCase}Processor;
 
 public class ${apiNameCamelCase}Api implements Api {
 
@@ -27,11 +27,6 @@ public class ${apiNameCamelCase}Api implements Api {
     @Override
     public String docResource() {
         return "${apiNameTiret}.html";
-    }
-
-    @Override
-    public String path() {
-        return "/" + this.name;
     }
 
     @Override

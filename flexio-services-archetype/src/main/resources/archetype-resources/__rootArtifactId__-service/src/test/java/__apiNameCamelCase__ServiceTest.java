@@ -1,7 +1,7 @@
 package ${package};
 
 
-public class ${apiNameCamelCase}ServiceTest   {
+public class ${apiNameCamelCase}ServiceTest {
 
 }
 
