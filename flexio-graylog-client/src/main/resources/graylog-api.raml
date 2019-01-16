@@ -1,0 +1,79 @@
+#%RAML 1.0
+title: Graylog API
+version: v1
+description: Flexio Graylog API
+baseUri: https://api.flexio.io/graylog
+mediaType: application/json
+
+/api:
+  displayName: api
+  /search:
+    displayName: Search
+    /universal:
+      displayName: Universal
+      /relative:
+        displayName: Relative
+        get:
+          queryParameters:
+            query:
+              type: string
+              required: true
+            range:
+              type: string
+              required: true
+            limit:
+              type: integer
+              required: false
+            offset:
+              type: integer
+              required: false
+            filter:
+              type: string
+              required: false
+            fields:
+              type: array
+              items: string
+              required: true
+            sort:
+              type: string
+              required: false
+            decorate:
+              type: boolean
+              required: true
+          headers:
+            Accept:
+              type: string
+            Authorization:
+              type: string
+          responses:
+            200:
+              body: SearchResponse
+            400:
+              body: object
+
+annotationTypes:
+  value-object-hint:
+    type: string[]
+  conforms-to:
+    type: string[]
+
+types:
+  SearchResponse:
+    type: object
+    properties:
+      from: string
+      to: string
+      messages:
+        type: array
+        items: object
+      fields:
+        type: array
+        items: string
+      time: integer
+      built_query: string
+      decoration_stats: object
+      total_results: integer
+      used_indices:
+        type: array
+        items: object
+      query: string
