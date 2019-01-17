@@ -50,6 +50,49 @@ mediaType: application/json
               body: SearchResponse
             400:
               body: object
+      /absolute:
+        displayName: Absolute
+        get:
+          queryParameters:
+            query:
+              type: string
+              required: true
+            from:
+              type: string
+              required: true
+            to:
+              type: string
+              required: true
+            limit:
+              type: integer
+              required: false
+            offset:
+              type: integer
+              required: false
+            filter:
+              type: string
+              required: false
+            fields:
+              type: array
+              items: string
+              required: true
+            sort:
+              type: string
+              required: false
+            decorate:
+              type: boolean
+              required: true
+          headers:
+            Accept:
+              type: string
+            Authorization:
+              type: string
+          responses:
+            200:
+              body: SearchResponse
+            400:
+              body: object
+
 
 annotationTypes:
   value-object-hint:

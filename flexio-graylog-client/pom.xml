@@ -13,7 +13,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <dependencies>
-                <dependency>
+        <dependency>
             <groupId>org.codingmatters.rest</groupId>
             <artifactId>cdm-rest-client-api</artifactId>
         </dependency>
