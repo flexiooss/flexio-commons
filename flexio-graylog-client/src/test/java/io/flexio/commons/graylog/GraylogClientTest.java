@@ -68,6 +68,8 @@ public class GraylogClientTest {
                 .query("category:test")
                 .from("2014-12-01 00:00:00")
                 .to("2019-12-01 00:00:00")
+                .limit(100L)
+                .offset(42L)
                 .decorate(true)
                 .accept("application/json")
                 .build();
