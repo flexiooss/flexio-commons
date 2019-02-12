@@ -72,5 +72,5 @@ env:
   - DOCKER_BUILD: $WORKSPACE/flexio-ci-scripts/bin/docker-compose-build.sh
 secrets:
   - name: settings.xml
-    content: $SRC/.poom-ci-pipeline/settings-flexio.xml.enc
+    content: $SRC/.poom-ci-pipeline/settings-oss.xml.enc
     as: file
