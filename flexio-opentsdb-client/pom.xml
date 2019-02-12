@@ -11,6 +11,7 @@
     </parent>
 
     <artifactId>flexio-opentsdb-client</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
 
 
     <dependencies>

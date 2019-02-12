@@ -11,8 +11,7 @@
     </parent>
 
     <artifactId>flexio-mongo-tests</artifactId>
-
-    <name>${project.groupId}${project.artifactId}</name>
+    <name>${project.groupId}:${project.artifactId}</name>
 
     <dependencies>
         <dependency>
