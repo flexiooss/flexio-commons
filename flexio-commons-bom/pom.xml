@@ -17,16 +17,16 @@
     <name>${project.groupId}:${project.artifactId}</name>
 
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>flexio-snapshots</id>
-            <url>http://maven.ci.flexio.io:8080/repository/flexio-snapshots/</url>
-        </snapshotRepository>
-        <repository>
-            <id>flexio-releases</id>
-            <url>http://maven.ci.flexio.io:8080/repository/flexio-releases/</url>
-        </repository>
-    </distributionManagement>
+    <!--<distributionManagement>-->
+        <!--<snapshotRepository>-->
+            <!--<id>flexio-snapshots</id>-->
+            <!--<url>http://maven.ci.flexio.io:8080/repository/flexio-snapshots/</url>-->
+        <!--</snapshotRepository>-->
+        <!--<repository>-->
+            <!--<id>flexio-releases</id>-->
+            <!--<url>http://maven.ci.flexio.io:8080/repository/flexio-releases/</url>-->
+        <!--</repository>-->
+    <!--</distributionManagement>-->
 
     <repositories>
         <repository>
@@ -35,28 +35,28 @@
             <releases><enabled>false</enabled></releases>
             <snapshots><enabled>true</enabled></snapshots>
         </repository>
-        <repository>
-            <id>flexio-snapshots</id>
-            <name>flexio-snapshots</name>
-            <url>http://maven.ci.flexio.io:8080/repository/flexio-snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>flexio-releases</id>
-            <name>flexio-releases</name>
-            <url>http://maven.ci.flexio.io:8080/repository/flexio-releases/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
+        <!--<repository>-->
+            <!--<id>flexio-snapshots</id>-->
+            <!--<name>flexio-snapshots</name>-->
+            <!--<url>http://maven.ci.flexio.io:8080/repository/flexio-snapshots/</url>-->
+            <!--<releases>-->
+                <!--<enabled>false</enabled>-->
+            <!--</releases>-->
+            <!--<snapshots>-->
+                <!--<enabled>true</enabled>-->
+            <!--</snapshots>-->
+        <!--</repository>-->
+        <!--<repository>-->
+            <!--<id>flexio-releases</id>-->
+            <!--<name>flexio-releases</name>-->
+            <!--<url>http://maven.ci.flexio.io:8080/repository/flexio-releases/</url>-->
+            <!--<releases>-->
+                <!--<enabled>true</enabled>-->
+            <!--</releases>-->
+            <!--<snapshots>-->
+                <!--<enabled>false</enabled>-->
+            <!--</snapshots>-->
+        <!--</repository>-->
     </repositories>
     <pluginRepositories>
         <pluginRepository>
@@ -65,28 +65,28 @@
             <releases><enabled>false</enabled></releases>
             <snapshots><enabled>true</enabled></snapshots>
         </pluginRepository>
-        <pluginRepository>
-            <id>flexio-snapshots</id>
-            <name>flexio-snapshots</name>
-            <url>http://maven.ci.flexio.io:8080/repository/flexio-snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>flexio-releases</id>
-            <name>flexio-releases</name>
-            <url>http://maven.ci.flexio.io:8080/repository/flexio-releases/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
+        <!--<pluginRepository>-->
+            <!--<id>flexio-snapshots</id>-->
+            <!--<name>flexio-snapshots</name>-->
+            <!--<url>http://maven.ci.flexio.io:8080/repository/flexio-snapshots/</url>-->
+            <!--<releases>-->
+                <!--<enabled>false</enabled>-->
+            <!--</releases>-->
+            <!--<snapshots>-->
+                <!--<enabled>true</enabled>-->
+            <!--</snapshots>-->
+        <!--</pluginRepository>-->
+        <!--<pluginRepository>-->
+            <!--<id>flexio-releases</id>-->
+            <!--<name>flexio-releases</name>-->
+            <!--<url>http://maven.ci.flexio.io:8080/repository/flexio-releases/</url>-->
+            <!--<releases>-->
+                <!--<enabled>true</enabled>-->
+            <!--</releases>-->
+            <!--<snapshots>-->
+                <!--<enabled>false</enabled>-->
+            <!--</snapshots>-->
+        <!--</pluginRepository>-->
     </pluginRepositories>
 
     <dependencyManagement>
