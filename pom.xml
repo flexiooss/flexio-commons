@@ -45,17 +45,6 @@
         <url>git@github.com:flexiooss/flexio-commons.git</url>
     </scm>
 
-    <!--<distributionManagement>-->
-        <!--<snapshotRepository>-->
-            <!--<id>flexio-snapshots</id>-->
-            <!--<url>http://maven.ci.flexio.io:8080/repository/flexio-snapshots/</url>-->
-        <!--</snapshotRepository>-->
-        <!--<repository>-->
-            <!--<id>flexio-releases</id>-->
-            <!--<url>http://maven.ci.flexio.io:8080/repository/flexio-releases/</url>-->
-        <!--</repository>-->
-    <!--</distributionManagement>-->
-
     <repositories>
         <repository>
             <id>oss-snapshots</id>
@@ -63,28 +52,6 @@
             <releases><enabled>false</enabled></releases>
             <snapshots><enabled>true</enabled></snapshots>
         </repository>
-        <!--<repository>-->
-            <!--<id>flexio-snapshots</id>-->
-            <!--<name>flexio-snapshots</name>-->
-            <!--<url>http://maven.ci.flexio.io:8080/repository/flexio-snapshots/</url>-->
-            <!--<releases>-->
-                <!--<enabled>false</enabled>-->
-            <!--</releases>-->
-            <!--<snapshots>-->
-                <!--<enabled>true</enabled>-->
-            <!--</snapshots>-->
-        <!--</repository>-->
-        <!--<repository>-->
-            <!--<id>flexio-releases</id>-->
-            <!--<name>flexio-releases</name>-->
-            <!--<url>http://maven.ci.flexio.io:8080/repository/flexio-releases/</url>-->
-            <!--<releases>-->
-                <!--<enabled>true</enabled>-->
-            <!--</releases>-->
-            <!--<snapshots>-->
-                <!--<enabled>false</enabled>-->
-            <!--</snapshots>-->
-        <!--</repository>-->
     </repositories>
 
     <pluginRepositories>
@@ -94,28 +61,6 @@
             <releases><enabled>false</enabled></releases>
             <snapshots><enabled>true</enabled></snapshots>
         </pluginRepository>
-        <!--<pluginRepository>-->
-            <!--<id>flexio-snapshots</id>-->
-            <!--<name>flexio-snapshots</name>-->
-            <!--<url>http://maven.ci.flexio.io:8080/repository/flexio-snapshots/</url>-->
-            <!--<releases>-->
-                <!--<enabled>false</enabled>-->
-            <!--</releases>-->
-            <!--<snapshots>-->
-                <!--<enabled>true</enabled>-->
-            <!--</snapshots>-->
-        <!--</pluginRepository>-->
-        <!--<pluginRepository>-->
-            <!--<id>flexio-releases</id>-->
-            <!--<name>flexio-releases</name>-->
-            <!--<url>http://maven.ci.flexio.io:8080/repository/flexio-releases/</url>-->
-            <!--<releases>-->
-                <!--<enabled>true</enabled>-->
-            <!--</releases>-->
-            <!--<snapshots>-->
-                <!--<enabled>false</enabled>-->
-            <!--</snapshots>-->
-        <!--</pluginRepository>-->
     </pluginRepositories>
 
     <modules>
@@ -127,33 +72,6 @@
         <module>flexio-mongo-io</module>
         <module>flexio-graylog-client</module>
     </modules>
-
-    <!--<dependencies>-->
-        <!--<dependency>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>slf4j-api</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>junit</groupId>-->
-            <!--<artifactId>junit</artifactId>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.hamcrest</groupId>-->
-            <!--<artifactId>hamcrest-all</artifactId>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>ch.qos.logback</groupId>-->
-            <!--<artifactId>logback-core</artifactId>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>ch.qos.logback</groupId>-->
-            <!--<artifactId>logback-classic</artifactId>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-    <!--</dependencies>-->
 
     <dependencyManagement>
         <dependencies>
@@ -203,13 +121,6 @@
                 <type>pom</type>
             </dependency>
             <!-- //CODINGMATTERS -->
-
-            <dependency>
-                <groupId>org.codingmatters.rest</groupId>
-                <artifactId>cdm-rest-maven-plugin</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 
