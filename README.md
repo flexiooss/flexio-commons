@@ -1,15 +1,3 @@
 # flexio-commons
 
 Flexio Commons
-  
-
-
-
-
-
-
-
-
-
-
-
