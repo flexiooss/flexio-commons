@@ -62,7 +62,6 @@
     </pluginRepositories>
 
     <modules>
-        <module>flexio-commons-bom</module>
         <module>flexio-docker-client</module>
         <module>flexio-opentsdb-client</module>
         <module>flexio-mongo-tests</module>
@@ -73,58 +72,54 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- INTERNAL -->
             <dependency>
-                <groupId>io.flexio.commons</groupId>
-                <artifactId>flexio-commons-bom</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <groupId>org.codingmatters.poom</groupId>
+                <artifactId>poom-services</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
                 <scope>import</scope>
                 <type>pom</type>
+            </dependency>
+
+            <!--BOM-->
+            <dependency>
+                <groupId>io.flexio.commons</groupId>
+                <artifactId>flexio-docker-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.flexio.commons</groupId>
+                <artifactId>flexio-mongo-tests</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.flexio.commons</groupId>
+                <artifactId>flexio-opentsdb-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.flexio.io</groupId>
+                <artifactId>flexio-mongo-io-generation</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.flexio.io</groupId>
-                <artifactId>flexio-mongo-io-bom</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <!-- //INTERNAL -->
-
-            <!-- CODINGMATTERS -->
-            <dependency>
-                <groupId>org.codingmatters.tests</groupId>
-                <artifactId>codingmatters-reflect-unit</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-                <scope>test</scope>
+                <artifactId>flexio-mongo-io-maven-plugin</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codingmatters.poom</groupId>
-                <artifactId>poom-services-bom</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-                <scope>import</scope>
-                <type>pom</type>
+                <groupId>io.flexio.io</groupId>
+                <artifactId>flexio-mongo-io-repository</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codingmatters.value.objects</groupId>
-                <artifactId>cdm-value-objects-bom</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-                <scope>import</scope>
-                <type>pom</type>
+                <groupId>io.flexio.io</groupId>
+                <artifactId>flexio-mongo-io-values</artifactId>
+                <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.codingmatters.rest</groupId>
-                <artifactId>cdm-rest-bom</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <!-- //CODINGMATTERS -->
+            <!--//BOM-->
         </dependencies>
     </dependencyManagement>
-
-    <prerequisites>
-        <maven>3.0</maven>
-    </prerequisites>
 
     <build>
         <pluginManagement>

@@ -18,7 +18,6 @@
     <name>${project.groupId}:${project.artifactId}</name>
 
     <modules>
-        <module>flexio-mongo-io-bom</module>
         <module>flexio-mongo-io-generation</module>
         <module>flexio-mongo-io-maven-plugin</module>
         <module>flexio-mongo-io-repository</module>
