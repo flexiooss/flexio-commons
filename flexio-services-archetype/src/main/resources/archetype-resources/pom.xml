@@ -18,5 +18,30 @@
     </properties>
 
     <version>${version}</version>
-    
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${package}</groupId>
+                <artifactId>${artifactId}-api</artifactId>
+                <version>${version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${package}</groupId>
+                <artifactId>${artifactId}-api-spec</artifactId>
+                <version>${version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${package}</groupId>
+                <artifactId>${artifactId}-client</artifactId>
+                <version>${version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${package}</groupId>
+                <artifactId>${artifactId}-service</artifactId>
+                <version>${version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
 </project>
