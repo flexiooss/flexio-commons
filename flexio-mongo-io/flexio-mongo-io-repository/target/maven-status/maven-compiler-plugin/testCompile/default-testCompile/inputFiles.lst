@@ -1,0 +1,10 @@
+/home/nel/workspaces/backend/flexio-commons/flexio-mongo-io/flexio-mongo-io-repository/target/generated-test-sources/io/flexio/io/mongo/repository/domain/mongo/MongoQueryMongoMapper.java
+/home/nel/workspaces/backend/flexio-commons/flexio-mongo-io/flexio-mongo-io-repository/src/test/java/io/flexio/io/mongo/repository/MongoCollectionRepositoryTest.java
+/home/nel/workspaces/backend/flexio-commons/flexio-mongo-io/flexio-mongo-io-repository/target/generated-test-sources/io/flexio/io/mongo/repository/domain/MongoValueImpl.java
+/home/nel/workspaces/backend/flexio-commons/flexio-mongo-io/flexio-mongo-io-repository/target/generated-test-sources/io/flexio/io/mongo/repository/domain/optional/OptionalMongoValue.java
+/home/nel/workspaces/backend/flexio-commons/flexio-mongo-io/flexio-mongo-io-repository/src/test/java/io/flexio/io/mongo/repository/MongoCollectionEntityVersionningTest.java
+/home/nel/workspaces/backend/flexio-commons/flexio-mongo-io/flexio-mongo-io-repository/target/generated-test-sources/io/flexio/io/mongo/repository/domain/MongoQuery.java
+/home/nel/workspaces/backend/flexio-commons/flexio-mongo-io/flexio-mongo-io-repository/target/generated-test-sources/io/flexio/io/mongo/repository/domain/optional/OptionalMongoQuery.java
+/home/nel/workspaces/backend/flexio-commons/flexio-mongo-io/flexio-mongo-io-repository/target/generated-test-sources/io/flexio/io/mongo/repository/domain/MongoValue.java
+/home/nel/workspaces/backend/flexio-commons/flexio-mongo-io/flexio-mongo-io-repository/target/generated-test-sources/io/flexio/io/mongo/repository/domain/mongo/MongoValueMongoMapper.java
+/home/nel/workspaces/backend/flexio-commons/flexio-mongo-io/flexio-mongo-io-repository/target/generated-test-sources/io/flexio/io/mongo/repository/domain/MongoQueryImpl.java

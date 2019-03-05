@@ -1,0 +1,296 @@
+#%RAML 1.0
+title: Docker Engine API
+version: v1.32
+baseUri: https://docs.docker.com/engine/api/v1.33/
+mediaType: application/json
+
+/version:
+   displayName: Version
+   get:
+      responses:
+         200:
+            description: no error
+            body: Version
+
+/containers:
+   displayName: Containers
+   /json:
+      displayName: Container List
+      get:
+         queryParameters:
+            all: boolean
+            limit: integer
+            size: integer
+            filters: string
+         responses:
+            200:
+               body: ContainerInList[]
+            400:
+               body: Error
+            500:
+               body: Error
+
+   /create:
+      displayName: Create Container
+      post:
+         queryParameters:
+            name: string
+         body: ContainerCreationData
+         responses:
+            201:
+               description: Container created successfully
+               body: ContainerCreationResult
+            400:
+               description: Bad parameter
+               body: Error
+            404:
+               description: No such container
+               body: Error
+            409:
+               description: Conflict
+               body: Error
+            500:
+               description: Server error
+               body: Error
+   /{container-id}:
+      displayName: Container
+      uriParameters:
+         container-id: string
+      delete:
+         queryParameters:
+            v: boolean
+            force: boolean
+            link: boolean
+         responses:
+            204:
+            400:
+               description: bad parameter
+               body: Error
+      /json:
+         displayName: Inspect
+         uriParameters:
+            container-id: string
+         get:
+            responses:
+               200:
+                  description: no error
+                  body: Container
+               404:
+                  description: no such container
+                  body: Error
+               500:
+                  description: server error
+                  body: Error
+
+      /start:
+         displayName: Start
+         uriParameters:
+            container-id: string
+         post:
+            responses:
+               204:
+               309:
+                  description: container already started
+                  body: Error
+               404:
+                  description: no such container
+                  body: Error
+               500:
+                  description: server error
+                  body: Error
+      /stop:
+         displayName: Stop
+         uriParameters:
+            container-id: string
+         post:
+            queryParameters:
+               t: integer
+            responses:
+               204:
+               309:
+                  description: container already stopped
+                  body: Error
+               404:
+                  description: no such container
+                  body: Error
+               500:
+                  description: server error
+                  body: Error
+      /restart:
+         displayName: Restart
+         uriParameters:
+            container-id: string
+         post:
+            queryParameters:
+               t: integer
+            responses:
+               204:
+               309:
+                  description: container already stopped
+                  body: Error
+               404:
+                  description: no such container
+                  body: Error
+               500:
+                  description: server error
+                  body: Error
+      /kill:
+         displayName: Kill
+         uriParameters:
+            container-id: string
+         post:
+            queryParameters:
+               signal: string
+            responses:
+               204:
+               309:
+                  description: container already stopped
+                  body: Error
+               404:
+                  description: no such container
+                  body: Error
+               500:
+                  description: server error
+                  body: Error
+      /wait:
+         displayName: WaitFor
+         uriParameters:
+            container-id: string
+         post:
+            queryParameters:
+               condition: string
+            responses:
+               200:
+                  description: the container has reached the condition state
+                  body: WaitResult
+               404:
+                  description: no such container
+                  body: Error
+               500:
+                  description: server error
+                  body: Error
+
+
+
+/images:
+   displayName: Images
+   /json:
+      displayName: ImageList
+      get:
+         queryParameters:
+            all: boolean
+            digests: boolean
+         responses:
+            200:
+               description: Summary image data for the images matching the query
+               body: Image[]
+            500:
+               description: server error
+               body: Error
+   /create:
+      displayName: CreateImage
+      post:
+         queryParameters:
+            fromImage: string
+            repo: string
+            tag: string
+         responses:
+            200:
+               description: pulled or created image
+            404:
+               description: repository does not exist or no read access
+               body: Error
+            500:
+               description: server error
+               body: Error
+   /{image-id}/json:
+      displayName: InspectImage
+      uriParameters:
+         image-id: string
+      get:
+         responses:
+            200:
+               description: no error
+               body: Image
+            404:
+               description: no such image
+               body: Error
+            500:
+               description: server error
+               body: Error
+
+types:
+   Error:
+      type: object
+      properties:
+         message: string
+   Version:
+      type: object
+      properties:
+         Version: string
+         ApiVersion: string
+         MinAPIVersion: string
+         GitCommit: string
+         GoVersion: string
+         Os: string
+         Arch: string
+         KernelVersion: string
+         Experimental: boolean
+         BuildTime: string
+   ContainerInList:
+      type: object
+      properties:
+         Id: string
+         Names:
+            type: array
+            items: string
+         Image: string
+         State:  string
+         Status: string
+   Container:
+      type: object
+      properties:
+         Id: string
+         Names:
+            type: array
+            items: string
+         Image: string
+         State:
+            type: object
+            properties:
+               Status:
+                  enum: [created, running, paused, restarting, removing, exited, dead, unexistent]
+               Running: boolean
+               Paused: boolean
+               Restarting: boolean
+               Dead: boolean
+         NetworkSettings:
+            type: object
+            properties:
+               IPAddress: string
+
+   ContainerCreationData:
+      type: object
+      properties:
+         Image: string
+         Cmd:
+            type: array
+            items: string
+   ContainerCreationResult:
+      type: object
+      properties:
+         Id: string
+         Warning: string
+
+   Image:
+      type: object
+      properties:
+         Id: string
+         RepoTags:
+            type: array
+            items: string
+
+   WaitResult:
+      type: object
+      properties:
+         StatusCode: integer
