@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
+import static io.flexio.services.tests.mongo.MongoTest.MONGO;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -20,11 +21,8 @@ public class MongoResourceTest {
 
     static private final Logger log = LoggerFactory.getLogger(MongoResourceTest.class);
 
-    public static final String MONGO = "mongo-ut";
-
     @ClassRule
-    static public DockerResource docker = DockerResource.client()
-            .with(MONGO, container -> container.image("mongo:3.4.10"))
+    static public DockerResource docker = MongoTest.docker()
             .started().finallyStarted();
 
 

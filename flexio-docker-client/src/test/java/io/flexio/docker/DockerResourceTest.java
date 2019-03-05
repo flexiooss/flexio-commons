@@ -8,6 +8,7 @@ import io.flexio.docker.api.client.DockerEngineAPIClient;
 import io.flexio.docker.api.client.DockerEngineAPIRequesterClient;
 import io.flexio.docker.api.types.container.State;
 import okhttp3.OkHttpClient;
+import org.codingmatters.rest.api.client.okhttp.OkHttpClientWrapper;
 import org.codingmatters.rest.api.client.okhttp.OkHttpRequesterFactory;
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -43,13 +44,16 @@ public class DockerResourceTest {
     public void setUp() throws Exception {
         Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
 
-        this.dockerClient = new DockerClient(new OkHttpClient.Builder().build(), "http://localhost:2375");
+        this.dockerClient = new DockerClient(OkHttpClientWrapper.build(), "http://localhost:2375");
     }
 
     @After
     public void tearDown() throws Exception {
         this.cleanUpContainers(
-                new DockerEngineAPIRequesterClient(new OkHttpRequesterFactory(new OkHttpClient.Builder().build()), new JsonFactory(), "http://localhost:2375"),
+                new DockerEngineAPIRequesterClient(
+                        new OkHttpRequesterFactory(OkHttpClientWrapper.build(), () -> "http://localhost:2375"),
+                        new JsonFactory(),
+                        "http://localhost:2375"),
                 Arrays.asList("started-started", "started-stopped", "stopped-started", "stopped-deleted"));
     }
 

@@ -3,14 +3,18 @@ package io.flexio.docker;
 import io.flexio.docker.api.types.Container;
 import io.flexio.docker.api.types.ContainerCreationData;
 import io.flexio.docker.api.types.optional.OptionalContainer;
-import okhttp3.OkHttpClient;
+import org.codingmatters.rest.api.client.okhttp.OkHttpClientWrapper;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TestRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
 
 public interface DockerResource extends TestRule {
+
+    Logger log = LoggerFactory.getLogger(DockerResource.class);
 
     static DockerResource client() {
         return new DockerResourceImpl();
@@ -105,7 +109,10 @@ public interface DockerResource extends TestRule {
         }
 
         private final Map<String, ContainerStates> managedContainers = Collections.synchronizedMap(new HashMap<>());
-        private final DockerClient dockerClient = new DockerClient(new OkHttpClient.Builder().build(), "http://localhost:2375");
+        private final DockerClient dockerClient = new DockerClient(
+                OkHttpClientWrapper.build(),
+                resolveDockerUrl()
+        );
 
         @Override
         public ContainerInitialStatus with(String containerName, ContainerCreationData container) {
@@ -171,6 +178,15 @@ public interface DockerResource extends TestRule {
                     break;
             }
         }
+    }
+
+    static public String resolveDockerUrl() {
+        String property = System.getProperty("docker.resource.docker.url",
+                System.getenv("docker.resource.docker.url".replaceAll(".", "_").toUpperCase()) != null ?
+                        System.getenv("docker.resource.docker.url") :
+                        "http://localhost:2375"
+        );
+        return property;
     }
 
 
