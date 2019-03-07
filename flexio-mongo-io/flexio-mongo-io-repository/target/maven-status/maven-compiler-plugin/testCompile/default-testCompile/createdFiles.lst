@@ -1,0 +1,14 @@
+io/flexio/io/mongo/repository/domain/MongoQuery$Changer.class
+io/flexio/io/mongo/repository/MongoCollectionRepositoryTest.class
+io/flexio/io/mongo/repository/MongoCollectionEntityVersionningTest.class
+io/flexio/io/mongo/repository/domain/mongo/MongoQueryMongoMapper.class
+io/flexio/io/mongo/repository/domain/MongoValue$Changer.class
+io/flexio/io/mongo/repository/domain/optional/OptionalMongoQuery.class
+io/flexio/io/mongo/repository/domain/MongoValue$Builder.class
+io/flexio/io/mongo/repository/domain/MongoQueryImpl.class
+io/flexio/io/mongo/repository/domain/optional/OptionalMongoValue.class
+io/flexio/io/mongo/repository/domain/MongoQuery.class
+io/flexio/io/mongo/repository/domain/mongo/MongoValueMongoMapper.class
+io/flexio/io/mongo/repository/domain/MongoValue.class
+io/flexio/io/mongo/repository/domain/MongoQuery$Builder.class
+io/flexio/io/mongo/repository/domain/MongoValueImpl.class
