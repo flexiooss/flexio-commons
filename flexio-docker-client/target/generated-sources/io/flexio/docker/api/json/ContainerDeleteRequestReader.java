@@ -15,11 +15,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ContainerDeleteRequestReader {
-  private static Set V_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_FALSE, JsonToken.VALUE_TRUE));
+  private static Set V_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_TRUE, JsonToken.VALUE_FALSE));
 
-  private static Set FORCE_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_FALSE, JsonToken.VALUE_TRUE));
+  private static Set FORCE_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_TRUE, JsonToken.VALUE_FALSE));
 
-  private static Set LINK_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_FALSE, JsonToken.VALUE_TRUE));
+  private static Set LINK_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_TRUE, JsonToken.VALUE_FALSE));
 
   private static Set CONTAINERID_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_STRING));
 

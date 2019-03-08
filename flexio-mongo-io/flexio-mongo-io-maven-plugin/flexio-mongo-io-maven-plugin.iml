@@ -10,14 +10,28 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="flexio-mongo-io-generation" />
     <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-spec:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-generation-commons:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-api-generator:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-values:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-api:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-io:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-client-api:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-maven-plugin:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-generation:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-json:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-api-doc:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-doc:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-php:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-api-client-generator-php:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="flexio-mongo-io-generation" />
+    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-spec:1.1.0" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.8.5" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.8.5" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.5" level="project" />
     <orderEntry type="library" name="Maven: org.yaml:snakeyaml:1.17" level="project" />
     <orderEntry type="library" name="Maven: com.squareup:javapoet:1.7.0" level="project" />
-    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-generation-commons:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-generation-commons:1.1.0" level="project" />
     <orderEntry type="library" name="Maven: org.mongodb:bson:3.8.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven:maven-plugin-api:3.3.9" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven:maven-model:3.3.9" level="project" />
@@ -51,12 +65,12 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.maven:maven-artifact:3.3.9" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven:maven-compat:3.3.9" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven.wagon:wagon-provider-api:2.10" level="project" />
-    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-api-generator:0.0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-values:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-api-generator:1.4.0" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-values:1.1.0" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.8.5" level="project" />
-    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-api:0.0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-io:0.0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-client-api:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-api:1.4.0" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-io:1.4.0" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-client-api:1.4.0" level="project" />
     <orderEntry type="library" name="Maven: org.raml:raml-parser-2:1.0.8" level="project" />
     <orderEntry type="library" name="Maven: org.raml:yagi:1.0.8" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
@@ -78,15 +92,15 @@
     <orderEntry type="library" name="Maven: net.sf.jopt-simple:jopt-simple:4.6" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.juniversalchardet:juniversalchardet:1.0.3" level="project" />
     <orderEntry type="library" name="Maven: org.apache.ws.xmlschema:xmlschema-core:2.2.1" level="project" />
-    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-maven-plugin:0.0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-generation:0.0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-json:0.0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-api-doc:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-maven-plugin:1.4.0" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-generation:1.1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-json:1.1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-api-doc:1.4.0" level="project" />
     <orderEntry type="library" name="Maven: net.sourceforge.plantuml:plantuml:1.2018.1" level="project" />
-    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-doc:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-doc:1.1.0" level="project" />
     <orderEntry type="library" name="Maven: com.atlassian.commonmark:commonmark:0.11.0" level="project" />
-    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-php:0.0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-api-client-generator-php:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-php:1.1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.codingmatters.rest:cdm-rest-api-client-generator-php:1.4.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.maven.plugin-testing:maven-plugin-testing-harness:3.3.0" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.codehaus.plexus:plexus-archiver:2.2" level="project" />

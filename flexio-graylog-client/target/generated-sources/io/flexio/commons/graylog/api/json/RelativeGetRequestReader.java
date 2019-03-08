@@ -27,7 +27,7 @@ public class RelativeGetRequestReader {
 
   private static Set SORT_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_STRING));
 
-  private static Set DECORATE_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_FALSE, JsonToken.VALUE_TRUE));
+  private static Set DECORATE_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_TRUE, JsonToken.VALUE_FALSE));
 
   private static Set ACCEPT_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_STRING));
 

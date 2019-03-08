@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: io.flexio.io.mongo.repository.MongoCollectionRepositoryTest
 -------------------------------------------------------------------------------
-Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.83 s - in io.flexio.io.mongo.repository.MongoCollectionRepositoryTest
+Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.813 s - in io.flexio.io.mongo.repository.MongoCollectionRepositoryTest

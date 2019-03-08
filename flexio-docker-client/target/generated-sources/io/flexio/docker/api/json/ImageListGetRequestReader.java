@@ -15,9 +15,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ImageListGetRequestReader {
-  private static Set ALL_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_FALSE, JsonToken.VALUE_TRUE));
+  private static Set ALL_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_TRUE, JsonToken.VALUE_FALSE));
 
-  private static Set DIGESTS_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_FALSE, JsonToken.VALUE_TRUE));
+  private static Set DIGESTS_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_TRUE, JsonToken.VALUE_FALSE));
 
   public ImageListGetRequest read(JsonParser parser) throws IOException {
     if(parser.getCurrentToken() == null) {
