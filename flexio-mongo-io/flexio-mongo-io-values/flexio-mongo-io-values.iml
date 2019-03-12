@@ -10,8 +10,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-values:0.0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.codingmatters.value.objects:cdm-value-objects-values:1.1.0" level="project" />
+    <orderEntry type="module" module-name="cdm-value-objects-values" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.8.5" level="project" />
     <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver:3.8.2" level="project" />
     <orderEntry type="library" name="Maven: org.mongodb:bson:3.8.2" level="project" />

@@ -91,7 +91,7 @@
       <groupId>org.codingmatters.value.objects</groupId>
       <artifactId>cdm-value-objects-spec</artifactId>
       <type>jar</type>
-      <version>1.1.0</version>
+      <version>1.2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -127,7 +127,7 @@
       <groupId>org.codingmatters.value.objects</groupId>
       <artifactId>cdm-value-objects-generation-commons</artifactId>
       <type>jar</type>
-      <version>1.1.0</version>
+      <version>1.2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.mongodb</groupId>
@@ -319,13 +319,13 @@
       <groupId>org.codingmatters.rest</groupId>
       <artifactId>cdm-rest-api-generator</artifactId>
       <type>jar</type>
-      <version>1.4.0</version>
+      <version>1.5.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.codingmatters.value.objects</groupId>
       <artifactId>cdm-value-objects-values</artifactId>
       <type>jar</type>
-      <version>1.1.0</version>
+      <version>1.2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -337,19 +337,19 @@
       <groupId>org.codingmatters.rest</groupId>
       <artifactId>cdm-rest-api</artifactId>
       <type>jar</type>
-      <version>1.4.0</version>
+      <version>1.5.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.codingmatters.rest</groupId>
       <artifactId>cdm-rest-io</artifactId>
       <type>jar</type>
-      <version>1.4.0</version>
+      <version>1.5.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.codingmatters.rest</groupId>
       <artifactId>cdm-rest-client-api</artifactId>
       <type>jar</type>
-      <version>1.4.0</version>
+      <version>1.5.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.raml</groupId>
@@ -481,25 +481,25 @@
       <groupId>org.codingmatters.rest</groupId>
       <artifactId>cdm-rest-maven-plugin</artifactId>
       <type>jar</type>
-      <version>1.4.0</version>
+      <version>1.5.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.codingmatters.value.objects</groupId>
       <artifactId>cdm-value-objects-generation</artifactId>
       <type>jar</type>
-      <version>1.1.0</version>
+      <version>1.2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.codingmatters.value.objects</groupId>
       <artifactId>cdm-value-objects-json</artifactId>
       <type>jar</type>
-      <version>1.1.0</version>
+      <version>1.2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.codingmatters.rest</groupId>
       <artifactId>cdm-rest-api-doc</artifactId>
       <type>jar</type>
-      <version>1.4.0</version>
+      <version>1.5.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>net.sourceforge.plantuml</groupId>
@@ -511,7 +511,7 @@
       <groupId>org.codingmatters.value.objects</groupId>
       <artifactId>cdm-value-objects-doc</artifactId>
       <type>jar</type>
-      <version>1.1.0</version>
+      <version>1.2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.atlassian.commonmark</groupId>
@@ -523,13 +523,13 @@
       <groupId>org.codingmatters.value.objects</groupId>
       <artifactId>cdm-value-objects-php</artifactId>
       <type>jar</type>
-      <version>1.1.0</version>
+      <version>1.2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.codingmatters.rest</groupId>
       <artifactId>cdm-rest-api-client-generator-php</artifactId>
       <type>jar</type>
-      <version>1.4.0</version>
+      <version>1.5.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>

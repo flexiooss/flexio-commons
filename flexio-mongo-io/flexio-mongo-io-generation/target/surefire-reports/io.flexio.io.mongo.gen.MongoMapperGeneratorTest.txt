@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: io.flexio.io.mongo.gen.MongoMapperGeneratorTest
--------------------------------------------------------------------------------
-Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.69 s - in io.flexio.io.mongo.gen.MongoMapperGeneratorTest
