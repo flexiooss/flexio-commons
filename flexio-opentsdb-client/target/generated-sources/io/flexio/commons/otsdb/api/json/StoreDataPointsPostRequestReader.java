@@ -20,7 +20,7 @@ public class StoreDataPointsPostRequestReader {
 
   private static Set DETAILS_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_STRING));
 
-  private static Set SYNC_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_TRUE, JsonToken.VALUE_FALSE));
+  private static Set SYNC_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_FALSE, JsonToken.VALUE_TRUE));
 
   private static Set SYNC_TIMEOUT_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_NUMBER_INT));
 

@@ -22,6 +22,7 @@
         <module>flexio-mongo-io-maven-plugin</module>
         <module>flexio-mongo-io-repository</module>
         <module>flexio-mongo-io-values</module>
+        <module>flexio-mongo-io-support</module>
     </modules>
     
 </project>

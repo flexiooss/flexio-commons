@@ -31,7 +31,7 @@ public class VersionReader {
 
   private static Set KERNELVERSION_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_STRING));
 
-  private static Set EXPERIMENTAL_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_TRUE, JsonToken.VALUE_FALSE));
+  private static Set EXPERIMENTAL_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_FALSE, JsonToken.VALUE_TRUE));
 
   private static Set BUILDTIME_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_STRING));
 

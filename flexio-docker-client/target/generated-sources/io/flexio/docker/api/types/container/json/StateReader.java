@@ -18,13 +18,13 @@ import java.util.stream.Collectors;
 public class StateReader {
   private static Set STATUS_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_STRING));
 
-  private static Set RUNNING_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_TRUE, JsonToken.VALUE_FALSE));
+  private static Set RUNNING_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_FALSE, JsonToken.VALUE_TRUE));
 
-  private static Set PAUSED_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_TRUE, JsonToken.VALUE_FALSE));
+  private static Set PAUSED_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_FALSE, JsonToken.VALUE_TRUE));
 
-  private static Set RESTARTING_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_TRUE, JsonToken.VALUE_FALSE));
+  private static Set RESTARTING_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_FALSE, JsonToken.VALUE_TRUE));
 
-  private static Set DEAD_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_TRUE, JsonToken.VALUE_FALSE));
+  private static Set DEAD_EXPECTEDTOKENS = new HashSet(Arrays.asList(JsonToken.VALUE_FALSE, JsonToken.VALUE_TRUE));
 
   public State read(JsonParser parser) throws IOException {
     if(parser.getCurrentToken() == null) {
