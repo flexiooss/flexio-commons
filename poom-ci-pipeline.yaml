@@ -81,7 +81,7 @@ env:
   - MVN_DEPLOY: $MVN deploy -DskipTests -Pattach-source-and-javadocs,sign-artifacts -Dgpg.passphrase=$GPG_PASS -Dgpg.homedir=/gnupg
 
   - UPLOAD_PROJECT_METADATA: $DOCKER /flexio-ci-scripts/bin/upload-project-metadata.sh $DEPENDENCIES_URL /src
-  - TRIGGER_DOWNSTREAM: $DOCKER /usr/local/bin/trigger-downstream.sh $PIPELINES_URL $DEPENDENCIES_URL $REPOSITORY_ID "$REPOSITORY" "$CHECKOUT_SPEC"
+  - TRIGGER_DOWNSTREAM: docker run --rm $DOCKER_ENV $DOCKER_VOLUMES $CI_TOOLS_IMAGE /usr/local/bin/trigger-downstream.sh $PIPELINES_URL $DEPENDENCIES_URL $REPOSITORY_ID "$REPOSITORY" "$CHECKOUT_SPEC"
 
   - DOCKER_API_URL: http://172.17.0.1:2375
 
