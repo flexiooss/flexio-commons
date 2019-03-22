@@ -1,5 +1,0 @@
-MongoValue:
-  name: string
-  slug: string
-MongoQuery:
-  name: string
