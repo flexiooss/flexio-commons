@@ -50,12 +50,14 @@ public class DockerClientTest {
         this.cleanUpContainers(client);
 
 
+        client.images().createImage().post(req -> req.fromImage(ALPINE_IMAGE)).opt().status200().orElseThrow(() -> new AssertionError("failed pulling image : " + ALPINE_IMAGE));
+
         client.containers().createContainer().post(req ->
                 req.name("already-created").payload(payload -> payload.image(ALPINE_IMAGE).cmd("echo", "hello world"))
         );
 
-        String notStartedId = client.containers().createContainer().post(req ->
-                req.name("not-started").payload(payload -> payload.image(ALPINE_IMAGE).cmd("/bin/sh", "-c", "while true; do sleep 1000; done"))
+        String notStartedId = client.containers().createContainer().post(req1 ->
+                req1.name("not-started").payload(payload -> payload.image(ALPINE_IMAGE).cmd("/bin/sh", "-c", "while true; do sleep 1000; done"))
         ).status201().payload().id();
 
         client.containers().container().stop().post(req->req.containerId(notStartedId));

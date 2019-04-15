@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: org.codingmatters.value.objects.values.ObjectValueMongoMapperTest
--------------------------------------------------------------------------------
-Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.151 s - in org.codingmatters.value.objects.values.ObjectValueMongoMapperTest

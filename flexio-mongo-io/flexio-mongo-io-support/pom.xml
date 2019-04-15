@@ -10,19 +10,17 @@
         <version>1.2.0</version>
     </parent>
 
-    <artifactId>flexio-mongo-io-values</artifactId>
-
-    <name>${project.groupId}${project.artifactId}</name>
+    <artifactId>flexio-mongo-io-support</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>org.codingmatters.value.objects</groupId>
-            <artifactId>cdm-value-objects-values</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.codingmatters.poom</groupId>
+            <artifactId>poom-services-support</artifactId>
+        </dependency>
     </dependencies>
-
+    
 </project>
