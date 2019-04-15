@@ -46,7 +46,7 @@ public class ClientTest {
     @Test
     public void createContainer() throws Exception {
         CreateContainerPostResponse resp = this.client.containers().createContainer().post(req ->
-                req.name("yop").payload(payload -> payload.image("alpine:latest").cmd("echo", "hello world"))
+                req.name("yop").payload(payload -> payload.image("alpine:3.8").cmd("echo", "hello world"))
         );
         System.out.println(resp);
         Assert.assertThat(resp.opt().status201().payload().id().orElse(null), is(notNullValue()));
@@ -75,7 +75,7 @@ public class ClientTest {
     @Test
     public void remove() throws Exception {
         CreateContainerPostResponse creationResp = this.client.containers().createContainer().post(req ->
-                req.name("yop").payload(payload -> payload.image("alpine:latest").cmd("echo", "hello world"))
+                req.name("yop").payload(payload -> payload.image("alpine:3.8").cmd("echo", "hello world"))
         );
         String containerId = creationResp.opt().status201().payload().id().get();
         System.out.println(containerId);
@@ -89,7 +89,7 @@ public class ClientTest {
 
     @Test
     public void createContainerByName() throws Exception {
-        String imageTag = "alpine:latest";
+        String imageTag = "alpine:3.8";
         String containerName = "toto";
 
         ContainerInList targetContainer = null;

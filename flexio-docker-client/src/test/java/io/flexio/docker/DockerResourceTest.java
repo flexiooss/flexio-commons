@@ -32,10 +32,10 @@ import static org.junit.Assert.assertThat;
 public class DockerResourceTest {
 
     private DockerResource docker = DockerResource.client()
-            .with("started-started", container -> container.image("alpine:latest").cmd("/bin/sh", "-c", "while true; do sleep 1000; done")).started().finallyStarted()
-            .with("started-stopped", container -> container.image("alpine:latest").cmd("/bin/sh", "-c", "while true; do sleep 1000; done")).started().finallyStopped()
-            .with("stopped-started", container -> container.image("alpine:latest").cmd("/bin/sh", "-c", "while true; do sleep 1000; done")).stopped().finallyStarted()
-            .with("stopped-deleted", container -> container.image("alpine:latest").cmd("/bin/sh", "-c", "while true; do sleep 1000; done")).stopped().finallyDeleted()
+            .with("started-started", container -> container.image("alpine:3.8").cmd("/bin/sh", "-c", "while true; do sleep 1000; done")).started().finallyStarted()
+            .with("started-stopped", container -> container.image("alpine:3.8").cmd("/bin/sh", "-c", "while true; do sleep 1000; done")).started().finallyStopped()
+            .with("stopped-started", container -> container.image("alpine:3.8").cmd("/bin/sh", "-c", "while true; do sleep 1000; done")).stopped().finallyStarted()
+            .with("stopped-deleted", container -> container.image("alpine:3.8").cmd("/bin/sh", "-c", "while true; do sleep 1000; done")).stopped().finallyDeleted()
             ;
 
     private DockerClient dockerClient;
