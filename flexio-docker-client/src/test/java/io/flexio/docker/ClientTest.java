@@ -2,8 +2,8 @@ package io.flexio.docker;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import io.flexio.docker.api.*;
-import io.flexio.docker.api.client.DockerEngineAPIClient;
-import io.flexio.docker.api.client.DockerEngineAPIRequesterClient;
+import io.flexio.docker.client.DockerEngineAPIClient;
+import io.flexio.docker.client.DockerEngineAPIRequesterClient;
 import io.flexio.docker.api.types.ContainerCreationResult;
 import io.flexio.docker.api.types.ContainerInList;
 import io.flexio.docker.api.types.Image;

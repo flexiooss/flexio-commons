@@ -5,7 +5,7 @@ import io.flexio.commons.graylog.api.AbsoluteGetRequest;
 import io.flexio.commons.graylog.api.AbsoluteGetResponse;
 import io.flexio.commons.graylog.api.RelativeGetRequest;
 import io.flexio.commons.graylog.api.RelativeGetResponse;
-import io.flexio.commons.graylog.api.client.GraylogAPIRequesterClient;
+import io.flexio.commons.graylog.client.GraylogAPIRequesterClient;
 import io.flexio.commons.graylog.api.types.SearchResponse;
 import okhttp3.Credentials;
 import org.codingmatters.rest.api.client.UrlProvider;

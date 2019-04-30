@@ -71,13 +71,12 @@
                         <id>api-client-gen</id>
                         <phase>generate-sources</phase>
                         <goals>
-                            <goal>generate-client-side</goal>
+                            <goal>generate-all-clients</goal>
                         </goals>
                         <configuration>
-                            <destination-package>io.flexio.commons.otsdb.api.client</destination-package>
+                            <root-package>io.flexio.commons.otsdb</root-package>
                             <api-spec-file>${project.basedir}/src/main/resources/otsdb-api.raml</api-spec-file>
-                            <types-package>io.flexio.commons.otsdb.api.types</types-package>
-                            <api-package>io.flexio.commons.otsdb.api</api-package>
+                            <vendor>flexio-corp</vendor>
                         </configuration>
                     </execution>
                 </executions>
