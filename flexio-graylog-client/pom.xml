@@ -7,7 +7,7 @@
     <parent>
         <artifactId>flexio-commons</artifactId>
         <groupId>io.flexio.commons</groupId>
-        <version>1.4.0</version>
+        <version>1.5.0</version>
         <relativePath>../</relativePath>
     </parent>
 
@@ -80,13 +80,12 @@
                         <id>api-client-gen</id>
                         <phase>generate-sources</phase>
                         <goals>
-                            <goal>generate-client-side</goal>
+                            <goal>generate-all-clients</goal>
                         </goals>
                         <configuration>
-                            <destination-package>io.flexio.commons.graylog.api.client</destination-package>
+                            <root-package>io.flexio.commons.graylog</root-package>
                             <api-spec-file>${project.basedir}/src/main/resources/graylog-api.raml</api-spec-file>
-                            <types-package>io.flexio.commons.graylog.api.types</types-package>
-                            <api-package>io.flexio.commons.graylog.api</api-package>
+                            <vendor>flexio-corp</vendor>
                         </configuration>
                     </execution>
                 </executions>

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import io.flexio.commons.otsdb.api.StoreDataPointsPostResponse;
 import io.flexio.commons.otsdb.api.ValueList;
+import io.flexio.commons.otsdb.client.OpenTSDBAPIRequesterClient;
 import io.flexio.commons.otsdb.api.types.DataPoint;
 import io.flexio.commons.otsdb.api.types.json.DataPointWriter;
 import okhttp3.Credentials;
