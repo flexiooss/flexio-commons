@@ -67,6 +67,7 @@
         <module>flexio-services-archetype</module>
         <module>flexio-mongo-io</module>
         <module>flexio-graylog-client</module>
+	    <module>flexio-microsoft-excel-client</module>
     </modules>
 
     <dependencyManagement>
