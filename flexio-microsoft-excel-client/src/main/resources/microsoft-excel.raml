@@ -158,9 +158,10 @@ mediaType: application/json
               application/octet-stream:
                 file
             responses:
+              200:
+                body: Workbook
               201:
                 body: Workbook
-#                //todo type
 
   /search(q='{q}'):
     uriParameters:
