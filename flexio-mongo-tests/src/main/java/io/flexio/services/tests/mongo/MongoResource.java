@@ -2,16 +2,21 @@ package io.flexio.services.tests.mongo;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import io.flexio.services.tests.mongo.dump.DatabaseRestorer;
+import io.flexio.services.tests.mongo.dump.DumpReader;
+import io.flexio.services.tests.mongo.dump.ResourceDumpReader;
 import org.bson.Document;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class MongoResource extends ExternalResource {
@@ -25,6 +30,8 @@ public class MongoResource extends ExternalResource {
     private final HashSet<String> testDBs = new HashSet<>();
     private final HashSet<DbCollection> testCollections = new HashSet<>();
     private final HashSet<CollectionImport> collectionImports = new HashSet<>();
+    private final HashSet<DBImport> dbImports = new HashSet<>();
+
 
 
     public MongoResource(Supplier<String> host, int port) {
@@ -54,6 +61,12 @@ public class MongoResource extends ExternalResource {
         return this;
     }
 
+    public MongoResource testDBFromDump(String dbname, String dumpResourceBase) {
+        this.testDB(dbname);
+        this.dbImports.add(new DBImport(new ResourceDumpReader(dumpResourceBase), dbname));
+        return this;
+    }
+
     public MongoResource testCollection(String dbname, String collectionName) {
         this.testCollections.add(new DbCollection(dbname, collectionName));
         return this;
@@ -64,6 +77,9 @@ public class MongoResource extends ExternalResource {
         try(MongoClient client = this.newClient()) {
             for (CollectionImport anImport : this.collectionImports) {
                 this.doImport(anImport, client);
+            }
+            for (DBImport dbImport : this.dbImports) {
+                dbImport.doImport(client);
             }
         }
     }
@@ -190,6 +206,35 @@ public class MongoResource extends ExternalResource {
                     ", collection='" + collection + '\'' +
                     ", mongoExportResource='" + mongoExportResource + '\'' +
                     '}';
+        }
+    }
+
+    class DBImport {
+
+        private final DumpReader dumpReader;
+        private final String dbName;
+
+        public DBImport(DumpReader dumpReader, String dbName) {
+            this.dumpReader = dumpReader;
+            this.dbName = dbName;
+        }
+
+        public void doImport(MongoClient client) throws IOException {
+            new DatabaseRestorer(client, this.dumpReader).restoreTo(this.dbName);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            DBImport dbImport = (DBImport) o;
+            return Objects.equals(dumpReader, dbImport.dumpReader) &&
+                    Objects.equals(dbName, dbImport.dbName);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(dumpReader, dbName);
         }
     }
 }
