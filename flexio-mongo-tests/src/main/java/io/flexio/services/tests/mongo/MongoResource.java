@@ -49,11 +49,15 @@ public class MongoResource extends ExternalResource {
 
     public MongoClient newClient() {
         MongoClientURI mongoClientURI = new MongoClientURI(
-                String.format("mongodb://%s:%s", this.hostProvider.get(), this.port)
+                this.mongoUrl()
         );
         MongoClient mongoClient = new MongoClient(mongoClientURI);
         this.clients.add(mongoClient);
         return mongoClient;
+    }
+
+    public String mongoUrl() {
+        return String.format("mongodb://%s:%s", this.hostProvider.get(), this.port);
     }
 
     public MongoResource testDB(String dbname) {
