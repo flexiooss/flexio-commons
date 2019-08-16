@@ -10,7 +10,12 @@ public class MongoTest {
     static public final String MONGO_IMAGE = "mongo:" + System.getProperty("ut.mongo.version", "4.0.3");
 
     static public DockerResource.ContainerInitialStatus docker() {
-        return DockerResource.client()
+        DockerResource docker = DockerResource.client();
+        return withMongo(docker);
+    }
+
+    public static DockerResource.ContainerInitialStatus withMongo(DockerResource docker) {
+        return docker
                 .with(MONGO, container -> {
                     System.out.println("###### MONGO IMAGE " + MONGO_IMAGE);
                     return container.image(MONGO_IMAGE);

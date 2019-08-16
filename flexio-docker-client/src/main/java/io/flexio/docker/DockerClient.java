@@ -2,6 +2,7 @@ package io.flexio.docker;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import io.flexio.docker.api.*;
+import io.flexio.docker.api.types.ContainerCreationData;
 import io.flexio.docker.client.DockerEngineAPIClient;
 import io.flexio.docker.client.DockerEngineAPIRequesterClient;
 import io.flexio.docker.api.optional.OptionalStartPostResponse;
@@ -27,6 +28,9 @@ public class DockerClient {
     private final String baseUrl;
 
     public DockerClient(HttpClientWrapper http, String baseUrl) {
+        this(http, baseUrl, null);
+    }
+    public DockerClient(HttpClientWrapper http, String baseUrl, String authToken) {
         this.client = new DockerEngineAPIRequesterClient(new OkHttpRequesterFactory(http, () -> baseUrl), new JsonFactory(), baseUrl);
         this.baseUrl = baseUrl;
     }
@@ -77,12 +81,36 @@ public class DockerClient {
         }
     }
 
+    public ContainerCreationLog ensureContainerCreated(String containerName, ContainerCreationData containerCreationData) {
+        this.ensureImageIsUpToDate(containerCreationData.image());
+
+        Container container = this.container(containerName, containerCreationData);
+
+        OptionalContainer runningContainer = this.runningContainer(container);
+        if(runningContainer.isPresent()) {
+            return this.ensureRunningContainerIsUpToDate(container, runningContainer);
+        } else {
+            return this.ensureNewContainerIsCreated(containerName, containerCreationData);
+        }
+    }
+
+    public Container container(String containerName, ContainerCreationData containerCreationData) {
+        return Container.builder()
+                .names(containerName)
+                .image(containerCreationData.image())
+                .build();
+    }
+
     static private final Logger log = LoggerFactory.getLogger(DockerClient.class);
 
     private void ensureImageIsUpToDate(String imageTag) {
         try {
             CreateImagePostResponse response = this.client.images().createImage().post(req -> req.fromImage(imageTag));
-            response.opt().status200().orElseThrow(assertFails("couldn't update image %s : %s", imageTag, response));
+            if(! response.opt().status200().isPresent()) {
+                // TODO should a policy be used ?
+                log.warn("couldn't update image {} : {}", imageTag, response);
+            }
+//            response.opt().status200().orElseThrow(assertFails("couldn't update image %s : %s", imageTag, response));
         } catch (IOException e) {
             log.error(String.format("couldn't update image %s : communication failure", imageTag), e);
         }
@@ -146,6 +174,27 @@ public class DockerClient {
         }
     }
 
+    private ContainerCreationLog ensureNewContainerIsCreated(String containerName, ContainerCreationData containerCreationData) {
+        OptionalContainer runningContainer= this.createContainer(containerName, containerCreationData);
+        if(runningContainer.isPresent()) {
+            return ContainerCreationLog.builder()
+                    .container(this.containerFor(runningContainer.id().get()).get())
+                    .action(ContainerCreationLog.Action.CREATION)
+                    .success(true)
+                    .message("OK")
+                    .build();
+        } else {
+            return ContainerCreationLog.builder()
+                    .container(Container.from(this.container(containerName, containerCreationData))
+                            .state(State.builder().status(State.Status.unexistent).build())
+                            .build())
+                    .action(ContainerCreationLog.Action.CREATION)
+                    .success(false)
+                    .message(String.format("container %s creation failed", containerName))
+                    .build();
+        }
+    }
+
     private ContainerCreationLog ensureNewContainerIsCreated(Container container, String ... cmd) {
         OptionalContainer runningContainer= this.createContainer(container, cmd);
         if(runningContainer.isPresent()) {
@@ -165,6 +214,20 @@ public class DockerClient {
                     .message(String.format("container %s creation failed", container.names()))
                     .build();
         }
+    }
+
+    private OptionalContainer createContainer(String containerName, ContainerCreationData containerCreationData) {
+        try {
+            CreateContainerPostResponse response = this.client.containers().createContainer()
+                    .post(req -> req.name(containerName).payload(containerCreationData));
+            ContainerCreationResult creationResult = response.opt().status201().payload()
+                    .orElseThrow(assertFails("failed creating container %s : %s", containerName, response));
+
+            return this.containerFor(creationResult.id());
+        } catch (IOException e) {
+            communicationError(this.baseUrl);
+        }
+        return OptionalContainer.of(null);
     }
 
     private OptionalContainer createContainer(Container container, String ... cmd) {

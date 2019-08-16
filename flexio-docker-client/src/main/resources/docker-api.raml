@@ -276,6 +276,17 @@ types:
          Cmd:
             type: array
             items: string
+         Env:
+            type: array
+            items: string
+         ExposedPorts: object
+         HostConfig:
+            type: object
+#         HostConfig: object
+#            properties:
+#               AutoRemove: boolean
+#               PortBindings: object
+
    ContainerCreationResult:
       type: object
       properties:

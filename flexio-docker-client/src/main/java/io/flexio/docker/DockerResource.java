@@ -25,6 +25,12 @@ public interface DockerResource extends TestRule {
 
     OptionalContainer containerInfo(String containerName);
 
+    DockerClient dockerClient();
+
+    enum Status {
+        STARTED, STOPPED
+    }
+
     interface ContainerInitialStatus {
         ContainerFinalStatus stopped();
         ContainerFinalStatus started();
@@ -114,6 +120,8 @@ public interface DockerResource extends TestRule {
                 resolveDockerUrl()
         );
 
+        private Status status = Status.STOPPED;
+
         @Override
         public ContainerInitialStatus with(String containerName, ContainerCreationData container) {
             return new Builder(this, containerName, container);
@@ -132,6 +140,9 @@ public interface DockerResource extends TestRule {
 
         public DockerResourceImpl add(String containerName, ContainerStates containerStates) {
             this.managedContainers.put(containerName, containerStates);
+            if(this.status.equals(Status.STARTED)) {
+                this.ensureStatus(containerName, containerStates, containerStates.inintialStatus);
+            }
             return this;
         }
 
@@ -143,6 +154,7 @@ public interface DockerResource extends TestRule {
                 ContainerStates containerStates = this.managedContainers.get(containerName);
                 this.ensureStatus(containerName, containerStates, containerStates.inintialStatus);
             }
+            this.status = Status.STARTED;
         }
 
         @Override
@@ -152,6 +164,8 @@ public interface DockerResource extends TestRule {
                 ContainerStates containerStates = this.managedContainers.get(containerName);
                 this.ensureStatus(containerName, containerStates, containerStates.finalStatus);
             }
+
+            this.status = Status.STOPPED;
 
             super.after();
         }
@@ -166,17 +180,22 @@ public interface DockerResource extends TestRule {
                     : null;
             switch (status) {
                 case STARTED:
-                    this.dockerClient.ensureContainerCreated(container, cmd);
+                    this.dockerClient.ensureContainerCreated(containerName, containerStates.container);
                     this.dockerClient.ensureContainerStarted(container);
                     break;
                 case STOPPED:
-                    this.dockerClient.ensureContainerCreated(container, cmd);
+                    this.dockerClient.ensureContainerCreated(containerName, containerStates.container);
                     this.dockerClient.ensureContainerStopped(container);
                     break;
                 case DELETED:
+                    this.dockerClient.ensureContainerStopped(container);
                     this.dockerClient.ensureContainerDeleted(container);
                     break;
             }
+        }
+
+        public DockerClient dockerClient() {
+            return dockerClient;
         }
     }
 
