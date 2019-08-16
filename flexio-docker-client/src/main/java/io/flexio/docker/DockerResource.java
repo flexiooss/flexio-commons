@@ -25,6 +25,8 @@ public interface DockerResource extends TestRule {
 
     OptionalContainer containerInfo(String containerName);
 
+    DockerClient dockerClient();
+
     enum Status {
         STARTED, STOPPED
     }
@@ -190,6 +192,10 @@ public interface DockerResource extends TestRule {
                     this.dockerClient.ensureContainerDeleted(container);
                     break;
             }
+        }
+
+        public DockerClient dockerClient() {
+            return dockerClient;
         }
     }
 
