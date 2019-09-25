@@ -179,6 +179,12 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     }
 
     @Override
+    public void deleteFrom( Q query ) throws RepositoryException {
+        Bson filter = query != null ? this.filterFrom( query ) : new Document();
+        this.resourceCollection( this.mongoClient ).deleteMany( filter );
+    }
+
+    @Override
     public PagedEntityList<V> all(long startIndex, long endIndex) throws RepositoryException {
         return this.filteredQuery(null, startIndex, endIndex, this.mongoClient);
     }
