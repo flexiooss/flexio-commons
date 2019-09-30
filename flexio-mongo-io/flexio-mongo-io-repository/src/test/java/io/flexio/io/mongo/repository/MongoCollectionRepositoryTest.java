@@ -112,6 +112,51 @@ public class MongoCollectionRepositoryTest {
     }
 
     @Test
+    public void deleteFromQuery() throws Exception {
+        try( MongoClient client = this.mongo.newClient() ){
+            FindIterable<Document> docs = client.getDatabase( DB ).getCollection( COLLECTION ).find( Filters.eq( "_id", new ObjectId( "5a0188c7d5c64000165d50bd" ) ) );
+            assertThat( docs.first(), is( notNullValue() ) );
+        }
+
+        this.repository.deleteFrom( MongoQuery.builder().name( "Blup" ).build() );
+
+        try( MongoClient client = this.mongo.newClient() ){
+            String[] deletedIds = new String[]{
+                    "5a1e6db99c3e84001528aaaa",
+                    "5a1e6db99c3e84001528aaab",
+                    "5a1e6db99c3e84001528aaac",
+                    "5a1e6db99c3e84001528aaad",
+                    "5a1e6db99c3e84001528aaae",
+                    "5a1e6db99c3e84001528aaaf",
+                    "5a1e6db99c3e84001528aaba",
+                    "5a1e6db99c3e84001528aabb",
+                    "5a1e6db99c3e84001528aabc",
+                    "5a1e6db99c3e84001528aabd",
+                    "5a1e6db99c3e84001528aabe"
+            };
+            for( String id : deletedIds ){
+                FindIterable<Document> docs = client.getDatabase( DB ).getCollection( COLLECTION ).find( Filters.eq( "_id", new ObjectId( id ) ) );
+                assertThat( docs.first(), is( nullValue() ) );
+            }
+        }
+    }
+
+    @Test
+    public void deleteAllFromNullQuery() throws Exception {
+        try( MongoClient client = this.mongo.newClient() ){
+            FindIterable<Document> docs = client.getDatabase( DB ).getCollection( COLLECTION ).find( Filters.eq( "_id", new ObjectId( "5a0188c7d5c64000165d50bd" ) ) );
+            assertThat( docs.first(), is( notNullValue() ) );
+        }
+
+        this.repository.deleteFrom( null );
+
+        try( MongoClient client = this.mongo.newClient() ){
+            long total = client.getDatabase( DB ).getCollection( COLLECTION ).countDocuments();
+            assertThat( total, is( 0L ) );
+        }
+    }
+
+    @Test
     public void all() throws Exception {
         PagedEntityList<MongoValue> results = this.repository.all(0, 1000);
 
