@@ -76,6 +76,11 @@ public class MongoResource extends ExternalResource {
         return this;
     }
 
+    public void reset() throws Throwable {
+        this.after();
+        this.before();
+    }
+
     @Override
     protected void before() throws Throwable {
         try(MongoClient client = this.newClient()) {
