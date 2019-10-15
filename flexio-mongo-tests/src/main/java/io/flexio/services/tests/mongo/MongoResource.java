@@ -81,7 +81,7 @@ public class MongoResource extends ExternalResource {
         try {
             this.before();
         } catch (Throwable throwable) {
-            throw new AssertionError();
+            throw new AssertionError("failed resetting mongo state");
         }
     }
 
