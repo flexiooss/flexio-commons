@@ -76,9 +76,13 @@ public class MongoResource extends ExternalResource {
         return this;
     }
 
-    public void reset() throws Throwable {
+    public void reset() throws Exception {
         this.after();
-        this.before();
+        try {
+            this.before();
+        } catch (Throwable throwable) {
+            throw new AssertionError();
+        }
     }
 
     @Override
