@@ -76,6 +76,15 @@ public class MongoResource extends ExternalResource {
         return this;
     }
 
+    public void reset() throws Exception {
+        this.after();
+        try {
+            this.before();
+        } catch (Throwable throwable) {
+            throw new AssertionError("failed resetting mongo state");
+        }
+    }
+
     @Override
     protected void before() throws Throwable {
         try(MongoClient client = this.newClient()) {
