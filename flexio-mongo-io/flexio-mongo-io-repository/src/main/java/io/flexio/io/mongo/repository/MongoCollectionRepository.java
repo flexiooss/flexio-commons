@@ -201,7 +201,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
         MongoCollection<Document> collection = this.resourceCollection(mongoClient);
 
-        long totalCount = filter != null ? collection.count(filter) : collection.count();
+        long totalCount = filter != null ? collection.countDocuments(filter) : collection.estimatedDocumentCount();
         if(startIndex >= totalCount) {
             return new PagedEntityList.DefaultPagedEntityList<>(0L, 0L, totalCount, new ArrayList<>());
         }
