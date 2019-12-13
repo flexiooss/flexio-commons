@@ -100,6 +100,13 @@ mediaType: application/json
                 uriParameters:
                   table: string
 
+                patch:
+                  is: [microsoftGraphRequest]
+                  body: Table
+                  responses:
+                    200:
+                      body: Table
+
                 delete:
                   is: [microsoftGraphRequest]
                   responses:
