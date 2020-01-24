@@ -124,18 +124,23 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
     @Override
     public Entity<V> create(V withValue) throws RepositoryException {
-        try {
-            MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
-            Document doc = this.toDocument(withValue);
-            doc.put("_id", new ObjectId());
-            doc.put(VERSION_FIELD, BigInteger.ONE.longValue());
+        return this.rawCreate(new ObjectId(), withValue);
+    }
 
-            collection.insertOne(doc);
+    @Override
+    public Entity<V> createWithId(String id, V withValue) throws RepositoryException {
+        return this.rawCreate(id, withValue);
+    }
 
-            return new ImmutableEntity<>(doc.get("_id").toString(), BigInteger.ONE, this.toValue(doc));
-        } catch(MongoException e) {
-            throw new RepositoryException("error creating entity for " + withValue, e);
-        }
+    private Entity<V> rawCreate(Object id, V withValue) {
+        MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
+        Document doc = this.toDocument(withValue);
+        doc.put("_id", id);
+        doc.put(VERSION_FIELD, BigInteger.ONE.longValue());
+
+        collection.insertOne(doc);
+
+        return new ImmutableEntity<>(doc.get("_id").toString(), BigInteger.ONE, this.toValue(doc));
     }
 
     @Override
