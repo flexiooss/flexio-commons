@@ -23,7 +23,7 @@ import org.junit.Test;
 import java.math.BigInteger;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MongoCollectionRepositoryTest {
 
@@ -92,6 +92,18 @@ public class MongoCollectionRepositoryTest {
 
         try(MongoClient client = this.mongo.newClient()) {
             Document doc = client.getDatabase(DB).getCollection(COLLECTION).find(Filters.eq("_id", new ObjectId(entity.id()))).first();
+            assertThat(doc.get("name"), is("created"));
+        }
+    }
+
+    @Test
+    public void createWithId() throws Exception {
+        Entity<MongoValue> entity = this.repository.createWithId("toto", MongoValue.builder().name("created").build());
+
+        assertThat(entity.id(), is(notNullValue()));
+
+        try(MongoClient client = this.mongo.newClient()) {
+            Document doc = client.getDatabase(DB).getCollection(COLLECTION).find(Filters.eq("_id", "toto")).first();
             assertThat(doc.get("name"), is("created"));
         }
     }
