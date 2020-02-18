@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.flexio.io</groupId>
         <artifactId>flexio-mongo-io</artifactId>
-        <version>1.19.0</version>
+        <version>1.20.0</version>
     </parent>
 
     <artifactId>flexio-mongo-io-values</artifactId>
@@ -22,6 +22,12 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codingmatters.poom</groupId>
+            <artifactId>poom-services-test-support</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

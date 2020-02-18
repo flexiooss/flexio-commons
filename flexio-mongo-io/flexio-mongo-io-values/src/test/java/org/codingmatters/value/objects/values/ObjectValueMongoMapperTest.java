@@ -1,6 +1,7 @@
 package org.codingmatters.value.objects.values;
 
 import org.bson.Document;
+import org.codingmatters.poom.services.tests.DateMatchers;
 import org.codingmatters.value.objects.values.mongo.ObjectValueMongoMapper;
 import org.junit.Test;
 
@@ -12,6 +13,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static org.codingmatters.poom.services.tests.DateMatchers.around;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -98,7 +100,7 @@ public class ObjectValueMongoMapperTest {
 
         ObjectValue value = this.mapper.toValue(doc);
         assertThat(value.property("prop").type(), is(PropertyValue.Type.DATETIME));
-        assertThat(value.property("prop").single().datetimeValue(), is(now.atDate(LocalDate.ofYearDay(1970, 1))));
+        assertThat(value.property("prop").single().datetimeValue(), is(around(now.atDate(LocalDate.ofYearDay(1970, 1)))));
     }
 
     @Test
@@ -111,7 +113,7 @@ public class ObjectValueMongoMapperTest {
 
         ObjectValue value = this.mapper.toValue(doc);
         assertThat(value.property("prop").type(), is(PropertyValue.Type.DATETIME));
-        assertThat(value.property("prop").single().datetimeValue(), is(now));
+        assertThat(value.property("prop").single().datetimeValue(), is(around(now)));
     }
 
     @Test
@@ -181,10 +183,10 @@ public class ObjectValueMongoMapperTest {
         ));
         ObjectValue value = this.mapper.toValue(doc);
         assertThat(value.property("prop").multiple()[0].type(), is(PropertyValue.Type.DATETIME));
-        assertThat(value.property("prop").multiple()[0].datetimeValue(), is(now));
+        assertThat(value.property("prop").multiple()[0].datetimeValue(), is(around(now)));
 
         assertThat(value.property("prop").multiple()[0].type(), is(PropertyValue.Type.DATETIME));
-        assertThat(value.property("prop").multiple()[1].datetimeValue(), is(now.plusHours(1L)));
+        assertThat(value.property("prop").multiple()[1].datetimeValue(), is(around(now.plusHours(1L))));
     }
 
     @Test
@@ -226,9 +228,9 @@ public class ObjectValueMongoMapperTest {
         ));
         ObjectValue value = this.mapper.toValue(doc);
         assertThat(value.property("prop").multiple()[0].type(), is(PropertyValue.Type.DATETIME));
-        assertThat(value.property("prop").multiple()[0].datetimeValue(), is(now.atDate(LocalDate.ofYearDay(1970, 1))));
+        assertThat(value.property("prop").multiple()[0].datetimeValue(), is(around(now.atDate(LocalDate.ofYearDay(1970, 1)))));
 
         assertThat(value.property("prop").multiple()[0].type(), is(PropertyValue.Type.DATETIME));
-        assertThat(value.property("prop").multiple()[1].datetimeValue(), is(now.plusHours(1L).atDate(LocalDate.ofYearDay(1970, 1))));
+        assertThat(value.property("prop").multiple()[1].datetimeValue(), is(around(now.plusHours(1L).atDate(LocalDate.ofYearDay(1970, 1)))));
     }
 }
