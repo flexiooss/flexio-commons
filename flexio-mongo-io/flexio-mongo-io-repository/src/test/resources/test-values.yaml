@@ -1,5 +1,13 @@
 MongoValue:
   name: string
   slug: string
+MongoValueWithObject:
+  a: string
+  b: int
+  c:
+    d: string
+    e: string
+  p:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
 MongoQuery:
   name: string
