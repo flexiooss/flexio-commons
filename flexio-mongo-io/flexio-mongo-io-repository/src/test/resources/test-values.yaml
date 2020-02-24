@@ -9,5 +9,6 @@ MongoValueWithObject:
     e: string
   p:
     $value-object: org.codingmatters.value.objects.values.ObjectValue
+  dt: date-time
 MongoQuery:
   name: string
