@@ -102,9 +102,6 @@ public class MongoResource extends ExternalResource {
                 dbImport.doImport(client);
                 log.debug("IMPORT DB : END " + dbImport);
             }
-            for (String testDB : this.testDBs) {
-                client.getDatabase(testDB).runCommand(new Document("", 1));
-            }
         }
     }
 
