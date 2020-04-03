@@ -77,9 +77,13 @@ public class MongoResource extends ExternalResource {
     }
 
     public void reset() throws Exception {
+        log.debug("RESET :: CALLING AFTER");
         this.after();
+        log.debug("RESET :: CALLED AFTER");
         try {
+            log.debug("RESET :: CALLING BEFORE");
             this.before();
+            log.debug("RESET :: CALLED BEFORE");
         } catch (Throwable throwable) {
             throw new AssertionError("failed resetting mongo state");
         }
@@ -89,10 +93,14 @@ public class MongoResource extends ExternalResource {
     protected void before() throws Throwable {
         try(MongoClient client = this.newClient()) {
             for (CollectionImport anImport : this.collectionImports) {
+                log.debug("IMPORT COLLECTION : START " + anImport);
                 this.doImport(anImport, client);
+                log.debug("IMPORT COLLECTION : END " + anImport);
             }
             for (DBImport dbImport : this.dbImports) {
+                log.debug("IMPORT DB : START " + dbImport);
                 dbImport.doImport(client);
+                log.debug("IMPORT DB : END " + dbImport);
             }
         }
     }
@@ -248,6 +256,14 @@ public class MongoResource extends ExternalResource {
         @Override
         public int hashCode() {
             return Objects.hash(dumpReader, dbName);
+        }
+
+        @Override
+        public String toString() {
+            return "DBImport{" +
+                    "dumpReader=" + dumpReader +
+                    ", dbName='" + dbName + '\'' +
+                    '}';
         }
     }
 }
