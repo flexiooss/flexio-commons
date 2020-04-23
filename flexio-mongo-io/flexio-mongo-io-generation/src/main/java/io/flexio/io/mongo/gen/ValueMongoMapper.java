@@ -156,14 +156,21 @@ public class ValueMongoMapper {
                     Date.class, Date.class, this.documentProperty(propertySpec));
         }
 
-        result.addStatement("$T $LZoned = $T.ofInstant(elmt.toInstant(), $T.of($S))",
-                ZonedDateTime.class, propertySpec.name(), ZonedDateTime.class, ZoneId.class, "Z");
-        result.addStatement("$T $LElmt = $LZoned.to$L()",
-                this.mapperConfig.propertySingleType(propertySpec),
-                propertySpec.name(),
-                propertySpec.name(),
-                ClassName.bestGuess(propertySpec.typeSpec().typeRef()).simpleName()
-        );
+        String temporalClassName = ClassName.bestGuess(propertySpec.typeSpec().typeRef()).simpleName();
+        if(temporalClassName.equals(ZonedDateTime.class.getSimpleName())) {
+            result.addStatement("$T $LElmt = $T.ofInstant(elmt.toInstant(), $T.of($S))",
+                    ZonedDateTime.class, propertySpec.name(), ZonedDateTime.class, ZoneId.class, "Z");
+        } else {
+            result.addStatement("$T $LZoned = $T.ofInstant(elmt.toInstant(), $T.of($S))",
+                    ZonedDateTime.class, propertySpec.name(), ZonedDateTime.class, ZoneId.class, "Z");
+            result.addStatement("$T $LElmt = $LZoned.to$L()",
+                    this.mapperConfig.propertySingleType(propertySpec),
+                    propertySpec.name(),
+                    propertySpec.name(),
+                    temporalClassName
+            );
+        }
+
 
         if(propertySpec.typeSpec().cardinality().isCollection()) {
             result.addStatement("$LElmts.add($LElmt)", propertySpec.name(), propertySpec.name());
