@@ -18,6 +18,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -315,6 +316,34 @@ public class MongoMapperGeneratorTest {
         Object value = classes.get("org.generated.Test").call("builder")
                 .call("p", LocalDateTime.class)
                 .with(LocalDateTime.parse("2017-11-27T14:08:13.000Z", DateTimeFormatter.ISO_DATE_TIME))
+                .call("build").get();
+        System.out.println("value=" + value);
+        Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
+        assertThat(
+                doc,
+                is(Document.parse("{\"p\": {\"$date\":\"2017-11-27T14:08:13.000Z\"}}"))
+        );
+
+        assertThat(
+                mapper.call("toValue", Document.class).with(doc).get(),
+                is(value)
+        );
+    }
+
+
+    @Test
+    public void zonedDateProperty() throws Exception {
+        ClassLoaderHelper classes = this.generate(Spec.spec()
+                .addValue(valueSpec().name("Test")
+                        .addProperty(property().name("p").type(type().typeKind(TypeKind.JAVA_TYPE).typeRef(TypeToken.TZ_DATE_TIME.getImplementationType()))))
+                .build());
+        this.fileHelper.printFile(this.dir.getRoot(), "TestMongoMapper.java");
+
+        ObjectHelper mapper = classes.get("org.generated.mongo.TestMongoMapper").newInstance();
+
+        Object value = classes.get("org.generated.Test").call("builder")
+                .call("p", ZonedDateTime.class)
+                .with(ZonedDateTime.parse("2017-11-27T14:08:13.000Z", DateTimeFormatter.ISO_DATE_TIME))
                 .call("build").get();
         System.out.println("value=" + value);
         Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
