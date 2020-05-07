@@ -24,19 +24,15 @@ public class CollectionRestorer {
     }
 
     public void restoreTo(String targetDb, String targetCollection) throws IOException {
-        log.debug("CollectionRestorer :: restoreTo : GETDB {}", targetCollection);
         com.mongodb.DB db = client.getDB(targetDb);
 
-        log.debug("CollectionRestorer :: restoreTo : DROP COLLECTOIN {}", targetCollection);
         if(db.collectionExists(targetCollection)) {
             db.getCollection(targetCollection).drop();
         }
 
-        log.debug("CollectionRestorer :: restoreTo : INSERT {}", targetCollection);
         while (in.available() > 0) {
             BSONObject obj = decoder.readObject(in);
             db.getCollection(targetCollection).insert(new BasicDBObject(obj.toMap()));
         }
-        log.debug("CollectionRestorer :: restoreTo : DONE {}", targetCollection);
     }
 }
