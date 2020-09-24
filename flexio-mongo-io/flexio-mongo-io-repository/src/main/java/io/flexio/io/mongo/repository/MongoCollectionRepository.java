@@ -129,7 +129,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
     @Override
     public Entity<V> createWithId(String id, V withValue) throws RepositoryException {
-        return this.rawCreate(id, withValue);
+        return this.rawCreate(this.mongoIdValue(id), withValue);
     }
 
     private Entity<V> rawCreate(Object id, V withValue) {
@@ -225,7 +225,11 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     }
 
     private Bson idFilter(String id) {
-        return Filters.eq("_id", ObjectId.isValid(id) ? new ObjectId(id) : id);
+        return Filters.eq("_id", this.mongoIdValue(id));
+    }
+
+    private Comparable<? extends Comparable<?>> mongoIdValue(String id) {
+        return ObjectId.isValid(id) ? new ObjectId(id) : id;
     }
 
     private String documentId(Document document) {

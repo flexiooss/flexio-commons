@@ -273,4 +273,26 @@ public class MongoCollectionRepositoryTest {
         assertThat(results.startIndex(), is(0L));
         assertThat(results.endIndex(), is(0L));
     }
+
+    @Test
+    public void givenCreateWithId__whenNotAnObjectId__thenEntityIsRetrievedFromStringId() throws Exception {
+        String notAnObjectId = "yopyop tagada";
+        assertThat(ObjectId.isValid(notAnObjectId), is(false));
+
+        Entity<MongoValue> expected = this.repository.createWithId(notAnObjectId, MongoValue.builder().name("blu").build());
+        Entity<MongoValue> actual = this.repository.retrieve(notAnObjectId);
+
+        assertThat(actual, is(expected));
+    }
+
+    @Test
+    public void givenCreateWithId__whenAnObjectId__thenEntityIsRetrievedFromObjectId() throws Exception {
+        String notAnObjectId = new ObjectId().toHexString();
+        assertThat(ObjectId.isValid(notAnObjectId), is(true));
+
+        Entity<MongoValue> expected = this.repository.createWithId(notAnObjectId, MongoValue.builder().name("blu").build());
+        Entity<MongoValue> actual = this.repository.retrieve(notAnObjectId);
+
+        assertThat(actual, is(expected));
+    }
 }
