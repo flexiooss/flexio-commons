@@ -151,7 +151,7 @@ public class PropertyQuerierTest {
     }
 
     @Test
-    public void givenFilteringOnTopLevelPropery__whenIsNull__thenFiltered() throws Exception {
+    public void givenFilteringOnTopLevelProperty__whenIsNull__thenFiltered() throws Exception {
         List<Integer> actual = this.repository.search(PropertyQuery.builder().filter("a == null").build(), 0, 1000).valueList()
                 .stream().map(MongoValueWithObject::b).collect(Collectors.toList());
         assertThat(actual,
@@ -160,7 +160,7 @@ public class PropertyQuerierTest {
     }
 
     @Test
-    public void givenFilteringOnTopLevelPropery__whenIsNotNull__thenFiltered() throws Exception {
+    public void givenFilteringOnTopLevelProperty__whenIsNotNull__thenFiltered() throws Exception {
         List<Integer> actual = this.repository.search(PropertyQuery.builder().filter("a != null").build(), 0, 1000).valueList()
                 .stream().map(MongoValueWithObject::b).collect(Collectors.toList());
         assertThat(actual,
