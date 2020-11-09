@@ -10,18 +10,15 @@
         <version>1.45.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>io.flexio.io</groupId>
-    <artifactId>flexio-mongo-io</artifactId>
+    <groupId>org.codingmatters.poom.etag</groupId>
+    <artifactId>poom-etag-support</artifactId>
     <packaging>pom</packaging>
 
-    <name>${project.groupId}:${project.artifactId}</name>
-
     <modules>
-        <module>flexio-mongo-io-generation</module>
-        <module>flexio-mongo-io-maven-plugin</module>
-        <module>flexio-mongo-io-repository</module>
-        <module>flexio-mongo-io-values</module>
-        <module>flexio-mongo-io-support</module>
+        <module>poom-etag-support-api</module>
+        <module>poom-etag-test-support</module>
+        <module>poom-etag-support-handlers</module>
     </modules>
+
     
 </project>
