@@ -18,6 +18,7 @@
         <module>poom-etag-support-api</module>
         <module>poom-etag-test-support</module>
         <module>poom-etag-support-handlers</module>
+        <module>poom-etag-support-repositories</module>
     </modules>
 
     
