@@ -116,6 +116,9 @@ public class ETaggedRead<Request extends ETaggedReadRequest, Response> implement
         try {
             String id = this.idFromRequest.apply(request);
             ETaggedReadResponse<Response> etagged = ETaggedReadResponse.from(response);
+            if(etagged.cacheControl() == null) {
+                etagged.cacheControl(this.defaultCacheControl);
+            }
             if(this.etagRepository.retrieve(id) == null) {
                 this.etagRepository.createWithId(id, Etag.builder()
                         .etag(etagged.eTag())
@@ -124,12 +127,12 @@ public class ETaggedRead<Request extends ETaggedReadRequest, Response> implement
                         .created(UTC.now())
                         .build());
             }
+            return etagged.response();
         } catch (UnETaggable e) {
             return (Response) ETaggedReadResponse.create500(this.responseType, log.tokenized().error("failed creating etagged response from delegate response : " + response, e));
         } catch (RepositoryException e) {
             return (Response) ETaggedReadResponse.create500(this.responseType, log.tokenized().error("failed storing etag", e));
         }
-        return response;
     }
 
 }

@@ -112,6 +112,9 @@ public class ETaggedChange<Request extends ETaggedChangeRequest, Response> imple
         try {
             String id = this.idFromRequest.apply(request);
             ETaggedReadResponse<Response> etagged = ETaggedReadResponse.from(response);
+            if(etagged.cacheControl() == null) {
+                etagged.cacheControl(this.defaultCacheControl);
+            }
             Entity<Etag> current = this.etagRepository.retrieve(id);
             if(current == null) {
                 this.etagRepository.createWithId(id, Etag.builder()
@@ -123,11 +126,11 @@ public class ETaggedChange<Request extends ETaggedChangeRequest, Response> imple
             } else {
                 this.etagRepository.update(current, current.value().withEtag(etagged.eTag()));
             }
+            return etagged.response();
         } catch (UnETaggable e) {
             return (Response) ETaggedReadResponse.create500(this.responseType, log.tokenized().error("failed creating etagged response from delegate response : " + response, e));
         } catch (RepositoryException e) {
             return (Response) ETaggedReadResponse.create500(this.responseType, log.tokenized().error("failed storing etag", e));
         }
-        return response;
     }
 }

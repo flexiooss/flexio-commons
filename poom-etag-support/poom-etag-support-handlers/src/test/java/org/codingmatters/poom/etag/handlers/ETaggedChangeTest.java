@@ -57,6 +57,17 @@ public class ETaggedChangeTest {
     }
 
     @Test
+    public void givenNoETagRequest_andDelegateReturns200__whenDelegateDoesntSetCacheControl__thenDefaltCacheControlSet() throws Exception {
+        this.put.nextResponse(request -> COMPLETE_UNDERLYING_RESPONSE.withStatus200(COMPLETE_UNDERLYING_RESPONSE.status200().withCacheControl(null)));
+
+        ResourcePutResponse response = this.handlers.resourcePutHandler().apply(ResourcePutRequest.builder().build());
+
+        response.opt().status200().orElseThrow(() -> new AssertionError("expected status 200, got : " + response));
+
+        assertThat(response.status200().cacheControl(), is("test-cache-control"));
+    }
+
+    @Test
     public void givenRequestWithIfMatch__whenNoEtagStored__then412_andUnderlyingNotCalled() throws Exception {
         ResourcePutResponse response = this.handlers.resourcePutHandler().apply(ResourcePutRequest.builder()
                 .ifMatch("current")
