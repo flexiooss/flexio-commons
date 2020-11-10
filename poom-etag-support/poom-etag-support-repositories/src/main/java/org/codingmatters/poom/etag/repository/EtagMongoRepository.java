@@ -12,7 +12,7 @@ public class EtagMongoRepository {
 
     private final MongoClient mongoClient;
 
-    public EtagMongoRepository(MongoClient mongoClient, String database) {
+    public EtagMongoRepository(MongoClient mongoClient) {
         this.mongoClient = mongoClient;
     }
 
