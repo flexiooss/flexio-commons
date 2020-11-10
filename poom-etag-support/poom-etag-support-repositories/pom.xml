@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.codingmatters.poom.etag</groupId>
+        <artifactId>poom-etag-support</artifactId>
+        <version>1.45.0</version>
+    </parent>
+
+    <artifactId>poom-etag-support-repositories</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.codingmatters.poom.etag</groupId>
+            <artifactId>poom-etag-support-handlers</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>bson</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.flexio.io</groupId>
+            <artifactId>flexio-mongo-io-repository</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.flexio.io</groupId>
+            <artifactId>flexio-mongo-io-support</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.flexio.io</groupId>
+                <artifactId>flexio-mongo-io-maven-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codingmatters.poom.etag</groupId>
+                        <artifactId>poom-etag-support-handlers</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>mongo-job-value-objects</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>mongo-mapping</goal>
+                        </goals>
+                        <configuration>
+                            <destination-package>org.codingmatters.poom.etag.storage</destination-package>
+                            <input-spec-resource>etag-storage.yaml</input-spec-resource>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generated-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    
+</project>
