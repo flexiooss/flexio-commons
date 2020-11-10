@@ -16,16 +16,58 @@ import java.util.function.Function;
 public class ETaggedRead<Request extends ETaggedReadRequest, Response> implements Function<Request, Response> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(ETaggedRead.class);
 
+    static public <Request extends ETaggedReadRequest, Response> IdFromRequestBuilder<Request, Response> forHandler(Function<Request, Response> handler, Class<? extends Response> responseType) {
+        return new IdFromRequestBuilder<>(handler, responseType);
+    }
+
+    static public class IdFromRequestBuilder<Request extends ETaggedReadRequest, Response> {
+        private final Function<Request, Response> delegate;
+        private final Class<? extends Response> responseType;
+
+        private IdFromRequestBuilder(Function<Request, Response> delegate, Class<? extends Response> responseType) {
+            this.delegate = delegate;
+            this.responseType = responseType;
+        }
+
+        public Builder<Request, Response> idFromRequest(Function<Request, String> idFromRequest) {
+            return new Builder<>(idFromRequest, this.delegate, this.responseType);
+        }
+
+        static public class Builder<Request extends ETaggedReadRequest, Response> {
+
+            private final Function<Request, String> idFromRequest;
+            private final Function<Request, Response> delegate;
+            private final Class<? extends Response> responseType;
+            private String defaultCacheControl = "must-revalidate";
+
+            private Builder(Function<Request, String> idFromRequest, Function<Request, Response> delegate, Class<? extends Response> responseType) {
+                this.idFromRequest = idFromRequest;
+                this.delegate = delegate;
+                this.responseType = responseType;
+            }
+
+            public Builder<Request, Response> defaultCacheControl(String defaultCacheControl) {
+                this.defaultCacheControl = defaultCacheControl;
+                return this;
+            }
+
+            public ETaggedRead<Request, Response> using(Repository<Etag, PropertyQuery> etagRepository) {
+                return new ETaggedRead<>(etagRepository, this.defaultCacheControl, this.delegate, this.responseType, this.idFromRequest);
+            }
+        }
+    }
+
     private final Repository<Etag, PropertyQuery> etagRepository;
     private final String defaultCacheControl;
     private final Function<Request, Response> delegate;
-    private Class responseType;
+    private Class<? extends Response> responseType;
     private final Function<Request, String> idFromRequest;
 
-    public ETaggedRead(
+    private ETaggedRead(
             Repository<Etag, PropertyQuery> etagRepository,
             String defaultCacheControl,
-            Function<Request, Response> delegate, Class<? extends Response> responseType,
+            Function<Request, Response> delegate,
+            Class<? extends Response> responseType,
             Function<Request, String> idFromRequest) {
         this.etagRepository = etagRepository;
         this.defaultCacheControl = defaultCacheControl;

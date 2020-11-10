@@ -32,13 +32,12 @@ public class ETaggedChangeTest {
     };
 
     private final TestApiHandlers handlers = new TestApiHandlers.Builder()
-            .resourcePutHandler(new ETaggedChange<>(
-                    this.etags,
-                    "test-cache-control",
-                    this.put,
-                    ResourcePutResponse.class,
-                    request -> COMPLETE_UNDERLYING_RESPONSE.status200().xEntityId()
-            ))
+            .resourcePutHandler(
+                ETaggedChange.forHandler(this.put, ResourcePutResponse.class)
+                    .idFromRequest(request -> COMPLETE_UNDERLYING_RESPONSE.status200().xEntityId())
+                    .defaultCacheControl("test-cache-control")
+                    .using(this.etags)
+            )
             .build();
 
     @Test
