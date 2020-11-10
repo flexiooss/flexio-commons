@@ -11,6 +11,7 @@ import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.services.support.date.UTC;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public class ETaggedRead<Request extends ETaggedReadRequest, Response> implements Function<Request, Response> {
@@ -49,6 +50,10 @@ public class ETaggedRead<Request extends ETaggedReadRequest, Response> implement
             public Builder<Request, Response> defaultCacheControl(String defaultCacheControl) {
                 this.defaultCacheControl = defaultCacheControl;
                 return this;
+            }
+
+            public Builder<Request, Response> maxAgeDefaultCacheControl(long delay, TimeUnit unit) {
+                return this.defaultCacheControl(String.format("max-age=%d", unit.toSeconds(delay)));
             }
 
             public ETaggedRead<Request, Response> using(Repository<Etag, PropertyQuery> etagRepository) {
