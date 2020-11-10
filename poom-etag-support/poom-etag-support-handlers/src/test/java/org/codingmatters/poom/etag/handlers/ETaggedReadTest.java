@@ -36,7 +36,13 @@ public class ETaggedReadTest {
     };
 
     private final TestApiHandlers handlers = new TestApiHandlers.Builder()
-            .resourceGetHandler(new ETaggedRead<>(this.etags, "test-cache-control", this.get, ResourceGetResponse.class))
+            .resourceGetHandler(new ETaggedRead<>(
+                    this.etags,
+                    "test-cache-control",
+                    this.get,
+                    ResourceGetResponse.class,
+                    request -> COMPLETE_UNDERLYING_RESPONSE.status200().xEntityId()
+            ))
             .build();
 
     @Test

@@ -20,20 +20,27 @@ public class ETaggedRead<Request extends ETaggedReadRequest, Response> implement
     private final String defaultCacheControl;
     private final Function<Request, Response> delegate;
     private Class responseType;
+    private final Function<Request, String> idFromRequest;
 
-    public ETaggedRead(Repository<Etag, PropertyQuery> etagRepository, String defaultCacheControl, Function<Request, Response> delegate, Class<? extends Response> responseType) {
+    public ETaggedRead(
+            Repository<Etag, PropertyQuery> etagRepository,
+            String defaultCacheControl,
+            Function<Request, Response> delegate, Class<? extends Response> responseType,
+            Function<Request, String> idFromRequest) {
         this.etagRepository = etagRepository;
         this.defaultCacheControl = defaultCacheControl;
         this.delegate = delegate;
         this.responseType = responseType;
+        this.idFromRequest = idFromRequest;
     }
 
     @Override
     public Response apply(Request request) {
         if(request.ifNoneMatch() != null && ! request.ifNoneMatch().isEmpty()) {
             try {
+                String id = this.idFromRequest.apply(request);
                 PagedEntityList<Etag> stored = this.etagRepository.search(PropertyQuery.builder()
-                        .filter("etag == '%s'", request.ifNoneMatch())
+                        .filter("id == '%s' && etag == '%s'", id, request.ifNoneMatch())
                         .build(), 0, 0);
                 if(stored.total() != 0) {
                     try {
@@ -60,9 +67,10 @@ public class ETaggedRead<Request extends ETaggedReadRequest, Response> implement
     private Response delegateAndStoreEtag(Request request) {
         Response response = this.delegate.apply(request);
         try {
+            String id = this.idFromRequest.apply(request);
             ETaggedReadResponse<Response> etagged = ETaggedReadResponse.from(response);
-            if(this.etagRepository.retrieve(etagged.xEntityId()) == null) {
-                this.etagRepository.createWithId(etagged.xEntityId(), Etag.builder()
+            if(this.etagRepository.retrieve(id) == null) {
+                this.etagRepository.createWithId(id, Etag.builder()
                         .etag(etagged.eTag())
                         .id(etagged.xEntityId())
                         .cacheControl(etagged.cacheControl())

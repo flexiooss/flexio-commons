@@ -22,20 +22,29 @@ public class ETaggedChange<Request extends ETaggedChangeRequest, Response> imple
     private final String defaultCacheControl;
     private final Function<Request, Response> delegate;
     private final Class<Response> responseType;
+    private final Function<Request, String> idFromRequest;
 
-    public ETaggedChange(Repository<Etag, PropertyQuery> etagRepository, String defaultCacheControl, Function<Request, Response> delegate, Class<Response> responseType) {
+    public ETaggedChange(
+            Repository<Etag, PropertyQuery> etagRepository,
+            String defaultCacheControl,
+            Function<Request, Response> delegate,
+            Class<Response> responseType,
+            Function<Request, String> idFromRequest
+    ) {
         this.etagRepository = etagRepository;
         this.defaultCacheControl = defaultCacheControl;
         this.delegate = delegate;
         this.responseType = responseType;
+        this.idFromRequest = idFromRequest;
     }
 
     @Override
     public Response apply(Request request) {
         if(request.ifMatch() != null && ! request.ifMatch().isEmpty()) {
             try {
+                String id = this.idFromRequest.apply(request);
                 PagedEntityList<Etag> stored = this.etagRepository.search(PropertyQuery.builder()
-                        .filter("etag == '%s'", request.ifMatch())
+                        .filter("id == '%s' && etag == '%s'", id, request.ifMatch())
                         .build(), 0, 0);
                 if(stored.total() == 0) {
                     try {
@@ -59,12 +68,13 @@ public class ETaggedChange<Request extends ETaggedChangeRequest, Response> imple
     private Response delegateAndStoreEtag(Request request) {
         Response response = this.delegate.apply(request);
         try {
+            String id = this.idFromRequest.apply(request);
             ETaggedReadResponse<Response> etagged = ETaggedReadResponse.from(response);
-            Entity<Etag> current = this.etagRepository.retrieve(etagged.xEntityId());
+            Entity<Etag> current = this.etagRepository.retrieve(id);
             if(current == null) {
-                this.etagRepository.createWithId(etagged.xEntityId(), Etag.builder()
+                this.etagRepository.createWithId(id, Etag.builder()
                         .etag(etagged.eTag())
-                        .id(etagged.xEntityId())
+                        .id(id)
                         .cacheControl(etagged.cacheControl())
                         .created(UTC.now())
                         .build());
