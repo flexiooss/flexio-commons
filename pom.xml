@@ -81,6 +81,7 @@
         <module>flexio-mongo-io</module>
         <module>flexio-graylog-client</module>
         <module>poom-etag-support</module>
+        <module>poom-services-io</module>
     </modules>
 
     <dependencyManagement>
@@ -156,6 +157,19 @@
                 <version>1.46.0-SNAPSHOT</version>
             </dependency>
             <!--            //ETAG-->
+
+
+            <dependency>
+                <groupId>org.codingmatters.poom.services.io.mysql</groupId>
+                <artifactId>poom-services-mysql-io-test</artifactId>
+                <version>1.46.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.services.io.mysql</groupId>
+                <artifactId>poom-services-mysql-io-repository</artifactId>
+                <version>1.46.0-SNAPSHOT</version>
+            </dependency>
+
             <!--//BOM-->
         </dependencies>
     </dependencyManagement>
