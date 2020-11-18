@@ -32,19 +32,28 @@ public class MySQLJsonRepository<V, Q> implements Repository<V, Q> {
     public interface ValueFromJson<V> {
         V read(JsonParser parser) throws IOException;
     }
+    @FunctionalInterface
+    public interface QueryParser<Q> {
+        TableModel.Clause whereClause(Q query) throws RepositoryException;
+    }
 
     private final DataSource dataSource;
     private final TableModel tableModel;
     private final JsonFactory jsonFactory;
     private final ValueToJson<V> valueToJson;
     private final ValueFromJson<V> valueFromJson;
+    private final QueryParser<Q> queryParser;
 
     public MySQLJsonRepository(DataSource dataSource, String tableName, JsonFactory jsonFactory, ValueToJson<V> valueToJson, ValueFromJson<V> valueFromJson) throws RepositoryException {
+        this(dataSource, tableName, jsonFactory, valueToJson, valueFromJson, null);
+    }
+    public MySQLJsonRepository(DataSource dataSource, String tableName, JsonFactory jsonFactory, ValueToJson<V> valueToJson, ValueFromJson<V> valueFromJson, QueryParser<Q> queryParser) throws RepositoryException {
         this.dataSource = dataSource;
         this.tableModel = new TableModel(tableName);
         this.jsonFactory = jsonFactory;
         this.valueToJson = valueToJson;
         this.valueFromJson = valueFromJson;
+        this.queryParser = queryParser;
 
         try {
             this.createOrUpdateTable();
@@ -114,13 +123,26 @@ public class MySQLJsonRepository<V, Q> implements Repository<V, Q> {
 
     @Override
     public PagedEntityList<V> all(long start, long end) throws RepositoryException {
+        return this.repositorySearch(null, start, end);
+    }
+
+    @Override
+    public PagedEntityList<V> search(Q query, long start, long end) throws RepositoryException {
+        if(this.queryParser == null) {
+            throw new RepositoryException("repository doesn't have a query parser, cannot search");
+        } else {
+            return this.repositorySearch(this.queryParser.whereClause(query), start, end);
+        }
+    }
+
+    private PagedEntityList<V> repositorySearch(TableModel.Clause clause, long start, long end) throws RepositoryException {
         LinkedList<Entity<V>> result = new LinkedList<>();
         try(Connection connection = this.dataSource.getConnection()) {
-            ResultSet countRs = this.tableModel.countAllEntities(connection).executeQuery();
+            ResultSet countRs = this.tableModel.countEntitiesWithWhereClause(connection, clause).executeQuery();
             countRs.next();
             long count = countRs.getLong("cnt");
 
-            ResultSet rs = this.tableModel.allEntities(connection, start, end).executeQuery();
+            ResultSet rs = this.tableModel.entitiesWithWhereClause(connection, clause, start, end).executeQuery();
             while(rs.next()) {
                 result.add(this.entityFromResultSet(rs));
             }
@@ -131,13 +153,16 @@ public class MySQLJsonRepository<V, Q> implements Repository<V, Q> {
     }
 
     @Override
-    public PagedEntityList<V> search(Q propertyQuery, long l, long l1) throws RepositoryException {
-        throw new RuntimeException("NYIMPL");
-    }
-
-    @Override
     public void deleteFrom(Q query) throws RepositoryException {
-        throw new RuntimeException("NYIMPL");
+        if(this.queryParser == null) {
+            throw new RepositoryException("repository doesn't have a query parser, cannot delete from query");
+        } else {
+            try(Connection connection = this.dataSource.getConnection()) {
+                this.tableModel.deleteEntityFrom(connection, this.queryParser.whereClause(query)).executeUpdate();
+            } catch (SQLException e) {
+                throw new RepositoryException("faied deleting entites from query");
+            }
+        }
     }
 
     private void createOrUpdateTable() throws SQLException {

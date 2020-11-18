@@ -84,14 +84,81 @@ public class TableModel {
         return result;
     }
 
-    public PreparedStatement allEntities(Connection connection, long start, long end) throws SQLException {
-        PreparedStatement result = connection.prepareStatement(String.format("SELECT id, version, doc FROM `%s` LIMIT ? OFFSET ?", this.tableName));
-        result.setLong(1, end - start + 1);
-        result.setLong(2, start);
+    public PreparedStatement deleteEntityFrom(Connection connection, Clause clause) throws SQLException {
+        PreparedStatement result = connection.prepareStatement(String.format("DELETE FROM `%s` %s",
+                this.tableName,
+                clause != null && clause.clause() != null && ! clause.clause().isEmpty() ? "WHERE " + clause.clause() : ""
+        ));
+
+        int paramIndex = 0;
+
+        if(clause != null) {
+            for (Object arg : clause.args()) {
+                paramIndex++;
+                result.setObject(paramIndex, arg);
+            }
+        }
         return result;
     }
 
-    public PreparedStatement countAllEntities(Connection connection) throws SQLException {
-        return connection.prepareStatement(String.format("SELECT count(*) as cnt FROM `%s`", this.tableName));
+    public PreparedStatement entitiesWithWhereClause(Connection connection, TableModel.Clause clause, long start, long end) throws SQLException {
+        PreparedStatement result = connection.prepareStatement(String.format("SELECT id, version, doc FROM `%s`%s LIMIT ? OFFSET ?",
+                this.tableName,
+                clause != null && clause.clause() != null && ! clause.clause().isEmpty() ? "WHERE " + clause.clause() : ""
+        ));
+        int paramIndex = 0;
+
+        if(clause != null) {
+            for (Object arg : clause.args()) {
+                paramIndex++;
+                result.setObject(paramIndex, arg);
+            }
+        }
+
+        paramIndex++;
+        result.setLong(paramIndex, end - start + 1);
+
+        paramIndex++;
+        result.setLong(paramIndex, start);
+        return result;
+    }
+
+    public PreparedStatement countEntitiesWithWhereClause(Connection connection, TableModel.Clause clause) throws SQLException {
+        PreparedStatement result = connection.prepareStatement(String.format("SELECT count(*) as cnt FROM `%s`%s",
+                this.tableName,
+                clause != null && clause.clause() != null && !clause.clause().isEmpty() ? "WHERE " + clause.clause() : ""
+        ));
+
+        if(clause != null) {
+            int paramIndex = 0;
+            for (Object arg : clause.args()) {
+                paramIndex++;
+                result.setObject(paramIndex, arg);
+            }
+        }
+
+        return result;
+    }
+
+    static public class Clause {
+        private final String clause;
+        private final Object[] args;
+
+        public Clause(String clause) {
+            this(clause, null);
+        }
+
+        public Clause(String clause, Object ... args) {
+            this.clause = clause;
+            this.args = args == null ? new Object[0] : args;
+        }
+
+        public String clause() {
+            return clause;
+        }
+
+        public Object[] args() {
+            return args;
+        }
     }
 }

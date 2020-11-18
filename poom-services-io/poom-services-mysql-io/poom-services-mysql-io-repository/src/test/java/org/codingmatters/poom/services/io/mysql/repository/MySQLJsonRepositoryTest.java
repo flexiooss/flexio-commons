@@ -5,6 +5,8 @@ import io.flexio.docker.DockerResource;
 import org.codingmatters.generated.Value;
 import org.codingmatters.generated.json.ValueReader;
 import org.codingmatters.generated.json.ValueWriter;
+import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
+import org.codingmatters.poom.services.io.mysql.repository.table.TableModel;
 import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
@@ -12,6 +14,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.math.BigInteger;
 import java.sql.Connection;
@@ -34,6 +37,9 @@ public class MySQLJsonRepositoryTest {
     @Rule
     public MariaDBResource mariaDBResource = new MariaDBResource(docker);
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     private final JsonFactory jsonFactory = new JsonFactory();
 
     private Connection connection;
@@ -44,17 +50,21 @@ public class MySQLJsonRepositoryTest {
     }
 
     private MySQLJsonRepository<Value, String> createRepository(String tableName) throws Exception {
+        return this.createRepository(tableName, null);
+    }
+    private MySQLJsonRepository<Value, String> createRepository(String tableName, MySQLJsonRepository.QueryParser<String> queryParser) throws Exception {
         return new MySQLJsonRepository<>(
                 this.mariaDBResource.ds(),
                 tableName,
                 this.jsonFactory,
                 (generator, value) -> new ValueWriter().write(generator, value),
-                parser -> new ValueReader().read(parser)
+                parser -> new ValueReader().read(parser),
+                queryParser
         );
     }
 
     @Test
-    public void givenEmptyDb__whenCreatingRepository__thenRepositoryTableIsCreated() throws Exception {
+    public void givenEmptyDb__whenCreatingRepository__thenReposinulltoryTableIsCreated() throws Exception {
         this.createRepository("repository");
 
         assertThat(this.tableExists("repository"), is(true));
@@ -282,6 +292,121 @@ public class MySQLJsonRepositoryTest {
             assertThat("" + i, actual.get(i - 95).version(), is(BigInteger.valueOf(i)));
             assertThat("" + i, actual.get(i - 95).value(), is(Value.builder().prop("" + i).build()));
         }
+    }
+
+
+    @Test
+    public void givenSomeRowsInTable__whenSearching_andQueryParserNotDefined__thenRepositoryException() throws Exception {
+        thrown.expect(RepositoryException.class);
+        thrown.expectMessage("repository doesn't have a query parser, cannot search");
+
+        this.createRepository("repository").search("yop", 0, 100);
+    }
+
+    @Test
+    public void givenSomeRowsInTable__whenSearching_andQueryParserDefined__thenQueryIsParsed_andClauseApplied() throws Exception {
+        MySQLJsonRepository<Value, String> repository = this.createRepository(
+                "repository",
+                query -> new TableModel.Clause(query)
+        );
+
+        PreparedStatement statement = this.connection.prepareStatement("INSERT INTO `repository` (id, version, doc) VALUES (?, ?, ?)");
+        for (int i = 0; i < 10; i++) {
+            statement.setString(1, String.format("%03d", i));
+            statement.setLong(2, i);
+            statement.setString(3, String.format("{\"prop\":\"%s\"}", i));
+            statement.execute();
+        }
+
+        PagedEntityList<Value> actual = repository.search("id = '005'", 0L, 100L);
+
+        assertThat(actual.total(), is(1L));
+        assertThat(actual.get(0).id(), is("005"));
+        assertThat(actual.get(0).value(), is(Value.builder()
+                .prop("5")
+                .build()));
+    }
+
+    @Test
+    public void givenSomeRowsInTable__whenSearching_andQueryParserDefined_andClauseHasParam__thenQueryIsParsed_andClauseApplied() throws Exception {
+        MySQLJsonRepository<Value, String> repository = this.createRepository(
+                "repository",
+                query -> new TableModel.Clause(query, "005")
+        );
+
+        PreparedStatement statement = this.connection.prepareStatement("INSERT INTO `repository` (id, version, doc) VALUES (?, ?, ?)");
+        for (int i = 0; i < 10; i++) {
+            statement.setString(1, String.format("%03d", i));
+            statement.setLong(2, i);
+            statement.setString(3, String.format("{\"prop\":\"%s\"}", i));
+            statement.execute();
+        }
+
+        PagedEntityList<Value> actual = repository.search("id = ?", 0L, 100L);
+
+        assertThat(actual.total(), is(1L));
+        assertThat(actual.get(0).id(), is("005"));
+        assertThat(actual.get(0).value(), is(Value.builder()
+                .prop("5")
+                .build()));
+    }
+
+    @Test
+    public void givenSomeRowsInTable__whenDeletingFromQuery_andQueryParserNotDefined__thenRepositoryException() throws Exception {
+        thrown.expect(RepositoryException.class);
+        thrown.expectMessage("repository doesn't have a query parser, cannot delete from query");
+
+        this.createRepository("repository").deleteFrom("yop");
+    }
+
+    @Test
+    public void givenSomeRowsInTable__whenDeletingFromQuery_andQueryParserDefined__thenQueryIsParsed_andClauseAppliedToDelete() throws Exception {
+        MySQLJsonRepository<Value, String> repository = this.createRepository(
+                "repository",
+                query -> new TableModel.Clause(query)
+        );
+
+        PreparedStatement statement = this.connection.prepareStatement("INSERT INTO `repository` (id, version, doc) VALUES (?, ?, ?)");
+        for (int i = 0; i < 10; i++) {
+            statement.setString(1, String.format("%03d", i));
+            statement.setLong(2, i);
+            statement.setString(3, String.format("{\"prop\":\"%s\"}", i));
+            statement.execute();
+        }
+
+        repository.deleteFrom("id = '005'");
+
+        ResultSet rs = this.connection.createStatement().executeQuery("select count(*) as cnt from `repository`");
+        rs.next();
+        assertThat(rs.getInt("cnt"), is(9));
+
+        rs = this.connection.createStatement().executeQuery("select * from `repository` where id = '005'");
+        assertThat(rs.next(), is(false));
+    }
+
+    @Test
+    public void givenSomeRowsInTable__whenDeletingFromQuery_andQueryParserDefined_andClauseHasParam__thenQueryIsParsed_andClauseAppliedToDelete() throws Exception {
+        MySQLJsonRepository<Value, String> repository = this.createRepository(
+                "repository",
+                query -> new TableModel.Clause(query, "005")
+        );
+
+        PreparedStatement statement = this.connection.prepareStatement("INSERT INTO `repository` (id, version, doc) VALUES (?, ?, ?)");
+        for (int i = 0; i < 10; i++) {
+            statement.setString(1, String.format("%03d", i));
+            statement.setLong(2, i);
+            statement.setString(3, String.format("{\"prop\":\"%s\"}", i));
+            statement.execute();
+        }
+
+        repository.deleteFrom("id = ?");
+
+        ResultSet rs = this.connection.createStatement().executeQuery("select count(*) as cnt from `repository`");
+        rs.next();
+        assertThat(rs.getInt("cnt"), is(9));
+
+        rs = this.connection.createStatement().executeQuery("select * from `repository` where id = '005'");
+        assertThat(rs.next(), is(false));
     }
 
     private boolean tableExists(String tableName) throws SQLException {
