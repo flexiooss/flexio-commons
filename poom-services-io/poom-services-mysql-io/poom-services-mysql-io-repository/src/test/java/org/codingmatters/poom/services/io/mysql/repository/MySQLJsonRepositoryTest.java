@@ -43,7 +43,7 @@ public class MySQLJsonRepositoryTest {
         this.connection = this.mariaDBResource.ds().getConnection();
     }
 
-    private MySQLJsonRepository<Value> createRepository(String tableName) throws Exception {
+    private MySQLJsonRepository<Value, String> createRepository(String tableName) throws Exception {
         return new MySQLJsonRepository<>(
                 this.mariaDBResource.ds(),
                 tableName,
@@ -122,7 +122,7 @@ public class MySQLJsonRepositoryTest {
 
     @Test
     public void givenTableHasToValues__whenRetrieveExisting__thenRetrivedBuildedFromRow() throws Exception {
-        MySQLJsonRepository<Value> repository = this.createRepository("repository");
+        MySQLJsonRepository<Value, String> repository = this.createRepository("repository");
 
         PreparedStatement statement = this.connection.prepareStatement("INSERT INTO `repository` (id, version, doc) VALUES " +
                 "(?, ?, ?), " +
@@ -143,7 +143,7 @@ public class MySQLJsonRepositoryTest {
 
     @Test
     public void givenTableHasAValue__whenUpdatingValue__thenTableRowUpdated() throws Exception {
-        MySQLJsonRepository<Value> repository = this.createRepository("repository");
+        MySQLJsonRepository<Value, String> repository = this.createRepository("repository");
 
         PreparedStatement statement = this.connection.prepareStatement("INSERT INTO `repository` (id, version, doc) VALUES " +
                 "(?, ?, ?)");
@@ -167,7 +167,7 @@ public class MySQLJsonRepositoryTest {
 
     @Test
     public void givenTableHasAValue__whenDeletingValue__thenTableEmpty() throws Exception {
-        MySQLJsonRepository<Value> repository = this.createRepository("repository");
+        MySQLJsonRepository<Value, String> repository = this.createRepository("repository");
 
         PreparedStatement statement = this.connection.prepareStatement("INSERT INTO `repository` (id, version, doc) VALUES (?, ?, ?)");
 
@@ -185,7 +185,7 @@ public class MySQLJsonRepositoryTest {
 
     @Test
     public void givenSomeRowsInTable__whenListAll_andPageContainsAll__thenAllEntitiesReturned() throws Exception {
-        MySQLJsonRepository<Value> repository = this.createRepository("repository");
+        MySQLJsonRepository<Value, String> repository = this.createRepository("repository");
 
         PreparedStatement statement = this.connection.prepareStatement("INSERT INTO `repository` (id, version, doc) VALUES (?, ?, ?)");
         for (int i = 0; i < 100; i++) {
@@ -206,7 +206,7 @@ public class MySQLJsonRepositoryTest {
 
     @Test
     public void givenSomeRowsInTable__whenListAll_andPageExactlyAll__thenAllEntitiesReturned() throws Exception {
-        MySQLJsonRepository<Value> repository = this.createRepository("repository");
+        MySQLJsonRepository<Value, String> repository = this.createRepository("repository");
 
         PreparedStatement statement = this.connection.prepareStatement("INSERT INTO `repository` (id, version, doc) VALUES (?, ?, ?)");
         for (int i = 0; i < 100; i++) {
@@ -227,7 +227,7 @@ public class MySQLJsonRepositoryTest {
 
     @Test
     public void givenSomeRowsInTable__whenListAll_andInnerPage__thenAllEntitiesReturned() throws Exception {
-        MySQLJsonRepository<Value> repository = this.createRepository("repository");
+        MySQLJsonRepository<Value, String> repository = this.createRepository("repository");
 
         PreparedStatement statement = this.connection.prepareStatement("INSERT INTO `repository` (id, version, doc) VALUES (?, ?, ?)");
         for (int i = 0; i < 100; i++) {
@@ -248,7 +248,7 @@ public class MySQLJsonRepositoryTest {
 
     @Test
     public void givenSomeRowsInTable__whenListAll_andOuterPage__thenAllEntitiesReturned() throws Exception {
-        MySQLJsonRepository<Value> repository = this.createRepository("repository");
+        MySQLJsonRepository<Value, String> repository = this.createRepository("repository");
 
         PreparedStatement statement = this.connection.prepareStatement("INSERT INTO `repository` (id, version, doc) VALUES (?, ?, ?)");
         for (int i = 0; i < 100; i++) {
@@ -265,7 +265,7 @@ public class MySQLJsonRepositoryTest {
 
     @Test
     public void givenSomeRowsInTable__whenListAll_andOverlappingPage__thenAllEntitiesReturned() throws Exception {
-        MySQLJsonRepository<Value> repository = this.createRepository("repository");
+        MySQLJsonRepository<Value, String> repository = this.createRepository("repository");
 
         PreparedStatement statement = this.connection.prepareStatement("INSERT INTO `repository` (id, version, doc) VALUES (?, ?, ?)");
         for (int i = 0; i < 100; i++) {

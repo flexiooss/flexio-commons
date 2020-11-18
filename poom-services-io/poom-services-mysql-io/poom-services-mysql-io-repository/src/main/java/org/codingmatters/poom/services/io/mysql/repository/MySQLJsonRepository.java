@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import java.util.Optional;
 import java.util.UUID;
 
-public class MySQLJsonRepository<V> implements Repository<V, PropertyQuery> {
+public class MySQLJsonRepository<V, Q> implements Repository<V, Q> {
     @FunctionalInterface
     public interface ValueToJson<V> {
         void write(JsonGenerator generator, V value) throws IOException;
@@ -131,12 +131,12 @@ public class MySQLJsonRepository<V> implements Repository<V, PropertyQuery> {
     }
 
     @Override
-    public PagedEntityList<V> search(PropertyQuery propertyQuery, long l, long l1) throws RepositoryException {
+    public PagedEntityList<V> search(Q propertyQuery, long l, long l1) throws RepositoryException {
         throw new RuntimeException("NYIMPL");
     }
 
     @Override
-    public void deleteFrom(PropertyQuery query) throws RepositoryException {
+    public void deleteFrom(Q query) throws RepositoryException {
         throw new RuntimeException("NYIMPL");
     }
 
