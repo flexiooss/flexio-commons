@@ -93,9 +93,9 @@ public class TableModel {
         int paramIndex = 0;
 
         if(clause != null) {
-            for (Object arg : clause.args()) {
+            for (ParamSetter setter : clause.setters()) {
                 paramIndex++;
-                result.setObject(paramIndex, arg);
+                setter.set(result, paramIndex);
             }
         }
         return result;
@@ -109,9 +109,9 @@ public class TableModel {
         int paramIndex = 0;
 
         if(clause != null) {
-            for (Object arg : clause.args()) {
+            for (ParamSetter setter : clause.setters()) {
                 paramIndex++;
-                result.setObject(paramIndex, arg);
+                setter.set(result, paramIndex);
             }
         }
 
@@ -131,9 +131,9 @@ public class TableModel {
 
         if(clause != null) {
             int paramIndex = 0;
-            for (Object arg : clause.args()) {
+            for (ParamSetter setter : clause.setters()) {
                 paramIndex++;
-                result.setObject(paramIndex, arg);
+                setter.set(result, paramIndex);
             }
         }
 
@@ -142,23 +142,28 @@ public class TableModel {
 
     static public class Clause {
         private final String clause;
-        private final Object[] args;
+        private final ParamSetter[] setters;
 
         public Clause(String clause) {
             this(clause, null);
         }
 
-        public Clause(String clause, Object ... args) {
+        public Clause(String clause, ParamSetter ... setters) {
             this.clause = clause;
-            this.args = args == null ? new Object[0] : args;
+            this.setters = setters == null ? new ParamSetter[0] : setters;
         }
 
         public String clause() {
             return clause;
         }
 
-        public Object[] args() {
-            return args;
+        public ParamSetter[] setters() {
+            return setters;
         }
+    }
+
+    @FunctionalInterface
+    public interface ParamSetter {
+        void set(PreparedStatement statement, int index) throws SQLException;
     }
 }

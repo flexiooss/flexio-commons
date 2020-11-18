@@ -331,7 +331,7 @@ public class MySQLJsonRepositoryTest {
     public void givenSomeRowsInTable__whenSearching_andQueryParserDefined_andClauseHasParam__thenQueryIsParsed_andClauseApplied() throws Exception {
         MySQLJsonRepository<Value, String> repository = this.createRepository(
                 "repository",
-                query -> new TableModel.Clause(query, "005")
+                query -> new TableModel.Clause(query, (statement, index) -> statement.setString(index, "005"))
         );
 
         PreparedStatement statement = this.connection.prepareStatement("INSERT INTO `repository` (id, version, doc) VALUES (?, ?, ?)");
@@ -388,7 +388,7 @@ public class MySQLJsonRepositoryTest {
     public void givenSomeRowsInTable__whenDeletingFromQuery_andQueryParserDefined_andClauseHasParam__thenQueryIsParsed_andClauseAppliedToDelete() throws Exception {
         MySQLJsonRepository<Value, String> repository = this.createRepository(
                 "repository",
-                query -> new TableModel.Clause(query, "005")
+                query -> new TableModel.Clause(query, (statement, index) -> statement.setString(index, "005"))
         );
 
         PreparedStatement statement = this.connection.prepareStatement("INSERT INTO `repository` (id, version, doc) VALUES (?, ?, ?)");

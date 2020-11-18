@@ -160,7 +160,7 @@ public class MySQLJsonRepository<V, Q> implements Repository<V, Q> {
             try(Connection connection = this.dataSource.getConnection()) {
                 this.tableModel.deleteEntityFrom(connection, this.queryParser.whereClause(query)).executeUpdate();
             } catch (SQLException e) {
-                throw new RepositoryException("faied deleting entites from query");
+                throw new RepositoryException("faied deleting entites from query", e);
             }
         }
     }
