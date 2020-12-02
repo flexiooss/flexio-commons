@@ -57,22 +57,22 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             this.collectionName = collectionName;
         }
 
-        public Builder withFilter(Function<Q, Bson> filter) {
+        public Builder<V,Q> withFilter(Function<Q, Bson> filter) {
             this.filter = filter;
             return this;
         }
 
-        public Builder withSort(Function<Q, Bson> sort) {
+        public Builder<V,Q> withSort(Function<Q, Bson> sort) {
             this.sort = sort;
             return this;
         }
 
-        public Builder withToDocument(Function<V, Document> toDocument) {
+        public Builder<V,Q> withToDocument(Function<V, Document> toDocument) {
             this.toDocument = toDocument;
             return this;
         }
 
-        public Builder withToValue(Function<Document, V> toValue) {
+        public Builder<V,Q> withToValue(Function<Document, V> toValue) {
             this.toValue = toValue;
             return this;
         }
