@@ -1,4 +1,6 @@
 level: dev
-schemes: [maven]
-topics: [106]
-version: 1.52.0
+schemes:
+- maven
+topics:
+- 106
+version: 1.53.0
