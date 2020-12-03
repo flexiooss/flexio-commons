@@ -18,13 +18,10 @@ public class EtagMongoRepository {
 
     public Repository<Etag, PropertyQuery> at(String database, String collectionName) {
         EtagMongoMapper mapper = new EtagMongoMapper();
-        PropertyQuerier propertyQuerier = new PropertyQuerier();
 
         return MongoCollectionRepository.<Etag, PropertyQuery>repository(database, collectionName)
                 .withToDocument(mapper::toDocument )
                 .withToValue(mapper::toValue )
-                .withCheckedFilter(propertyQuerier.filterer())
-                .withCheckedSort(propertyQuerier.sorter())
-                .build(mongoClient);
+                .buildWithPropertyQuery(mongoClient);
     }
 }

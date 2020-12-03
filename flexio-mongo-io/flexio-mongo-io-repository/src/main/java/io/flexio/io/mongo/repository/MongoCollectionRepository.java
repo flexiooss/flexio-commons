@@ -7,10 +7,12 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import io.flexio.io.mongo.repository.property.query.PropertyQuerier;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
+import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
@@ -42,6 +44,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         Builder<V, Q> withCheckedFilter(BsonFromQueryProvider<Q> filter);
         Builder<V, Q> withFilter(Function<Q, Bson> filter);
         Repository<V, Q> build(MongoClient mongoClient);
+        Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient);
     }
 
     static public class Builder<V, Q> implements MandatoryToDocument<V, Q>, MandatoryToValue<V, Q>, OptionalFilter<V, Q> {
@@ -91,6 +94,18 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
                     this.collectionName,
                     this.filter,
                     this.sort,
+                    this.toDocument,
+                    this.toValue);
+        }
+
+        public Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient) {
+            PropertyQuerier querier = new PropertyQuerier();
+            return new MongoCollectionRepository<>(
+                    mongoClient,
+                    this.databaseName,
+                    this.collectionName,
+                    querier.filterer(),
+                    querier.sorter(),
                     this.toDocument,
                     this.toValue);
         }
