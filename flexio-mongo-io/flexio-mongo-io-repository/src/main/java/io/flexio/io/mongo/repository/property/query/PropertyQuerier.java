@@ -1,5 +1,6 @@
 package io.flexio.io.mongo.repository.property.query;
 
+import io.flexio.io.mongo.repository.BsonFromQueryProvider;
 import org.bson.conversions.Bson;
 import org.codingmatters.poom.services.domain.property.query.FilterEvents;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
@@ -19,35 +20,25 @@ public class PropertyQuerier {
     public PropertyQuerier() {
     }
 
-    public Function<PropertyQuery, Bson> filterer() {
+    public BsonFromQueryProvider<PropertyQuery> filterer() {
         return this::filter;
     }
 
-    private Bson filter(PropertyQuery query) {
+    private Bson filter(PropertyQuery query) throws Exception {
         BsonFilterEvents events = new BsonFilterEvents();
-        try {
-            PropertyQueryParser.builder().build(events, SortEvents.noop()).parse(query);
-            Bson filter = events.filter();
-            return filter;
-        } catch (InvalidPropertyException | FilterEventException | SortEventException e) {
-            log.warn("property query filter parsing failed for mongo repo, should throw exception, returning un filtered", e);
-            return null;
-        }
+        PropertyQueryParser.builder().build(events, SortEvents.noop()).parse(query);
+        Bson filter = events.filter();
+        return filter;
     }
 
-    public Function<PropertyQuery, Bson> sorter() {
+    public BsonFromQueryProvider<PropertyQuery> sorter() {
         return this::sort;
     }
 
-    private Bson sort(PropertyQuery query) {
+    private Bson sort(PropertyQuery query) throws Exception {
         BsonSortEvents events = new BsonSortEvents();
-        try {
-            PropertyQueryParser.builder().build(FilterEvents.noop(), events).parse(query);
-            return events.sort();
-        } catch (InvalidPropertyException | FilterEventException | SortEventException e) {
-            log.warn("property query filter parsing failed for mongo repo, should throw exception, returning un filtered", e);
-            return null;
-        }
+        PropertyQueryParser.builder().build(FilterEvents.noop(), events).parse(query);
+        return events.sort();
     }
 
 }
