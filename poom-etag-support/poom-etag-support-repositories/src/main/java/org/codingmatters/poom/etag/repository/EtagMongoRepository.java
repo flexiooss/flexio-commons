@@ -23,8 +23,8 @@ public class EtagMongoRepository {
         return MongoCollectionRepository.<Etag, PropertyQuery>repository(database, collectionName)
                 .withToDocument(mapper::toDocument )
                 .withToValue(mapper::toValue )
-                .withFilter(propertyQuerier.filterer())
-                .withSort(propertyQuerier.sorter())
+                .withCheckedFilter(propertyQuerier.filterer())
+                .withCheckedSort(propertyQuerier.sorter())
                 .build(mongoClient);
     }
 }

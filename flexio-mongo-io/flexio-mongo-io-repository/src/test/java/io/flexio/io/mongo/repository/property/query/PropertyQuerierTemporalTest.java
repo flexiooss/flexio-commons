@@ -41,8 +41,8 @@ public class PropertyQuerierTemporalTest {
         this.repository = MongoCollectionRepository.<MongoValueWithObject, PropertyQuery>repository(DB, COLLECTION)
                 .withToDocument(value -> new MongoValueWithObjectMongoMapper().toDocument(value))
                 .withToValue(document -> new MongoValueWithObjectMongoMapper().toValue(document))
-                .withFilter(propertyQuerier.filterer())
-                .withSort(propertyQuerier.sorter())
+                .withCheckedFilter(propertyQuerier.filterer())
+                .withCheckedSort(propertyQuerier.sorter())
                 .build(mongo.newClient());
 
         this.repository.create(MongoValueWithObject.builder().a("2012").dt(LocalDateTime.of(2012, 05, 23, 12, 42)).build());
