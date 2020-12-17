@@ -50,6 +50,7 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
             this.repository.create(ComplexValue.builder()
                     .stringProp("%03d", i)
                     .integerProp(i)
+                    .longProp((long) i)
                     .nested(Nested.builder()
                             .nestedProp("%03d", 100 - i)
                             .deep(Deep.builder().deepProp("04").build())
@@ -83,6 +84,16 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
 
         assertThat(actual.total(), is(1L));
         assertThat(actual.get(0).value().integerProp(), is(6));
+    }
+
+    @Test
+    public void givenFilterOnLongProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("longProp == 6")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+        assertThat(actual.get(0).value().longProp(), is(6L));
     }
 
     @Test
@@ -133,6 +144,19 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
     }
 
     @Test
+    public void givenFilterOnLongProperty__whenNotIsEqual__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("longProp != 6")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(99L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.longProp()).toArray(),
+                not(hasItemInArray(6L))
+        );
+    }
+
+    @Test
     public void givenFilterOnStringProperty__whenNotIsEqualProperty__thenSelectedValueReturned() throws Exception {
         PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp != nested.nestedProp")
@@ -170,6 +194,18 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
     }
 
     @Test
+    public void givenFilterOnLongProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
+        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().longProp(null).build());
+
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("longProp == null")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+        assertThat(actual.get(0).id(), is(entity.id()));
+    }
+
+    @Test
     public void givenFilterOnStringProperty__whenIsNotNull__thenSelectedValueReturned() throws Exception {
         Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().stringProp(null).build());
 
@@ -200,6 +236,21 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
     }
 
     @Test
+    public void givenFilterOnLongProperty__whenIsNotNull__thenSelectedValueReturned() throws Exception {
+        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().longProp(null).build());
+
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("longProp != null")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(100L));
+        assertThat(
+                actual.stream().map(complexValueEntity -> complexValueEntity.id()).toArray(),
+                not(hasItemInArray(entity.id()))
+        );
+    }
+
+    @Test
     public void givenFilterOnStringProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
         PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp > '097'")
@@ -212,7 +263,6 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
         );
     }
 
-
     @Test
     public void givenFilterOnIntegerProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
         PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
@@ -223,6 +273,19 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
         assertThat(
                 actual.valueList().stream().map(complexValue -> complexValue.integerProp()).toArray(),
                 is(arrayContainingInAnyOrder(98, 99))
+        );
+    }
+
+    @Test
+    public void givenFilterOnLongProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("longProp > 97")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(2L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.longProp()).toArray(),
+                is(arrayContainingInAnyOrder(98L, 99L))
         );
     }
 
@@ -265,6 +328,19 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
     }
 
     @Test
+    public void givenFilterOnLongProperty__whenGraterThanOrEquals__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("longProp >= 97")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.longProp()).toArray(),
+                is(arrayContainingInAnyOrder(97L, 98L, 99L))
+        );
+    }
+
+    @Test
     public void givenFilterOnStringProperty__whenGraterThanOrEqualProperty__thenSelectedValueReturned() throws Exception {
         PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp >= nested.nestedProp")
@@ -303,6 +379,19 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
     }
 
     @Test
+    public void givenFilterOnLongProperty__whenLowerThan__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("longProp < 2")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(2L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.longProp()).toArray(),
+                is(arrayContainingInAnyOrder(0L, 1L))
+        );
+    }
+
+    @Test
     public void givenFilterOnStringProperty__whenLowerThanProperty__thenSelectedValueReturned() throws Exception {
         PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp < nested.nestedProp")
@@ -337,6 +426,19 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
         assertThat(
                 actual.valueList().stream().map(complexValue -> complexValue.integerProp()).toArray(),
                 is(arrayContainingInAnyOrder(0, 1, 2))
+        );
+    }
+
+    @Test
+    public void givenFilterOnLongProperty__whenLowerThanOrEquals__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("longProp <= 2")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.longProp()).toArray(),
+                is(arrayContainingInAnyOrder(0L, 1L, 2L))
         );
     }
 
