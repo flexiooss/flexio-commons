@@ -1,17 +1,18 @@
 package io.flexio.io.mongo.repository;
 
 import com.mongodb.MongoClient;
-import com.mongodb.MongoException;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import io.flexio.io.mongo.repository.property.query.PropertyQuerier;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
+import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
@@ -40,15 +41,17 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     }
 
     public interface OptionalFilter<V, Q> {
+        Builder<V, Q> withCheckedFilter(BsonFromQueryProvider<Q> filter);
         Builder<V, Q> withFilter(Function<Q, Bson> filter);
         Repository<V, Q> build(MongoClient mongoClient);
+        Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient);
     }
 
     static public class Builder<V, Q> implements MandatoryToDocument<V, Q>, MandatoryToValue<V, Q>, OptionalFilter<V, Q> {
         private final String databaseName;
         private final String collectionName;
-        private Function<Q, Bson> filter = q -> null;
-        private Function<Q, Bson> sort = q -> null;
+        private BsonFromQueryProvider<Q> filter = q -> null;
+        private BsonFromQueryProvider<Q> sort = q -> null;
         private Function<V, Document> toDocument;
         private Function<Document,V> toValue;
 
@@ -57,22 +60,29 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             this.collectionName = collectionName;
         }
 
-        public Builder withFilter(Function<Q, Bson> filter) {
+        public Builder<V,Q> withFilter(Function<Q, Bson> filter) {
+            return this.withCheckedFilter((BsonFromQueryProvider<Q>) query -> filter.apply(query));
+        }
+
+        public Builder<V,Q> withCheckedFilter(BsonFromQueryProvider<Q> filter) {
             this.filter = filter;
             return this;
         }
 
-        public Builder withSort(Function<Q, Bson> sort) {
+        public Builder<V,Q> withSort(Function<Q, Bson> sort) {
+            return this.withCheckedSort((BsonFromQueryProvider<Q>) query -> sort.apply(query));
+        }
+        public Builder<V,Q> withCheckedSort(BsonFromQueryProvider<Q> sort) {
             this.sort = sort;
             return this;
         }
 
-        public Builder withToDocument(Function<V, Document> toDocument) {
+        public Builder<V,Q> withToDocument(Function<V, Document> toDocument) {
             this.toDocument = toDocument;
             return this;
         }
 
-        public Builder withToValue(Function<Document, V> toValue) {
+        public Builder<V,Q> withToValue(Function<Document, V> toValue) {
             this.toValue = toValue;
             return this;
         }
@@ -87,14 +97,34 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
                     this.toDocument,
                     this.toValue);
         }
+
+        public Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient) {
+            PropertyQuerier querier = new PropertyQuerier();
+            return new MongoCollectionRepository<>(
+                    mongoClient,
+                    this.databaseName,
+                    this.collectionName,
+                    querier.filterer(),
+                    querier.sorter(),
+                    this.toDocument,
+                    this.toValue);
+        }
     }
 
-    private Bson filterFrom(Q query) {
-        return this.filter.apply(query);
+    private Bson filterFrom(Q query) throws RepositoryException {
+        try {
+            return this.filterProvider.from(query);
+        } catch (Exception e) {
+            throw new RepositoryException("failed generating filter from query : " + query, e);
+        }
     }
 
-    private Bson sortFrom(Q query) {
-        return sort.apply(query);
+    private Bson sortFrom(Q query) throws RepositoryException {
+        try {
+            return sortProvider.from(query);
+        } catch (Exception e) {
+            throw new RepositoryException("failed generating sort from query : " + query, e);
+        }
     }
 
     private Document toDocument(V value) {
@@ -107,17 +137,17 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     private final MongoClient mongoClient;
     private final String databaseName;
     private final String collectionName;
-    private final Function<Q, Bson> filter;
-    private final Function<Q, Bson> sort;
+    private final BsonFromQueryProvider<Q> filterProvider;
+    private final BsonFromQueryProvider<Q> sortProvider;
     private final Function<V, Document> toDocument;
     private final Function<Document, V> toValue;
 
-    public MongoCollectionRepository(MongoClient mongoClient, String databaseName, String collectionName, Function<Q, Bson> filter, Function<Q, Bson> sort, Function<V, Document> toDocument, Function<Document, V> toValue) {
+    private MongoCollectionRepository(MongoClient mongoClient, String databaseName, String collectionName, BsonFromQueryProvider<Q> filterProvider, BsonFromQueryProvider<Q> sortProvider, Function<V, Document> toDocument, Function<Document, V> toValue) {
         this.mongoClient = mongoClient;
         this.databaseName = databaseName;
         this.collectionName = collectionName;
-        this.filter = filter;
-        this.sort = sort;
+        this.filterProvider = filterProvider;
+        this.sortProvider = sortProvider;
         this.toDocument = toDocument;
         this.toValue = toValue;
     }
@@ -200,7 +230,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     }
 
 
-    private PagedEntityList<V> filteredQuery(Q query, long startIndex, long endIndex, MongoClient mongoClient) {
+    private PagedEntityList<V> filteredQuery(Q query, long startIndex, long endIndex, MongoClient mongoClient) throws RepositoryException {
         Bson filter = query != null ? this.filterFrom(query) : null;
         Bson sort = query != null ? this.sortFrom(query) : null;
 
