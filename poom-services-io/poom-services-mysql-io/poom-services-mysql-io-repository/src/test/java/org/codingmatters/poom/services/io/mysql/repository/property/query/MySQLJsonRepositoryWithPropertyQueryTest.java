@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import io.flexio.docker.DockerResource;
 import org.codingmatters.generated.ComplexValue;
 import org.codingmatters.generated.complexvalue.Nested;
+import org.codingmatters.generated.complexvalue.nested.Deep;
 import org.codingmatters.generated.json.ComplexValueReader;
 import org.codingmatters.generated.json.ComplexValueWriter;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
@@ -17,7 +18,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.Arrays;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -49,8 +49,10 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
         for (int i = 0; i < 100; i++) {
             this.repository.create(ComplexValue.builder()
                     .stringProp("%03d", i)
+                    .integerProp(i)
                     .nested(Nested.builder()
                             .nestedProp("%03d", 100 - i)
+                            .deep(Deep.builder().deepProp("04").build())
                             .build())
                     .build());
         }
@@ -248,6 +250,19 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
     }
 
     @Test
+    public void givenFilterOnStringProperty__whenStartsWithProperty__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp starts with nested.deep.deepProp")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(10L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.stringProp()).toArray(),
+                is(arrayContainingInAnyOrder("040", "041", "042", "043", "044", "045", "046", "047", "048", "049"))
+        );
+    }
+
+    @Test
     public void givenFilterOnStringProperty__whenStartsWith__thenSelectedValueReturned() throws Exception {
         PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp starts with '01'")
@@ -274,6 +289,19 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
     }
 
     @Test
+    public void givenFilterOnStringProperty__whenEndsWithProperty__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp ends with nested.deep.deepProp")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.stringProp()).toArray(),
+                is(arrayContainingInAnyOrder("004"))
+        );
+    }
+
+    @Test
     public void givenFilterOnStringProperty__whenContains__thenSelectedValueReturned() throws Exception {
         PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp contains '08'")
@@ -283,6 +311,58 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
         assertThat(
                 actual.valueList().stream().map(complexValue -> complexValue.stringProp()).toArray(),
                 is(arrayContainingInAnyOrder("008", "080", "081", "082", "083", "084", "085", "086", "087", "088", "089"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenContainsProperty__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp contains nested.deep.deepProp")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(11L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.stringProp()).toArray(),
+                is(arrayContainingInAnyOrder("004", "040", "041", "042", "043", "044", "045", "046", "047", "048", "049"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenOr__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp == '001' || stringProp == '002'")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(2L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.stringProp()).toArray(),
+                is(arrayContainingInAnyOrder("001", "002"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenAnd__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp == '050' && nested.nestedProp == '050'")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.stringProp()).toArray(),
+                is(arrayContainingInAnyOrder("050"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenNot__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("! stringProp <= '097'")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(2L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.stringProp()).toArray(),
+                is(arrayContainingInAnyOrder("098", "099"))
         );
     }
 }
