@@ -19,10 +19,18 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class MySQLJsonRepositoryWithPropertyQueryTest {
+
+    static public final LocalDate BASE_DATE = LocalDate.of(1985, 06, 12);
+    static public final LocalTime BASE_TIME = LocalTime.of(12, 42, 33, 123456789);
+    static public final LocalDateTime BASE_DATETIME = LocalDateTime.of(BASE_DATE, BASE_TIME);
+    static public final ZonedDateTime BASE_ZONED_DATETIME = ZonedDateTime.of(BASE_DATETIME, ZoneId.of("+05:00"));
 
     @ClassRule
     static public DockerResource docker = DockerResource.client();
@@ -46,18 +54,24 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
                 parser -> new ComplexValueReader().read(parser),
                 new PropertyQueryToDocQueryParser()
         );
+
         for (int i = 0; i < 100; i++) {
-            this.repository.create(ComplexValue.builder()
+            Entity<ComplexValue> e = this.repository.create(ComplexValue.builder()
                     .stringProp("%03d", i)
                     .integerProp(i)
                     .longProp((long) i)
                     .floatProp(i + 0.2f)
                     .doubleProp(i + 0.2d)
+                    .dateProp(BASE_DATE.plusDays(i))
+                    .datetimeProp(BASE_DATETIME.plusDays(i))
+                    .tzdatetimeProp(BASE_ZONED_DATETIME.plusDays(i))
+                    .timeProp(BASE_TIME.plusMinutes(i))
                     .nested(Nested.builder()
                             .nestedProp("%03d", 100 - i)
                             .deep(Deep.builder().deepProp("04").build())
                             .build())
                     .build());
+//            System.out.println(DateTimeFormatter.ISO_LOCAL_TIME.format(e.value().timeProp()));
         }
     }
 
@@ -116,6 +130,46 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
 
         assertThat(actual.total(), is(1L));
         assertThat(actual.get(0).value().doubleProp(), is(6.2d));
+    }
+
+    @Test
+    public void givenFilterOnDateProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("dateProp == 1985-06-17")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+        assertThat(actual.get(0).value().dateProp(), is(LocalDate.of(1985, 6, 17)));
+    }
+
+    @Test
+    public void givenFilterOnTimeProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("timeProp == 12:47:33.123456789")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+        assertThat(actual.get(0).value().timeProp(), is(LocalTime.of(12, 47, 33, 123456789)));
+    }
+
+    @Test
+    public void givenFilterOnDatetimeProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("datetimeProp == 1985-06-17T12:42:33.123456789")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+        assertThat(actual.get(0).value().datetimeProp(), is(LocalDateTime.of(1985, 6, 17, 12, 42, 33, 123456789)));
+    }
+
+    @Test
+    public void givenFilterOnZonedDatetimeProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("tzdatetimeProp == 1985-06-17T12:42:33.123456789+05:00")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+        assertThat(actual.get(0).value().tzdatetimeProp(), is(ZonedDateTime.of(1985, 6, 17, 12, 42, 33, 123456789, ZoneId.of("+05:00"))));
     }
 
     @Test
@@ -205,6 +259,58 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
     }
 
     @Test
+    public void givenFilterOnDateProperty__whenNotIsEqual__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("dateProp != 1985-06-17")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(99L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.dateProp()).toArray(),
+                not(hasItemInArray(LocalDate.of(1985, 6, 17)))
+        );
+    }
+
+    @Test
+    public void givenFilterOnTimeProperty__whenNotIsEqual__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("timeProp != 12:47:33.123456789")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(99L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.timeProp()).toArray(),
+                not(hasItemInArray(LocalTime.of(12, 47, 33, 123456789)))
+        );
+    }
+
+    @Test
+    public void givenFilterOnDateTimeProperty__whenNotIsEqual__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("datetimeProp != 1985-06-17T12:42:33.123456789")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(99L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.datetimeProp()).toArray(),
+                not(hasItemInArray(LocalDateTime.of(1985, 6, 17, 12, 42, 33, 123456789)))
+        );
+    }
+
+    @Test
+    public void givenFilterOnZonedDateTimeProperty__whenNotIsEqual__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("tzdatetimeProp != 1985-06-17T12:42:33.123456789+05:00")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(99L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.tzdatetimeProp()).toArray(),
+                not(hasItemInArray(ZonedDateTime.of(1985, 6, 17, 12, 42, 33, 123456789, ZoneId.of("+05:00"))))
+        );
+    }
+
+    @Test
     public void givenFilterOnStringProperty__whenNotIsEqualProperty__thenSelectedValueReturned() throws Exception {
         PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp != nested.nestedProp")
@@ -267,10 +373,58 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
 
     @Test
     public void givenFilterOnDoubleProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().floatProp(null).build());
+        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().doubleProp(null).build());
 
         PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("doubleProp == null")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+        assertThat(actual.get(0).id(), is(entity.id()));
+    }
+
+    @Test
+    public void givenFilterOnDateProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
+        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().dateProp(null).build());
+
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("dateProp == null")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+        assertThat(actual.get(0).id(), is(entity.id()));
+    }
+
+    @Test
+    public void givenFilterOnTimeProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
+        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().timeProp(null).build());
+
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("timeProp == null")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+        assertThat(actual.get(0).id(), is(entity.id()));
+    }
+
+    @Test
+    public void givenFilterOnDateTimeProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
+        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().datetimeProp(null).build());
+
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("datetimeProp == null")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+        assertThat(actual.get(0).id(), is(entity.id()));
+    }
+
+    @Test
+    public void givenFilterOnZonedDateTimeProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
+        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().tzdatetimeProp(null).build());
+
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("tzdatetimeProp == null")
                 .build(), 0, 1000);
 
         assertThat(actual.total(), is(1L));
@@ -353,6 +507,66 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
     }
 
     @Test
+    public void givenFilterOnDateProperty__whenIsNotNull__thenSelectedValueReturned() throws Exception {
+        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().dateProp(null).build());
+
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("dateProp != null")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(100L));
+        assertThat(
+                actual.stream().map(complexValueEntity -> complexValueEntity.id()).toArray(),
+                not(hasItemInArray(entity.id()))
+        );
+    }
+
+    @Test
+    public void givenFilterOnTimeProperty__whenIsNotNull__thenSelectedValueReturned() throws Exception {
+        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().timeProp(null).build());
+
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("timeProp != null")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(100L));
+        assertThat(
+                actual.stream().map(complexValueEntity -> complexValueEntity.id()).toArray(),
+                not(hasItemInArray(entity.id()))
+        );
+    }
+
+    @Test
+    public void givenFilterOnDateTimeProperty__whenIsNotNull__thenSelectedValueReturned() throws Exception {
+        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().datetimeProp(null).build());
+
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("datetimeProp != null")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(100L));
+        assertThat(
+                actual.stream().map(complexValueEntity -> complexValueEntity.id()).toArray(),
+                not(hasItemInArray(entity.id()))
+        );
+    }
+
+    @Test
+    public void givenFilterOnZonedDateTimeProperty__whenIsNotNull__thenSelectedValueReturned() throws Exception {
+        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().tzdatetimeProp(null).build());
+
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("tzdatetimeProp != null")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(100L));
+        assertThat(
+                actual.stream().map(complexValueEntity -> complexValueEntity.id()).toArray(),
+                not(hasItemInArray(entity.id()))
+        );
+    }
+
+    @Test
     public void givenFilterOnStringProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
         PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp > '097'")
@@ -362,6 +576,60 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
         assertThat(
                 actual.valueList().stream().map(complexValue -> complexValue.stringProp()).toArray(),
                 is(arrayContainingInAnyOrder("098", "099"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnDateProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("dateProp > 1985-09-17")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(2L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_DATE.format(complexValue.dateProp())).toArray(),
+                is(arrayContainingInAnyOrder("1985-09-18", "1985-09-19"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnTimeProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("timeProp > 14:19:33.123456789")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_TIME.format(complexValue.timeProp())).toArray());
+        assertThat(actual.total(), is(2L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_TIME.format(complexValue.timeProp())).toArray(),
+                is(arrayContainingInAnyOrder("14:20:33.123456789", "14:21:33.123456789"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnDateTimeProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("datetimeProp > 1985-09-17T12:42:33.123456789")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(2L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(complexValue.datetimeProp())).toArray(),
+                is(arrayContainingInAnyOrder("1985-09-18T12:42:33.123456789", "1985-09-19T12:42:33.123456789"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnZonedDateTimeProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("tzdatetimeProp > 1985-09-17T12:42:33.123456789+05:00")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(complexValue.tzdatetimeProp())).toArray());
+        assertThat(actual.total(), is(2L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(complexValue.tzdatetimeProp())).toArray(),
+                is(arrayContainingInAnyOrder("1985-09-18T12:42:33.123456789+05:00", "1985-09-19T12:42:33.123456789+05:00"))
         );
     }
 
@@ -443,6 +711,60 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
     }
 
     @Test
+    public void givenFilterOnDateProperty__whenGraterThanOrEquals__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("dateProp >= 1985-09-17")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_DATE.format(complexValue.dateProp())).toArray(),
+                is(arrayContainingInAnyOrder("1985-09-17", "1985-09-18", "1985-09-19"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnTimeProperty__whenGraterThanOrEquals__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("timeProp >= 14:19:33.123456789")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_TIME.format(complexValue.timeProp())).toArray());
+        assertThat(actual.total(), is(3L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_TIME.format(complexValue.timeProp())).toArray(),
+                is(arrayContainingInAnyOrder("14:19:33.123456789", "14:20:33.123456789", "14:21:33.123456789"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnDateTimeProperty__whenGraterThanOrEquals__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("datetimeProp >= 1985-09-17T12:42:33.123456789")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(complexValue.datetimeProp())).toArray(),
+                is(arrayContainingInAnyOrder("1985-09-17T12:42:33.123456789", "1985-09-18T12:42:33.123456789", "1985-09-19T12:42:33.123456789"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnZonedDateTimeProperty__whenGraterThanOrEquals__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("tzdatetimeProp >= 1985-09-17T12:42:33.123456789+05:00")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(complexValue.tzdatetimeProp())).toArray());
+        assertThat(actual.total(), is(3L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(complexValue.tzdatetimeProp())).toArray(),
+                is(arrayContainingInAnyOrder("1985-09-17T12:42:33.123456789+05:00", "1985-09-18T12:42:33.123456789+05:00", "1985-09-19T12:42:33.123456789+05:00"))
+        );
+    }
+
+    @Test
     public void givenFilterOnIntegerProperty__whenGraterThanOrEquals__thenSelectedValueReturned() throws Exception {
         PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("integerProp >= 97")
@@ -520,6 +842,60 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
     }
 
     @Test
+    public void givenFilterOnDateProperty__whenLowerThan__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("dateProp < 1985-06-14")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(2L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_DATE.format(complexValue.dateProp())).toArray(),
+                is(arrayContainingInAnyOrder("1985-06-12", "1985-06-13"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnTimeProperty__whenLowerThan__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("timeProp < 12:44:33.123456789")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_TIME.format(complexValue.timeProp())).toArray());
+        assertThat(actual.total(), is(2L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_TIME.format(complexValue.timeProp())).toArray(),
+                is(arrayContainingInAnyOrder("12:42:33.123456789", "12:43:33.123456789"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnDateTimeProperty__whenLowerThan__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("datetimeProp < 1985-06-14T12:42:33.123456789")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(2L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(complexValue.datetimeProp())).toArray(),
+                is(arrayContainingInAnyOrder("1985-06-12T12:42:33.123456789", "1985-06-13T12:42:33.123456789"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnZonedDateTimeProperty__whenLowerThan__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("tzdatetimeProp < 1985-06-14T12:42:33.123456789+05:00")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(complexValue.tzdatetimeProp())).toArray());
+        assertThat(actual.total(), is(2L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(complexValue.tzdatetimeProp())).toArray(),
+                is(arrayContainingInAnyOrder("1985-06-12T12:42:33.123456789+05:00", "1985-06-13T12:42:33.123456789+05:00"))
+        );
+    }
+
+    @Test
     public void givenFilterOnIntegerProperty__whenLowerThan__thenSelectedValueReturned() throws Exception {
         PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("integerProp < 2")
@@ -593,6 +969,60 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
         assertThat(
                 actual.valueList().stream().map(complexValue -> complexValue.stringProp()).toArray(),
                 is(arrayContainingInAnyOrder("000", "001", "002"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnDateProperty__whenLowerThanOrEquals__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("dateProp <= 1985-06-14")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_DATE.format(complexValue.dateProp())).toArray(),
+                is(arrayContainingInAnyOrder("1985-06-12", "1985-06-13", "1985-06-14"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnTimeProperty__whenLowerThanOrEquals__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("timeProp <= 12:44:33.123456789")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_TIME.format(complexValue.timeProp())).toArray());
+        assertThat(actual.total(), is(3L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_TIME.format(complexValue.timeProp())).toArray(),
+                is(arrayContainingInAnyOrder("12:42:33.123456789", "12:43:33.123456789", "12:44:33.123456789"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnDateTimeProperty__whenLowerThanOrEquals__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("datetimeProp <= 1985-06-14T12:42:33.123456789")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(complexValue.datetimeProp())).toArray(),
+                is(arrayContainingInAnyOrder("1985-06-12T12:42:33.123456789", "1985-06-13T12:42:33.123456789", "1985-06-14T12:42:33.123456789"))
+        );
+    }
+
+    @Test
+    public void givenFilterOnZonedDateTimeProperty__whenLowerThanOrEquals__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("tzdatetimeProp <= 1985-06-14T12:42:33.123456789+05:00")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(complexValue.tzdatetimeProp())).toArray());
+        assertThat(actual.total(), is(3L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(complexValue.tzdatetimeProp())).toArray(),
+                is(arrayContainingInAnyOrder("1985-06-12T12:42:33.123456789+05:00", "1985-06-13T12:42:33.123456789+05:00", "1985-06-14T12:42:33.123456789+05:00"))
         );
     }
 

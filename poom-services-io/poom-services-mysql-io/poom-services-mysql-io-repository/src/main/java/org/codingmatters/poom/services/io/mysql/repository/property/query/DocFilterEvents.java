@@ -4,6 +4,12 @@ import org.codingmatters.poom.services.domain.property.query.FilterEvents;
 import org.codingmatters.poom.services.domain.property.query.events.FilterEventError;
 import org.codingmatters.poom.services.io.mysql.repository.table.TableModel;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -152,7 +158,25 @@ public class DocFilterEvents implements FilterEvents {
 
     private void appendSimplePredicate(String propertyPath, String operator, Object value) {
         this.stack.push(String.format("JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") %s ?", propertyPath, operator));
-        this.paramsSetters.add((statement, index) -> statement.setObject(index, value));
+        this.paramsSetters.add((statement, index) -> statement.setObject(index, this.prepared(value)));
+    }
+
+    private Object prepared(Object value) {
+        if(value == null) return null;
+        if(value instanceof LocalTime) {
+            return DateTimeFormatter.ISO_LOCAL_TIME.format((TemporalAccessor) value);
+        }
+        if(value instanceof LocalDate) {
+            return DateTimeFormatter.ISO_LOCAL_DATE.format((TemporalAccessor) value);
+        }
+        if(value instanceof LocalDateTime) {
+            return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format((TemporalAccessor) value);
+        }
+        if(value instanceof ZonedDateTime) {
+            return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format((TemporalAccessor) value);
+        }
+
+        return value;
     }
 
     private void appendNullPredicate(String propertyPath, String operator) {
@@ -173,7 +197,7 @@ public class DocFilterEvents implements FilterEvents {
 
     public TableModel.Clause clause() {
         String clause = this.stack.isEmpty() ? null : this.stack.pop();
-        System.out.println(clause);
+//        System.out.println(clause);
         return new TableModel.Clause(
                 clause != null ? clause : null,
                 this.paramsSetters.isEmpty() ? null : this.paramsSetters.toArray(new TableModel.ParamSetter[0])
