@@ -64,7 +64,7 @@ public class MySQLJsonRepositoryTest {
     }
 
     @Test
-    public void givenEmptyDb__whenCreatingRepository__thenReposinulltoryTableIsCreated() throws Exception {
+    public void givenEmptyDb__whenCreatingRepository__thenRepositoryTableIsCreated() throws Exception {
         this.createRepository("repository");
 
         assertThat(this.tableExists("repository"), is(true));

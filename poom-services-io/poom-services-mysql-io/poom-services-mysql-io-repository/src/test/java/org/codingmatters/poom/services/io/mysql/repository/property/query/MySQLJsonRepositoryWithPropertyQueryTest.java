@@ -84,7 +84,6 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
                             .deep(Deep.builder().deepProp("04").build())
                             .build())
                     .build());
-//            System.out.println(DateTimeFormatter.ISO_LOCAL_TIME.format(e.value().timeProp()));
         }
     }
 
@@ -1301,12 +1300,12 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
     }
 
     @Test(expected = RepositoryException.class)
-    public void givenFilter__whenFilterNotParseable__thenThrowsRepositoryException() throws Exception {
+    public void givenFilter__whenFilterNotParsable__thenThrowsRepositoryException() throws Exception {
         this.repository.search(PropertyQuery.builder().filter("gruut gruut").build(), 0, 1000);
     }
 
     @Test(expected = RepositoryException.class)
-    public void givenSort__whenSortNotParseable__thenThrowsRepositoryException() throws Exception {
+    public void givenSort__whenSortNotParsable__thenThrowsRepositoryException() throws Exception {
         this.repository.search(PropertyQuery.builder().sort("== = gruut gruut").build(), 0, 1000);
     }
 }
