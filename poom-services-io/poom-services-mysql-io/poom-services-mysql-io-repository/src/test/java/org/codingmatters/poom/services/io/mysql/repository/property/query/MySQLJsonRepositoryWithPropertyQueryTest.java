@@ -7,6 +7,7 @@ import org.codingmatters.generated.complexvalue.Nested;
 import org.codingmatters.generated.complexvalue.nested.Deep;
 import org.codingmatters.generated.json.ComplexValueReader;
 import org.codingmatters.generated.json.ComplexValueWriter;
+import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.io.mysql.repository.MariaDBResource;
 import org.codingmatters.poom.services.io.mysql.repository.MySQLJsonRepository;
@@ -1299,4 +1300,13 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
         assertThat(actual.valueList().get(1).stringProp(), is("004"));
     }
 
+    @Test(expected = RepositoryException.class)
+    public void givenFilter__whenFilterNotParseable__thenThrowsRepositoryException() throws Exception {
+        this.repository.search(PropertyQuery.builder().filter("gruut gruut").build(), 0, 1000);
+    }
+
+    @Test(expected = RepositoryException.class)
+    public void givenSort__whenSortNotParseable__thenThrowsRepositoryException() throws Exception {
+        this.repository.search(PropertyQuery.builder().sort("== = gruut gruut").build(), 0, 1000);
+    }
 }

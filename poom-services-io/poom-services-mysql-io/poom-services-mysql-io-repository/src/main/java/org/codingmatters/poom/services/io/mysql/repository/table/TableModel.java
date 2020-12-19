@@ -107,7 +107,6 @@ public class TableModel {
                 clause != null && clause.clause() != null && !clause.clause().isEmpty() ? "WHERE " + clause.clause() : "",
                 clause != null && clause.orderBy() != null && !clause.orderBy.isEmpty() ? "ORDER BY " + clause.orderBy() : ""
         );
-        System.out.println(statement);
         PreparedStatement result = connection.prepareStatement(statement);
         int paramIndex = 0;
 

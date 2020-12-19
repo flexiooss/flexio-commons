@@ -200,10 +200,6 @@ public class DocFilterEvents implements FilterEvents {
                 ));
     }
 
-    private void appendIsTruePredicate(String propertyPath, String operator) {
-        this.stack.push(String.format("JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") %s true", propertyPath, operator));
-    }
-
     private void appendPropertySimplePredicate(String leftProperty, String operator, String rightProperty) {
         this.stack.push(String.format(
                 "JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") %s JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\")",
@@ -218,7 +214,6 @@ public class DocFilterEvents implements FilterEvents {
 
     public TableModel.Clause clause() {
         String clause = this.stack.isEmpty() ? null : this.stack.pop();
-        System.out.println(clause);
         return new TableModel.Clause(
                 clause != null ? clause : null,
                 this.paramsSetters.isEmpty() ? null : this.paramsSetters.toArray(new TableModel.ParamSetter[0])
