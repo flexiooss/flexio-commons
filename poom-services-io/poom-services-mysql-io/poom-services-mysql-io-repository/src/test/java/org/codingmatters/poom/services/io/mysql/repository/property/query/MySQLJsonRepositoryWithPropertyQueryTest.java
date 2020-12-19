@@ -1255,8 +1255,6 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
         );
     }
 
-
-
     @Test
     public void whenNoFilter_andOrderByOnePropertyDefaultDirection__thenAllValuesReturnedIsAscending() throws Exception {
         PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
@@ -1289,4 +1287,16 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
         assertThat(actual.valueList().get(0).stringProp(), is("099"));
         assertThat(actual.valueList().get(1).stringProp(), is("098"));
     }
+
+    @Test
+    public void whenNoFilter_andOrderByTwoProperties__thenAllValuesAreOrdered() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .sort("boolProp, stringProp")
+                .build(), 0, 1000);
+
+        assertThat(actual.valueList(), hasSize(100));
+        assertThat(actual.valueList().get(0).stringProp(), is("001"));
+        assertThat(actual.valueList().get(1).stringProp(), is("004"));
+    }
+
 }
