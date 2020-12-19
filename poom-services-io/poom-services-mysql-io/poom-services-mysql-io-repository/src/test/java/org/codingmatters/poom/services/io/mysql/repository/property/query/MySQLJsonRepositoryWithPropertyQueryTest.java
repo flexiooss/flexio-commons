@@ -56,6 +56,17 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
         );
 
         for (int i = 0; i < 100; i++) {
+            Boolean bool;
+            switch (i % 3) {
+                case 0:
+                    bool = true;
+                    break;
+                case 1:
+                    bool = false;
+                    break;
+                default:
+                    bool = null;
+            }
             Entity<ComplexValue> e = this.repository.create(ComplexValue.builder()
                     .stringProp("%03d", i)
                     .integerProp(i)
@@ -66,6 +77,7 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
                     .datetimeProp(BASE_DATETIME.plusDays(i))
                     .tzdatetimeProp(BASE_ZONED_DATETIME.plusDays(i))
                     .timeProp(BASE_TIME.plusMinutes(i))
+                    .boolProp(bool)
                     .nested(Nested.builder()
                             .nestedProp("%03d", 100 - i)
                             .deep(Deep.builder().deepProp("04").build())
@@ -170,6 +182,42 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
 
         assertThat(actual.total(), is(1L));
         assertThat(actual.get(0).value().tzdatetimeProp(), is(ZonedDateTime.of(1985, 6, 17, 12, 42, 33, 123456789, ZoneId.of("+05:00"))));
+    }
+
+    @Test
+    public void givenFilterOnBooleanProperty__whenIsEqualTrue__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("boolProp == true")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(34L));
+        for (ComplexValue value : actual.valueList()) {
+            assertThat(value.toString(), value.boolProp(), is(true));
+        }
+    }
+
+    @Test
+    public void givenFilterOnBooleanProperty__whenIsEqualFalse__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("boolProp == false")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(33L));
+        for (ComplexValue value : actual.valueList()) {
+            assertThat(value.toString(), value.boolProp(), is(false));
+        }
+    }
+
+    @Test
+    public void givenFilterOnBooleanProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("boolProp == null")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(33L));
+        for (ComplexValue value : actual.valueList()) {
+            assertThat(value.toString(), value.boolProp(), is(nullValue()));
+        }
     }
 
     @Test
@@ -1205,5 +1253,40 @@ public class MySQLJsonRepositoryWithPropertyQueryTest {
                 actual.valueList().stream().map(complexValue -> complexValue.stringProp()).toArray(),
                 is(arrayContainingInAnyOrder("098", "099"))
         );
+    }
+
+
+
+    @Test
+    public void whenNoFilter_andOrderByOnePropertyDefaultDirection__thenAllValuesReturnedIsAscending() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .sort("stringProp")
+                .build(), 0, 1000);
+
+        assertThat(actual.valueList(), hasSize(100));
+        assertThat(actual.valueList().get(0).stringProp(), is("000"));
+        assertThat(actual.valueList().get(1).stringProp(), is("001"));
+    }
+
+    @Test
+    public void whenNoFilter_andOrderByOnePropertyAsc__thenAllValuesReturnedIsAscending() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .sort("stringProp asc")
+                .build(), 0, 1000);
+
+        assertThat(actual.valueList(), hasSize(100));
+        assertThat(actual.valueList().get(0).stringProp(), is("000"));
+        assertThat(actual.valueList().get(1).stringProp(), is("001"));
+    }
+
+    @Test
+    public void whenNoFilter_andOrderByOnePropertyDesc__thenAllValuesReturnedIsAscending() throws Exception {
+        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+                .sort("stringProp desc")
+                .build(), 0, 1000);
+
+        assertThat(actual.valueList(), hasSize(100));
+        assertThat(actual.valueList().get(0).stringProp(), is("099"));
+        assertThat(actual.valueList().get(1).stringProp(), is("098"));
     }
 }

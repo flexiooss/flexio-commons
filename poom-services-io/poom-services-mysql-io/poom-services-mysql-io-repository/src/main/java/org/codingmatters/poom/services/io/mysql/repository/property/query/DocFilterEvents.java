@@ -20,6 +20,12 @@ public class DocFilterEvents implements FilterEvents {
 
     @Override
     public Object isEquals(String left, Object right) throws FilterEventError {
+        if(right != null && right instanceof Boolean) {
+            if(! ((Boolean) right).booleanValue()) {
+                this.appendIsFalsePredicate(left, "=");
+                return null;
+            }
+        }
         this.appendSimplePredicate(left, "=", right);
         return null;
     }
@@ -163,6 +169,7 @@ public class DocFilterEvents implements FilterEvents {
 
     private Object prepared(Object value) {
         if(value == null) return null;
+
         if(value instanceof LocalTime) {
             return DateTimeFormatter.ISO_LOCAL_TIME.format((TemporalAccessor) value);
         }
@@ -183,6 +190,20 @@ public class DocFilterEvents implements FilterEvents {
         this.stack.push(String.format("JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") %s 'null'", propertyPath, operator));
     }
 
+    private void appendIsFalsePredicate(String propertyPath, String operator) {
+        this.stack.push(
+                String.format(
+                        "(JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") != 'null' AND JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") %s false)",
+                        propertyPath,
+                        propertyPath,
+                        operator
+                ));
+    }
+
+    private void appendIsTruePredicate(String propertyPath, String operator) {
+        this.stack.push(String.format("JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") %s true", propertyPath, operator));
+    }
+
     private void appendPropertySimplePredicate(String leftProperty, String operator, String rightProperty) {
         this.stack.push(String.format(
                 "JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") %s JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\")",
@@ -197,7 +218,7 @@ public class DocFilterEvents implements FilterEvents {
 
     public TableModel.Clause clause() {
         String clause = this.stack.isEmpty() ? null : this.stack.pop();
-//        System.out.println(clause);
+        System.out.println(clause);
         return new TableModel.Clause(
                 clause != null ? clause : null,
                 this.paramsSetters.isEmpty() ? null : this.paramsSetters.toArray(new TableModel.ParamSetter[0])

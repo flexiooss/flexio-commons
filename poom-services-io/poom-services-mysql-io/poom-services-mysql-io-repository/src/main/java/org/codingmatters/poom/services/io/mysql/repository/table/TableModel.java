@@ -102,10 +102,13 @@ public class TableModel {
     }
 
     public PreparedStatement entitiesWithWhereClause(Connection connection, TableModel.Clause clause, long start, long end) throws SQLException {
-        PreparedStatement result = connection.prepareStatement(String.format("SELECT id, version, doc FROM `%s`%s LIMIT ? OFFSET ?",
+        String statement = String.format("SELECT id, version, doc FROM `%s`%s %s LIMIT ? OFFSET ?",
                 this.tableName,
-                clause != null && clause.clause() != null && ! clause.clause().isEmpty() ? "WHERE " + clause.clause() : ""
-        ));
+                clause != null && clause.clause() != null && !clause.clause().isEmpty() ? "WHERE " + clause.clause() : "",
+                clause != null && clause.orderBy() != null && !clause.orderBy.isEmpty() ? "ORDER BY " + clause.orderBy() : ""
+        );
+        System.out.println(statement);
+        PreparedStatement result = connection.prepareStatement(statement);
         int paramIndex = 0;
 
         if(clause != null) {
@@ -142,15 +145,21 @@ public class TableModel {
 
     static public class Clause {
         private final String clause;
+        private final String orderBy;
         private final ParamSetter[] setters;
 
         public Clause(String clause) {
-            this(clause, null);
+            this(clause, null, null);
         }
 
         public Clause(String clause, ParamSetter ... setters) {
+            this(clause, null, setters);
+        }
+
+        private Clause(String clause, String orderBy, ParamSetter ... setters) {
             this.clause = clause;
             this.setters = setters == null ? new ParamSetter[0] : setters;
+            this.orderBy = orderBy;
         }
 
         public String clause() {
@@ -159,6 +168,14 @@ public class TableModel {
 
         public ParamSetter[] setters() {
             return setters;
+        }
+
+        public String orderBy() {
+            return orderBy;
+        }
+
+        public Clause withOrderBy(String orderBy) {
+            return new Clause(this.clause, orderBy, this.setters);
         }
     }
 

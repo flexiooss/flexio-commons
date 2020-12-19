@@ -14,10 +14,11 @@ import org.codingmatters.poom.services.io.mysql.repository.table.TableModel;
 public class PropertyQueryToDocQueryParser implements MySQLJsonRepository.QueryParser<PropertyQuery> {
     @Override
     public TableModel.Clause whereClause(PropertyQuery query) throws RepositoryException {
-        DocFilterEvents events = new DocFilterEvents();
+        DocFilterEvents filterEvents = new DocFilterEvents();
+        DocSortEvents sortEvents = new DocSortEvents();
         try {
-            PropertyQueryParser.builder().build(events, SortEvents.noop()).parse(query);
-            return events.clause();
+            PropertyQueryParser.builder().build(filterEvents, sortEvents).parse(query);
+            return sortEvents.withOrderBy(filterEvents.clause());
         } catch (InvalidPropertyException e) {
             e.printStackTrace();
         } catch (FilterEventException e) {
