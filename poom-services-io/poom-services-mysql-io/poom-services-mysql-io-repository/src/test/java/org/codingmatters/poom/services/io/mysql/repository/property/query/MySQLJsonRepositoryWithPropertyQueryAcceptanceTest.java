@@ -10,6 +10,7 @@ import org.codingmatters.poom.services.domain.property.query.PropertyQueryAccept
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.io.mysql.repository.MariaDBResource;
 import org.codingmatters.poom.services.io.mysql.repository.MySQLJsonRepository;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 
@@ -25,6 +26,10 @@ public class MySQLJsonRepositoryWithPropertyQueryAcceptanceTest extends Property
 
     private final JsonFactory jsonFactory = new JsonFactory();
 
+    @Before
+    public void clear() throws Exception {
+        this.mariaDBResource.ds().getConnection().
+    }
 
     @Override
     protected Repository<QAValue, PropertyQuery> createRepository() {

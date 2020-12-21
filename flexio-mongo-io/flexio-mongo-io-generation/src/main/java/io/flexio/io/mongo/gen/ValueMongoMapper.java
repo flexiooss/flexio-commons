@@ -10,8 +10,11 @@ import org.codingmatters.value.objects.spec.TypeKind;
 import org.codingmatters.value.objects.spec.TypeToken;
 
 import javax.lang.model.element.Modifier;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
@@ -152,14 +155,30 @@ public class ValueMongoMapper {
             result.beginControlFlow("for($T elmt : ($T<$T>)document.get($S))",
                     Date.class, Collection.class, Date.class, this.documentProperty(propertySpec));
         } else {
-            result.addStatement("$T elmt = ($T)document.get($S)",
-                    Date.class, Date.class, this.documentProperty(propertySpec));
+            if(this.mapperConfig.isZonedDateTime(propertySpec)) {
+                result.addStatement("$T elmt = (document.get($S) instanceof $T) ? " +
+                                "($T) (($T) document.get($S)).get($S) : " +
+                                "($T)document.get($S)",
+                        Date.class, this.documentProperty(propertySpec), Document.class,
+                        Date.class, Document.class, this.documentProperty(propertySpec), "ts",
+                        Date.class, this.documentProperty(propertySpec));
+            } else {
+                result.addStatement("$T elmt = ($T)document.get($S)",
+                        Date.class, Date.class, this.documentProperty(propertySpec));
+            }
         }
 
         String temporalClassName = ClassName.bestGuess(propertySpec.typeSpec().typeRef()).simpleName();
-        if(temporalClassName.equals(ZonedDateTime.class.getSimpleName())) {
-            result.addStatement("$T $LElmt = $T.ofInstant(elmt.toInstant(), $T.of($S))",
-                    ZonedDateTime.class, propertySpec.name(), ZonedDateTime.class, ZoneId.class, "Z");
+        if(this.mapperConfig.isZonedDateTime(propertySpec)) {
+            result.addStatement("$T zone = (document.get($S) instanceof $T) ? " +
+                    "$T.of((($T) document.get($S)).getString($S)) : " +
+                    "$T.of($S)",
+                    ZoneId.class, this.documentProperty(propertySpec), Document.class,
+                    ZoneId.class, Document.class, this.documentProperty(propertySpec), "tz",
+                    ZoneId.class, "Z"
+                    );
+            result.addStatement("$T $LElmt = $T.ofInstant(elmt.toInstant(), zone)",
+                    ZonedDateTime.class, propertySpec.name(), ZonedDateTime.class);
         } else {
             result.addStatement("$T $LZoned = $T.ofInstant(elmt.toInstant(), $T.of($S))",
                     ZonedDateTime.class, propertySpec.name(), ZonedDateTime.class, ZoneId.class, "Z");
@@ -270,6 +289,11 @@ public class ValueMongoMapper {
             this.documentObjectIdPropertySetterStatement(method, propertySpec);
         } else if(this.mapperConfig.isTemporalProperty(propertySpec)) {
             this.documentTemporalPropertySetterStatement(method, propertySpec);
+        } else if(this.mapperConfig.isFloatingType(propertySpec)) {
+            method.addStatement("document.put($S, new $T(value.$L().toString()))",
+                    this.documentProperty(propertySpec),
+                    BigDecimal.class,
+                    propertySpec.name());
         } else {
             method.addStatement("document.put($S, value.$L())",
                     this.documentProperty(propertySpec),
@@ -319,8 +343,8 @@ public class ValueMongoMapper {
         }
 
         if(TypeToken.TZ_DATE_TIME.getImplementationType().equals(propertySpec.typeSpec().typeRef())) {
-            method.addStatement("$T $LValue = $T.from(elmt.toInstant())",
-                    Date.class, propertySpec.name(), Date.class
+            method.addStatement("$T $LValue = new $T($S, elmt.getZone().getId()).append($S, $T.from(elmt.toInstant()))",
+                    Document.class, propertySpec.name(), Document.class, "tz", "ts", Date.class
             );
         } else if(TypeToken.DATE_TIME.getImplementationType().equals(propertySpec.typeSpec().typeRef())) {
             method.addStatement("$T $LValue = $T.from(elmt.atZone($T.of($S)).toInstant())",
@@ -331,7 +355,9 @@ public class ValueMongoMapper {
                     Date.class, propertySpec.name(), Date.class, ZoneId.class, "Z"
             );
         } else if(TypeToken.TIME.getImplementationType().equals(propertySpec.typeSpec().typeRef())) {
-            throw new RuntimeException("not yet implemented temporal type : " + propertySpec.typeSpec().typeRef());
+            method.addStatement("$T $LValue = $T.from(elmt.atDate($T.of(1970, 1, 1)).atZone($T.of($S)).toInstant())",
+                    Date.class, propertySpec.name(), Date.class, LocalDate.class, ZoneId.class, "Z"
+            );
         } else {
             throw new RuntimeException("unknown temporal type : " + propertySpec.typeSpec().typeRef());
         }

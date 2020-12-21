@@ -41,4 +41,19 @@ public class MapperConfiguration extends ValueConfiguration {
         return propertySpec.typeSpec().typeKind().equals(TypeKind.JAVA_TYPE) &&
                 TEMPORAL_TYPES.contains(propertySpec.typeSpec().typeRef()) ;
     }
+
+    public boolean isZonedDateTime(PropertySpec propertySpec) {
+        return propertySpec.typeSpec().typeKind().equals(TypeKind.JAVA_TYPE) &&
+                TypeToken.TZ_DATE_TIME.getImplementationType().equals(propertySpec.typeSpec().typeRef()) ;
+    }
+
+    static private Set<String> FLOATING_TYPES = new HashSet<>(Arrays.asList(
+            TypeToken.FLOAT.getImplementationType(),
+            TypeToken.DOUBLE.getImplementationType()
+    ));
+
+    public boolean isFloatingType(PropertySpec propertySpec) {
+        return propertySpec.typeSpec().typeKind().equals(TypeKind.JAVA_TYPE) &&
+                FLOATING_TYPES.contains(propertySpec.typeSpec().typeRef()) ;
+    }
 }

@@ -29,7 +29,7 @@ import static org.codingmatters.value.objects.spec.PropertySpec.property;
 import static org.codingmatters.value.objects.spec.PropertyTypeSpec.type;
 import static org.codingmatters.value.objects.spec.ValueSpec.valueSpec;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MongoMapperGeneratorTest {
 
@@ -349,7 +349,7 @@ public class MongoMapperGeneratorTest {
         Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
         assertThat(
                 doc,
-                is(Document.parse("{\"p\": {\"$date\":\"2017-11-27T14:08:13.000Z\"}}"))
+                is(Document.parse("{\"p\": {\"tz\":\"Z\",\"ts\":{\"$date\":\"2017-11-27T14:08:13.000Z\"}}}"))
         );
 
         assertThat(
