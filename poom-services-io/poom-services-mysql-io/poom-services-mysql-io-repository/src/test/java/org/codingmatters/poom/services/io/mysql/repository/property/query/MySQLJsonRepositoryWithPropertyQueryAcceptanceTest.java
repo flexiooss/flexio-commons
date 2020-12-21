@@ -26,11 +26,6 @@ public class MySQLJsonRepositoryWithPropertyQueryAcceptanceTest extends Property
 
     private final JsonFactory jsonFactory = new JsonFactory();
 
-    @Before
-    public void clear() throws Exception {
-        this.mariaDBResource.ds().getConnection().
-    }
-
     @Override
     protected Repository<QAValue, PropertyQuery> createRepository() {
         try {
