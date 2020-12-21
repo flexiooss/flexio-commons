@@ -2,7 +2,7 @@
 Value:
   prop: string
 
-ComplexValue:
+QAValue:
   stringProp: string
   integerProp: int
   longProp: long

@@ -1,8 +1,8 @@
 package org.codingmatters.poom.services.domain.property.query;
 
-import org.codingmatters.generated.ComplexValue;
-import org.codingmatters.generated.complexvalue.Nested;
-import org.codingmatters.generated.complexvalue.nested.Deep;
+import org.codingmatters.generated.QAValue;
+import org.codingmatters.generated.qavalue.Nested;
+import org.codingmatters.generated.qavalue.nested.Deep;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.servives.domain.entities.Entity;
@@ -24,7 +24,7 @@ public abstract class PropertyQueryAcceptanceTest {
     static public final LocalDateTime BASE_DATETIME = LocalDateTime.of(BASE_DATE, BASE_TIME);
     static public final ZonedDateTime BASE_ZONED_DATETIME = ZonedDateTime.of(BASE_DATETIME, ZoneId.of("+05:00"));
 
-    private Repository<ComplexValue, PropertyQuery> repository;
+    private Repository<QAValue, PropertyQuery> repository;
 
     @Before
     public void setUp() throws Exception {
@@ -42,7 +42,7 @@ public abstract class PropertyQueryAcceptanceTest {
                 default:
                     bool = null;
             }
-            Entity<ComplexValue> e = this.repository.create(ComplexValue.builder()
+            Entity<QAValue> e = this.repository.create(QAValue.builder()
                     .stringProp("%03d", i)
                     .integerProp(i)
                     .longProp((long) i)
@@ -61,18 +61,18 @@ public abstract class PropertyQueryAcceptanceTest {
         }
     }
 
-    protected abstract Repository<ComplexValue, PropertyQuery> createRepository();
+    protected abstract Repository<QAValue, PropertyQuery> createRepository();
 
     @Test
     public void whenNoFilter_andNoOrderBy__thenAllValuesReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder().build(), 0, 1000);
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder().build(), 0, 1000);
 
         assertThat(actual.total(), is(this.repository.all(0, 0).total()));
     }
 
     @Test
     public void givenFilterOnStringProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp == '006'")
                 .build(), 0, 1000);
 
@@ -82,7 +82,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnIntegerProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("integerProp == 6")
                 .build(), 0, 1000);
 
@@ -92,7 +92,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnLongProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("longProp == 6")
                 .build(), 0, 1000);
 
@@ -102,7 +102,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnFloatProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("floatProp == 6.2")
                 .build(), 0, 1000);
 
@@ -112,7 +112,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDoubleProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("doubleProp == 6.2")
                 .build(), 0, 1000);
 
@@ -122,7 +122,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDateProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("dateProp == 1985-06-17")
                 .build(), 0, 1000);
 
@@ -132,7 +132,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnTimeProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("timeProp == 12:47:33.123456789")
                 .build(), 0, 1000);
 
@@ -142,7 +142,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDatetimeProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("datetimeProp == 1985-06-17T12:42:33.123456789")
                 .build(), 0, 1000);
 
@@ -152,7 +152,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnZonedDatetimeProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("tzdatetimeProp == 1985-06-17T12:42:33.123456789+05:00")
                 .build(), 0, 1000);
 
@@ -162,43 +162,43 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnBooleanProperty__whenIsEqualTrue__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("boolProp == true")
                 .build(), 0, 1000);
 
         assertThat(actual.total(), is(34L));
-        for (ComplexValue value : actual.valueList()) {
+        for (QAValue value : actual.valueList()) {
             assertThat(value.toString(), value.boolProp(), is(true));
         }
     }
 
     @Test
     public void givenFilterOnBooleanProperty__whenIsEqualFalse__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("boolProp == false")
                 .build(), 0, 1000);
 
         assertThat(actual.total(), is(33L));
-        for (ComplexValue value : actual.valueList()) {
+        for (QAValue value : actual.valueList()) {
             assertThat(value.toString(), value.boolProp(), is(false));
         }
     }
 
     @Test
     public void givenFilterOnBooleanProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("boolProp == null")
                 .build(), 0, 1000);
 
         assertThat(actual.total(), is(33L));
-        for (ComplexValue value : actual.valueList()) {
+        for (QAValue value : actual.valueList()) {
             assertThat(value.toString(), value.boolProp(), is(nullValue()));
         }
     }
 
     @Test
     public void givenFilterOnStringNestedProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("nested.nestedProp == '006'")
                 .build(), 0, 1000);
 
@@ -208,7 +208,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenIsEqualProperty__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp == nested.nestedProp")
                 .build(), 0, 1000);
 
@@ -219,7 +219,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenNotIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp != '006'")
                 .build(), 0, 1000);
 
@@ -232,7 +232,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnIntegerProperty__whenNotIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("integerProp != 6")
                 .build(), 0, 1000);
 
@@ -245,7 +245,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnLongProperty__whenNotIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("longProp != 6")
                 .build(), 0, 1000);
 
@@ -258,7 +258,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnFloatProperty__whenNotIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("floatProp != 6.2")
                 .build(), 0, 1000);
 
@@ -271,7 +271,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDoubleProperty__whenNotIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("doubleProp != 6.2")
                 .build(), 0, 1000);
 
@@ -284,7 +284,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDateProperty__whenNotIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("dateProp != 1985-06-17")
                 .build(), 0, 1000);
 
@@ -297,7 +297,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnTimeProperty__whenNotIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("timeProp != 12:47:33.123456789")
                 .build(), 0, 1000);
 
@@ -310,7 +310,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDateTimeProperty__whenNotIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("datetimeProp != 1985-06-17T12:42:33.123456789")
                 .build(), 0, 1000);
 
@@ -323,7 +323,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnZonedDateTimeProperty__whenNotIsEqual__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("tzdatetimeProp != 1985-06-17T12:42:33.123456789+05:00")
                 .build(), 0, 1000);
 
@@ -336,7 +336,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenNotIsEqualProperty__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp != nested.nestedProp")
                 .build(), 0, 1000);
 
@@ -349,9 +349,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().stringProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().stringProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp == null")
                 .build(), 0, 1000);
 
@@ -361,9 +361,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnIntegerProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().integerProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().integerProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("integerProp == null")
                 .build(), 0, 1000);
 
@@ -373,9 +373,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnLongProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().longProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().longProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("longProp == null")
                 .build(), 0, 1000);
 
@@ -385,9 +385,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnFloatProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().floatProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().floatProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("floatProp == null")
                 .build(), 0, 1000);
 
@@ -397,9 +397,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDoubleProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().doubleProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().doubleProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("doubleProp == null")
                 .build(), 0, 1000);
 
@@ -409,9 +409,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDateProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().dateProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().dateProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("dateProp == null")
                 .build(), 0, 1000);
 
@@ -421,9 +421,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnTimeProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().timeProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().timeProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("timeProp == null")
                 .build(), 0, 1000);
 
@@ -433,9 +433,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDateTimeProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().datetimeProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().datetimeProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("datetimeProp == null")
                 .build(), 0, 1000);
 
@@ -445,9 +445,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnZonedDateTimeProperty__whenIsNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().tzdatetimeProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().tzdatetimeProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("tzdatetimeProp == null")
                 .build(), 0, 1000);
 
@@ -457,9 +457,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenIsNotNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().stringProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().stringProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp != null")
                 .build(), 0, 1000);
 
@@ -472,9 +472,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnIntegerProperty__whenIsNotNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().integerProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().integerProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("integerProp != null")
                 .build(), 0, 1000);
 
@@ -487,9 +487,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnLongProperty__whenIsNotNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().longProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().longProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("longProp != null")
                 .build(), 0, 1000);
 
@@ -502,9 +502,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnFloatProperty__whenIsNotNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().floatProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().floatProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("floatProp != null")
                 .build(), 0, 1000);
 
@@ -517,9 +517,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDoubleProperty__whenIsNotNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().floatProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().floatProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("doubleProp != null")
                 .build(), 0, 1000);
 
@@ -532,9 +532,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDateProperty__whenIsNotNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().dateProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().dateProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("dateProp != null")
                 .build(), 0, 1000);
 
@@ -547,9 +547,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnTimeProperty__whenIsNotNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().timeProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().timeProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("timeProp != null")
                 .build(), 0, 1000);
 
@@ -562,9 +562,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDateTimeProperty__whenIsNotNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().datetimeProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().datetimeProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("datetimeProp != null")
                 .build(), 0, 1000);
 
@@ -577,9 +577,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnZonedDateTimeProperty__whenIsNotNull__thenSelectedValueReturned() throws Exception {
-        Entity<ComplexValue> entity = this.repository.create(ComplexValue.builder().tzdatetimeProp(null).build());
+        Entity<QAValue> entity = this.repository.create(QAValue.builder().tzdatetimeProp(null).build());
 
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("tzdatetimeProp != null")
                 .build(), 0, 1000);
 
@@ -592,7 +592,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp > '097'")
                 .build(), 0, 1000);
 
@@ -605,7 +605,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDateProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("dateProp > 1985-09-17")
                 .build(), 0, 1000);
 
@@ -618,7 +618,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnTimeProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("timeProp > 14:19:33.123456789")
                 .build(), 0, 1000);
 
@@ -632,7 +632,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDateTimeProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("datetimeProp > 1985-09-17T12:42:33.123456789")
                 .build(), 0, 1000);
 
@@ -645,7 +645,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnZonedDateTimeProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("tzdatetimeProp > 1985-09-17T12:42:33.123456789+05:00")
                 .build(), 0, 1000);
 
@@ -659,7 +659,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnIntegerProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("integerProp > 97")
                 .build(), 0, 1000);
 
@@ -672,7 +672,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnLongProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("longProp > 97")
                 .build(), 0, 1000);
 
@@ -685,7 +685,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnFloatProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("floatProp > 97.2")
                 .build(), 0, 1000);
 
@@ -698,7 +698,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDoubleProperty__whenGraterThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("doubleProp > 97.2")
                 .build(), 0, 1000);
 
@@ -711,19 +711,19 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenGraterThanProperty__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp > nested.nestedProp")
                 .build(), 0, 1000);
 
         assertThat(actual.total(), is(49L));
-        for (Entity<ComplexValue> entity : actual) {
+        for (Entity<QAValue> entity : actual) {
             assertThat(entity.value().toString(), entity.value().stringProp(), is(greaterThan(entity.value().nested().nestedProp())));
         }
     }
 
     @Test
     public void givenFilterOnStringProperty__whenGraterThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp >= '097'")
                 .build(), 0, 1000);
 
@@ -736,7 +736,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDateProperty__whenGraterThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("dateProp >= 1985-09-17")
                 .build(), 0, 1000);
 
@@ -749,7 +749,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnTimeProperty__whenGraterThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("timeProp >= 14:19:33.123456789")
                 .build(), 0, 1000);
 
@@ -763,7 +763,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDateTimeProperty__whenGraterThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("datetimeProp >= 1985-09-17T12:42:33.123456789")
                 .build(), 0, 1000);
 
@@ -776,7 +776,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnZonedDateTimeProperty__whenGraterThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("tzdatetimeProp >= 1985-09-17T12:42:33.123456789+05:00")
                 .build(), 0, 1000);
 
@@ -790,7 +790,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnIntegerProperty__whenGraterThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("integerProp >= 97")
                 .build(), 0, 1000);
 
@@ -803,7 +803,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnLongProperty__whenGraterThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("longProp >= 97")
                 .build(), 0, 1000);
 
@@ -816,7 +816,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnFloatProperty__whenGraterThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("floatProp >= 97.2")
                 .build(), 0, 1000);
 
@@ -829,7 +829,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDoubleProperty__whenGraterThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("doubleProp >= 97.2")
                 .build(), 0, 1000);
 
@@ -842,19 +842,19 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenGraterThanOrEqualProperty__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp >= nested.nestedProp")
                 .build(), 0, 1000);
 
         assertThat(actual.total(), is(50L));
-        for (Entity<ComplexValue> entity : actual) {
+        for (Entity<QAValue> entity : actual) {
             assertThat(entity.value().toString(), entity.value().stringProp(), is(greaterThanOrEqualTo(entity.value().nested().nestedProp())));
         }
     }
 
     @Test
     public void givenFilterOnStringProperty__whenLowerThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp < '002'")
                 .build(), 0, 1000);
 
@@ -867,7 +867,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDateProperty__whenLowerThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("dateProp < 1985-06-14")
                 .build(), 0, 1000);
 
@@ -880,7 +880,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnTimeProperty__whenLowerThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("timeProp < 12:44:33.123456789")
                 .build(), 0, 1000);
 
@@ -894,7 +894,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDateTimeProperty__whenLowerThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("datetimeProp < 1985-06-14T12:42:33.123456789")
                 .build(), 0, 1000);
 
@@ -907,7 +907,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnZonedDateTimeProperty__whenLowerThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("tzdatetimeProp < 1985-06-14T12:42:33.123456789+05:00")
                 .build(), 0, 1000);
 
@@ -921,7 +921,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnIntegerProperty__whenLowerThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("integerProp < 2")
                 .build(), 0, 1000);
 
@@ -934,7 +934,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnLongProperty__whenLowerThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("longProp < 2")
                 .build(), 0, 1000);
 
@@ -947,7 +947,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnFloatProperty__whenLowerThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("floatProp < 2.2")
                 .build(), 0, 1000);
 
@@ -960,7 +960,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDoubleProperty__whenLowerThan__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("doubleProp < 2.2")
                 .build(), 0, 1000);
 
@@ -973,19 +973,19 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenLowerThanProperty__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp < nested.nestedProp")
                 .build(), 0, 1000);
 
         assertThat(actual.total(), is(50L));
-        for (Entity<ComplexValue> entity : actual) {
+        for (Entity<QAValue> entity : actual) {
             assertThat(entity.value().toString(), entity.value().stringProp(), is(lessThan(entity.value().nested().nestedProp())));
         }
     }
 
     @Test
     public void givenFilterOnStringProperty__whenLowerThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp <= '002'")
                 .build(), 0, 1000);
 
@@ -998,7 +998,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDateProperty__whenLowerThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("dateProp <= 1985-06-14")
                 .build(), 0, 1000);
 
@@ -1011,7 +1011,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnTimeProperty__whenLowerThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("timeProp <= 12:44:33.123456789")
                 .build(), 0, 1000);
 
@@ -1025,7 +1025,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDateTimeProperty__whenLowerThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("datetimeProp <= 1985-06-14T12:42:33.123456789")
                 .build(), 0, 1000);
 
@@ -1038,7 +1038,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnZonedDateTimeProperty__whenLowerThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("tzdatetimeProp <= 1985-06-14T12:42:33.123456789+05:00")
                 .build(), 0, 1000);
 
@@ -1052,7 +1052,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnIntegerProperty__whenLowerThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("integerProp <= 2")
                 .build(), 0, 1000);
 
@@ -1065,7 +1065,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnLongProperty__whenLowerThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("longProp <= 2")
                 .build(), 0, 1000);
 
@@ -1078,7 +1078,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnFloatProperty__whenLowerThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("floatProp <= 2.2")
                 .build(), 0, 1000);
 
@@ -1091,7 +1091,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnDoubleProperty__whenLowerThanOrEquals__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("doubleProp <= 2.2")
                 .build(), 0, 1000);
 
@@ -1104,19 +1104,19 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenLowerThanOrEqualProperty__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp <= nested.nestedProp")
                 .build(), 0, 1000);
 
         assertThat(actual.total(), is(51L));
-        for (Entity<ComplexValue> entity : actual) {
+        for (Entity<QAValue> entity : actual) {
             assertThat(entity.value().toString(), entity.value().stringProp(), is(lessThanOrEqualTo(entity.value().nested().nestedProp())));
         }
     }
 
     @Test
     public void givenFilterOnStringProperty__whenStartsWithProperty__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp starts with nested.deep.deepProp")
                 .build(), 0, 1000);
 
@@ -1129,7 +1129,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenStartsWith__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp starts with '01'")
                 .build(), 0, 1000);
 
@@ -1142,7 +1142,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenEndsWith__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp ends with '8'")
                 .build(), 0, 1000);
 
@@ -1155,7 +1155,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenEndsWithProperty__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp ends with nested.deep.deepProp")
                 .build(), 0, 1000);
 
@@ -1168,7 +1168,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenContains__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp contains '08'")
                 .build(), 0, 1000);
 
@@ -1181,7 +1181,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenContainsProperty__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp contains nested.deep.deepProp")
                 .build(), 0, 1000);
 
@@ -1194,7 +1194,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenOr__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp == '001' || stringProp == '002'")
                 .build(), 0, 1000);
 
@@ -1207,7 +1207,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenAnd__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp == '050' && nested.nestedProp == '050'")
                 .build(), 0, 1000);
 
@@ -1220,7 +1220,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterOnStringProperty__whenNot__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("! stringProp <= '097'")
                 .build(), 0, 1000);
 
@@ -1233,7 +1233,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void whenNoFilter_andOrderByOnePropertyDefaultDirection__thenAllValuesReturnedIsAscending() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .sort("stringProp")
                 .build(), 0, 1000);
 
@@ -1244,7 +1244,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void whenNoFilter_andOrderByOnePropertyAsc__thenAllValuesReturnedIsAscending() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .sort("stringProp asc")
                 .build(), 0, 1000);
 
@@ -1255,7 +1255,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void whenNoFilter_andOrderByOnePropertyDesc__thenAllValuesReturnedIsAscending() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .sort("stringProp desc")
                 .build(), 0, 1000);
 
@@ -1266,7 +1266,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void whenNoFilter_andOrderByTwoProperties__thenAllValuesAreOrdered() throws Exception {
-        PagedEntityList<ComplexValue> actual = this.repository.search(PropertyQuery.builder()
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .sort("boolProp, stringProp")
                 .build(), 0, 1000);
 
