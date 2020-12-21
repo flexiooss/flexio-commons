@@ -15,7 +15,7 @@ import org.junit.Rule;
 
 
 
-public class MySQLJsonRepositoryWithPropertyQueryTest extends PropertyQueryAcceptanceTest {
+public class MySQLJsonRepositoryWithPropertyQueryAcceptanceTest extends PropertyQueryAcceptanceTest {
 
     @ClassRule
     static public DockerResource docker = DockerResource.client();
