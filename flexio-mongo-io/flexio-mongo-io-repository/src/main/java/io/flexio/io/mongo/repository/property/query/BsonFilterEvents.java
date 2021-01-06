@@ -6,8 +6,12 @@ import org.bson.conversions.Bson;
 import org.codingmatters.poom.services.domain.property.query.FilterEvents;
 import org.codingmatters.poom.services.domain.property.query.events.FilterEventError;
 
+import java.math.BigDecimal;
+import java.time.*;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Stack;
 
 public class BsonFilterEvents implements FilterEvents {
@@ -16,20 +20,26 @@ public class BsonFilterEvents implements FilterEvents {
 
     @Override
     public Object isEquals(String left, Object right) throws FilterEventError {
-        this.stack.push(Filters.eq(left, right));
+        this.stack.push(Filters.eq(this.property(left, right), this.value(right)));
         return null;
+    }
+
+    private String property(String name, Object comparedToValue) {
+        if(comparedToValue instanceof ZonedDateTime) {
+            return name + ".ts";
+        }
+        return name;
     }
 
     @Override
     public Object isEqualsProperty(String left, String right) throws FilterEventError {
-        // db.myCollection.find({$expr: {$eq: ["$a1.a", "$a2.a"] } });
         this.stack.push(Filters.expr(new Document("$eq", Arrays.asList("$" + left, "$" + right))));
         return null;
     }
 
     @Override
     public Object isNotEquals(String left, Object right) throws FilterEventError {
-        this.stack.push(Filters.ne(left, right));
+        this.stack.push(Filters.ne(this.property(left, right), this.value(right)));
         return null;
     }
 
@@ -41,7 +51,7 @@ public class BsonFilterEvents implements FilterEvents {
 
     @Override
     public Object lowerThan(String left, Object right) throws FilterEventError {
-        this.stack.push(Filters.lt(left, right));
+        this.stack.push(Filters.lt(this.property(left, right), this.value(right)));
         return null;
     }
 
@@ -53,7 +63,7 @@ public class BsonFilterEvents implements FilterEvents {
 
     @Override
     public Object lowerThanOrEquals(String left, Object right) throws FilterEventError {
-        this.stack.push(Filters.lte(left, right));
+        this.stack.push(Filters.lte(this.property(left, right), this.value(right)));
         return null;
     }
 
@@ -65,7 +75,7 @@ public class BsonFilterEvents implements FilterEvents {
 
     @Override
     public Object graterThan(String left, Object right) throws FilterEventError {
-        this.stack.push(Filters.gt(left, right));
+        this.stack.push(Filters.gt(this.property(left, right), this.value(right)));
         return null;
     }
 
@@ -77,7 +87,7 @@ public class BsonFilterEvents implements FilterEvents {
 
     @Override
     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
-        this.stack.push(Filters.gte(left, right));
+        this.stack.push(Filters.gte(this.property(left, right), this.value(right)));
         return null;
     }
 
@@ -101,19 +111,19 @@ public class BsonFilterEvents implements FilterEvents {
 
     @Override
     public Object startsWith(String left, Object right) throws FilterEventError {
-        this.stack.push(Filters.regex(left, "^" + right + ".*"));
+        this.stack.push(Filters.regex(this.property(left, right), "^" + this.value(right) + ".*"));
         return null;
     }
 
     @Override
     public Object endsWith(String left, Object right) throws FilterEventError {
-        this.stack.push(Filters.regex(left, ".*" + right + "$"));
+        this.stack.push(Filters.regex(this.property(left, right), ".*" + this.value(right) + "$"));
         return null;
     }
 
     @Override
     public Object contains(String left, Object right) throws FilterEventError {
-        this.stack.push(Filters.regex(left, "^.*" + right + ".*$"));
+        this.stack.push(Filters.regex(this.property(left, right), "^.*" + this.value(right) + ".*$"));
         return null;
     }
 
@@ -153,6 +163,27 @@ public class BsonFilterEvents implements FilterEvents {
     public Object containsProperty(String left, String right) throws FilterEventError {
         throw new FilterEventError("cannot apply contains to property");
     }
+
+    private Object value(Object v) {
+        if(v != null) {
+            if(v instanceof Temporal) {
+                if(v instanceof ZonedDateTime) {
+                    return Date.from(((ZonedDateTime)v).toInstant());
+                } if(v instanceof LocalDateTime) {
+                    return Date.from(((LocalDateTime)v).atZone(ZoneId.of("Z")).toInstant());
+                } if(v instanceof LocalDate) {
+                    return Date.from(((LocalDate)v).atStartOfDay().atZone(ZoneId.of("Z")).toInstant());
+                } if(v instanceof LocalTime) {
+                    return Date.from(((LocalTime)v).atDate(LocalDate.of(1970, 1, 1)).atZone(ZoneId.of("Z")).toInstant());
+                }
+            }
+            if(v instanceof Number) {
+                return new BigDecimal(v.toString());
+            }
+        }
+        return v;
+    }
+
 
     public Bson filter() {
         if(this.stack.isEmpty()) {

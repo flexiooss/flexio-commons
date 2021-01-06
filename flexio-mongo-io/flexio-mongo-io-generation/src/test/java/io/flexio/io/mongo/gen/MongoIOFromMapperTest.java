@@ -5,6 +5,7 @@ import io.flexio.docker.DockerResource;
 import io.flexio.services.tests.mongo.MongoResource;
 import io.flexio.services.tests.mongo.MongoTest;
 import org.bson.Document;
+import org.bson.types.Decimal128;
 import org.codingmatters.tests.compile.CompiledCode;
 import org.codingmatters.tests.compile.FileHelper;
 import org.codingmatters.tests.compile.helpers.ClassLoaderHelper;
@@ -20,6 +21,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,7 +32,7 @@ import static org.codingmatters.value.objects.spec.PropertyTypeSpec.type;
 import static org.codingmatters.value.objects.spec.ValueSpec.valueSpec;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MongoIOFromMapperTest {
 
@@ -65,7 +67,7 @@ public class MongoIOFromMapperTest {
                         .addProperty(property().name("pI").type(type().typeKind(TypeKind.JAVA_TYPE).typeRef(Integer.class.getName())))
                         .addProperty(property().name("pL").type(type().typeKind(TypeKind.JAVA_TYPE).typeRef(Long.class.getName())))
                         // FLOAT not supported
-                        //.addProperty(property().name("pF").type(type().typeKind(TypeKind.JAVA_TYPE).typeRef(Float.class.getName())))
+                        .addProperty(property().name("pF").type(type().typeKind(TypeKind.JAVA_TYPE).typeRef(Float.class.getName())))
                         .addProperty(property().name("pD").type(type().typeKind(TypeKind.JAVA_TYPE).typeRef(Double.class.getName())))
                         .addProperty(property().name("pB").type(type().typeKind(TypeKind.JAVA_TYPE).typeRef(Boolean.class.getName())))
 
@@ -89,7 +91,7 @@ public class MongoIOFromMapperTest {
                 .call("p2", String[].class).with(new Object[] {new String [] {"v1", "v2"}})
                 .call("pI", Integer.class).with(12)
                 .call("pL", Long.class).with(12L)
-                //.call("pF", Float.class).with(12.0f)
+                .call("pF", Float.class).with(12.0f)
                 .call("pD", Double.class).with(12.0d)
                 .call("pB", Boolean.class).with(false)
 
@@ -120,8 +122,9 @@ public class MongoIOFromMapperTest {
             assertThat(((List<String>) document.get("p2")), contains("v1", "v2"));
             assertThat(document.get("pI"), is(12));
             assertThat(document.get("pL"), is(12L));
-            //assertThat(document.get("pF"), is(12.0));
-            assertThat(document.get("pD"), is(12.0d));
+            assertThat(document.get("pF"), is(new Decimal128(new BigDecimal("12.0"))));
+            System.out.println(document.get("pD").getClass());
+            assertThat(document.get("pD"), is(new Decimal128(new BigDecimal("12.0"))));
             assertThat(document.get("pB"), is(false));
 
             assertThat(document.get("pEmb"), is(Document.parse("{\"p\": \"value\"}")));
