@@ -13,3 +13,6 @@ stages:
     before: build
     exec:
       - docker pull alpine:3.8
+
+env:
+  - MVN: $DOCKER mvn -e -Dmaven.repo.local=/m2 --settings /settings.xml $MVN_OPTS -Ddocker.resource.docker.url=$DOCKER_API_URL
