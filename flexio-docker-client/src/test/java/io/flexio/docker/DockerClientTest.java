@@ -3,6 +3,7 @@ package io.flexio.docker;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.flexio.docker.api.ContainerListGetResponse;
+import io.flexio.docker.api.CreateImagePostResponse;
 import io.flexio.docker.api.ValueList;
 import io.flexio.docker.client.DockerEngineAPIClient;
 import io.flexio.docker.client.DockerEngineAPIRequesterClient;
@@ -48,9 +49,9 @@ public class DockerClientTest {
                 new OkHttpRequesterFactory(http, () -> DockerResource.resolveDockerUrl()), new JsonFactory(), DockerResource.resolveDockerUrl()
         );
         this.cleanUpContainers(client);
-
-
-        client.images().createImage().post(req -> req.fromImage(ALPINE_IMAGE)).opt().status200().orElseThrow(() -> new AssertionError("failed pulling image : " + ALPINE_IMAGE));
+        
+        CreateImagePostResponse pullResponse = client.images().createImage().post(req -> req.fromImage(ALPINE_IMAGE));
+        pullResponse.opt().status200().orElseThrow(() -> new AssertionError("failed pulling image : " + ALPINE_IMAGE + " got " + pullResponse));
 
         client.containers().createContainer().post(req ->
                 req.name("already-created").payload(payload -> payload.image(ALPINE_IMAGE).cmd("echo", "hello world"))
