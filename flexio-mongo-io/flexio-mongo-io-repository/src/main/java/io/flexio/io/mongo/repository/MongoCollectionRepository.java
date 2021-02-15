@@ -4,7 +4,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import io.flexio.io.mongo.repository.property.query.PropertyQuerier;
@@ -22,6 +22,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Locale;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
@@ -54,6 +56,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         private BsonFromQueryProvider<Q> sort = q -> null;
         private Function<V, Document> toDocument;
         private Function<Document,V> toValue;
+        private Consumer<Collation.Builder> collationConfig = builder -> {};
 
         public Builder(String databaseName, String collectionName) {
             this.databaseName = databaseName;
@@ -82,6 +85,11 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             return this;
         }
 
+        public Builder<V,Q> withCollationConfig(Consumer<Collation.Builder> collationConfig) {
+            this.collationConfig = collationConfig;
+            return this;
+        }
+
         public Builder<V,Q> withToValue(Function<Document, V> toValue) {
             this.toValue = toValue;
             return this;
@@ -95,7 +103,9 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
                     this.filter,
                     this.sort,
                     this.toDocument,
-                    this.toValue);
+                    this.toValue,
+                    this.collationConfig
+                    );
         }
 
         public Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient) {
@@ -107,7 +117,9 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
                     querier.filterer(),
                     querier.sorter(),
                     this.toDocument,
-                    this.toValue);
+                    this.toValue,
+                    this.collationConfig
+                    );
         }
     }
 
@@ -142,7 +154,9 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     private final Function<V, Document> toDocument;
     private final Function<Document, V> toValue;
 
-    private MongoCollectionRepository(MongoClient mongoClient, String databaseName, String collectionName, BsonFromQueryProvider<Q> filterProvider, BsonFromQueryProvider<Q> sortProvider, Function<V, Document> toDocument, Function<Document, V> toValue) {
+    private final Consumer<Collation.Builder> collationConfig;
+
+    private MongoCollectionRepository(MongoClient mongoClient, String databaseName, String collectionName, BsonFromQueryProvider<Q> filterProvider, BsonFromQueryProvider<Q> sortProvider, Function<V, Document> toDocument, Function<Document, V> toValue, Consumer<Collation.Builder> collationConfig) {
         this.mongoClient = mongoClient;
         this.databaseName = databaseName;
         this.collectionName = collectionName;
@@ -150,6 +164,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         this.sortProvider = sortProvider;
         this.toDocument = toDocument;
         this.toValue = toValue;
+        this.collationConfig = collationConfig;
     }
 
     @Override
@@ -216,7 +231,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     @Override
     public void deleteFrom( Q query ) throws RepositoryException {
         Bson filter = query != null ? this.filterFrom( query ) : new Document();
-        this.resourceCollection( this.mongoClient ).deleteMany( filter );
+        this.resourceCollection( this.mongoClient ).deleteMany(filter, new DeleteOptions().collation(this.buildCollation()));
     }
 
     @Override
@@ -242,6 +257,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         }
 
         FindIterable<Document> result = (filter != null ? collection.find(filter) : collection.find())
+                .collation(this.buildCollation())
                 .sort(sort)
                 .skip((int) startIndex)
                 .limit((int) (endIndex - startIndex + 1));
@@ -252,6 +268,15 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         }
 
         return new PagedEntityList.DefaultPagedEntityList<>(startIndex, startIndex + found.size() - 1, totalCount, found);
+    }
+
+    private Collation buildCollation() {
+        Collation.Builder collation = Collation.builder()
+                .locale("simple")
+                ;
+
+        this.collationConfig.accept(collation);
+        return collation.build();
     }
 
     private Bson idFilter(String id) {
