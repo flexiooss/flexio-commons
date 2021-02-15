@@ -21,6 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.math.BigInteger;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -40,12 +41,15 @@ public class MongoCollectionRepositoryTest {
 
     private Repository<MongoValue, MongoQuery> repository;
 
+    private final AtomicInteger collationConfigCalled = new AtomicInteger(0);
+
     @Before
     public void setUp() throws Exception {
         this.repository = MongoCollectionRepository.<MongoValue, MongoQuery>repository(DB, COLLECTION)
                 .withToDocument(value -> new MongoValueMongoMapper().toDocument(value))
                 .withToValue(document -> new MongoValueMongoMapper().toValue(document))
                 .withFilter(query -> query.opt().name().isPresent() ? Filters.eq("name", query.name()) : null)
+                .withCollationConfig(builder -> collationConfigCalled.incrementAndGet())
                 .build(mongo.newClient());
     }
 
@@ -294,5 +298,36 @@ public class MongoCollectionRepositoryTest {
         Entity<MongoValue> actual = this.repository.retrieve(notAnObjectId);
 
         assertThat(actual, is(expected));
+    }
+
+    @Test
+    public void whenAll__thenCollationConfigCalled() throws Exception {
+        this.repository.all(0, 0);
+        assertThat(this.collationConfigCalled.get(), is(1));
+    }
+
+    @Test
+    public void whenSearch__thenCollationConfigCalled() throws Exception {
+        this.repository.search(MongoQuery.builder().build(), 0, 0);
+        assertThat(this.collationConfigCalled.get(), is(1));
+    }
+
+    @Test
+    public void whenDeleteFrom__thenCollationConfigCalled() throws Exception {
+        this.repository.deleteFrom(MongoQuery.builder().name("Blup").build());
+        assertThat(this.collationConfigCalled.get(), is(1));
+    }
+
+    @Test
+    public void whenDelete__thenCollationConfigIsNotCalled() throws Exception {
+        Entity<MongoValue> e = this.repository.create(MongoValue.builder().build());
+        this.repository.delete(e);
+        assertThat(this.collationConfigCalled.get(), is(0));
+    }
+
+    @Test
+    public void whenRetrieve__thenCollationConfigIsNotCalled() throws Exception {
+        this.repository.retrieve("42");
+        assertThat(this.collationConfigCalled.get(), is(0));
     }
 }
