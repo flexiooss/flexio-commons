@@ -79,7 +79,7 @@ public class DockerAuthTest {
 
         assertThat(
                 new String(Base64.getDecoder().decode(this.dockerAuth.xRegistryAuth(""))),
-                is("{\"username\":\"testuser\",\"password\":\"testpassword\",\"email\":\"test@test.test\",\"serveraddress\":\"\"}")
+                is("{\"username\":\"testuser\",\"password\":\"testpassword\",\"email\":\"test@test.test\",\"serveraddress\":\"docker.io\"}")
         );
     }
 
@@ -187,7 +187,7 @@ public class DockerAuthTest {
 
         assertThat(
                 new String(Base64.getDecoder().decode(this.dockerAuth.xRegistryAuth("group/image:tag"))),
-                is("{\"username\":\"testuser\",\"password\":\"testpassword\",\"email\":\"test@test.test\",\"serveraddress\":\"\"}")
+                is("{\"username\":\"testuser\",\"password\":\"testpassword\",\"email\":\"test@test.test\",\"serveraddress\":\"docker.io\"}")
         );
     }
 
@@ -199,7 +199,7 @@ public class DockerAuthTest {
 
         assertThat(
                 new String(Base64.getDecoder().decode(this.dockerAuth.xRegistryAuth("image:tag"))),
-                is("{\"username\":\"testuser\",\"password\":\"testpassword\",\"email\":\"test@test.test\",\"serveraddress\":\"\"}")
+                is("{\"username\":\"testuser\",\"password\":\"testpassword\",\"email\":\"test@test.test\",\"serveraddress\":\"docker.io\"}")
         );
     }
 
@@ -211,7 +211,7 @@ public class DockerAuthTest {
 
         assertThat(
                 new String(Base64.getDecoder().decode(this.dockerAuth.xRegistryAuth("alpine:3.8"))),
-                is("{\"username\":\"testuser\",\"password\":\"testpassword\",\"email\":\"test@test.test\",\"serveraddress\":\"\"}")
+                is("{\"username\":\"testuser\",\"password\":\"testpassword\",\"email\":\"test@test.test\",\"serveraddress\":\"docker.io\"}")
         );
     }
 
@@ -223,7 +223,7 @@ public class DockerAuthTest {
 
         assertThat(
                 new String(Base64.getDecoder().decode(this.dockerAuth.xRegistryAuth("image"))),
-                is("{\"username\":\"testuser\",\"password\":\"testpassword\",\"email\":\"test@test.test\",\"serveraddress\":\"\"}")
+                is("{\"username\":\"testuser\",\"password\":\"testpassword\",\"email\":\"test@test.test\",\"serveraddress\":\"docker.io\"}")
         );
     }
 }
