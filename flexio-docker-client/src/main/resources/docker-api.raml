@@ -180,6 +180,8 @@ mediaType: application/json
          queryParameters:
             all: boolean
             digests: boolean
+         headers:
+            X-Registry-Auth: string
          responses:
             200:
                description: Summary image data for the images matching the query
@@ -194,6 +196,8 @@ mediaType: application/json
             fromImage: string
             repo: string
             tag: string
+         headers:
+            X-Registry-Auth: string
          responses:
             200:
                description: pulled or created image
@@ -208,6 +212,8 @@ mediaType: application/json
       uriParameters:
          image-id: string
       get:
+         headers:
+            X-Registry-Auth: string
          responses:
             200:
                description: no error

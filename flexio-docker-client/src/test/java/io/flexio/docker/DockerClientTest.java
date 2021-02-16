@@ -3,13 +3,16 @@ package io.flexio.docker;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.flexio.docker.api.ContainerListGetResponse;
+import io.flexio.docker.api.CreateImagePostResponse;
 import io.flexio.docker.api.ValueList;
+import io.flexio.docker.auth.DockerAuth;
 import io.flexio.docker.client.DockerEngineAPIClient;
 import io.flexio.docker.client.DockerEngineAPIRequesterClient;
 import io.flexio.docker.api.types.Container;
 import io.flexio.docker.api.types.container.State;
 import io.flexio.docker.descriptors.ContainerCreationLog;
 import io.flexio.docker.descriptors.ContainerStartLog;
+import org.codingmatters.poom.services.support.Env;
 import org.codingmatters.rest.api.client.okhttp.HttpClientWrapper;
 import org.codingmatters.rest.api.client.okhttp.OkHttpClientWrapper;
 import org.codingmatters.rest.api.client.okhttp.OkHttpRequesterFactory;
@@ -20,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,8 +53,11 @@ public class DockerClientTest {
         );
         this.cleanUpContainers(client);
 
-
-        client.images().createImage().post(req -> req.fromImage(ALPINE_IMAGE)).opt().status200().orElseThrow(() -> new AssertionError("failed pulling image : " + ALPINE_IMAGE));
+        CreateImagePostResponse pullResponse = client.images().createImage().post(req -> req
+                .fromImage(ALPINE_IMAGE)
+                .xRegistryAuth(DockerAuth.fromEnv().xRegistryAuth(ALPINE_IMAGE))
+        );
+        pullResponse.opt().status200().orElseThrow(() -> new AssertionError("failed pulling image : " + ALPINE_IMAGE + " got " + pullResponse));
 
         client.containers().createContainer().post(req ->
                 req.name("already-created").payload(payload -> payload.image(ALPINE_IMAGE).cmd("echo", "hello world"))
