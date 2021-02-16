@@ -38,6 +38,7 @@ public class DockerAuth {
                 email.get().asString(),
                 server
         );
+        System.out.printf("[docker registry auth] athentified as %s to %s\n", username.get().asString(), server);
         return Base64.getEncoder().encodeToString(jsonAuth.getBytes());
     }
 
