@@ -3,6 +3,7 @@ package io.flexio.docker;
 import com.fasterxml.jackson.core.JsonFactory;
 import io.flexio.docker.api.*;
 import io.flexio.docker.api.types.ContainerCreationData;
+import io.flexio.docker.auth.DockerAuth;
 import io.flexio.docker.client.DockerEngineAPIClient;
 import io.flexio.docker.client.DockerEngineAPIRequesterClient;
 import io.flexio.docker.api.optional.OptionalStartPostResponse;
@@ -26,6 +27,7 @@ import java.util.function.Supplier;
 public class DockerClient {
     private final DockerEngineAPIClient client;
     private final String baseUrl;
+    private final DockerAuth dockerAuth;
 
     public DockerClient(HttpClientWrapper http, String baseUrl) {
         this(http, baseUrl, null);
@@ -33,6 +35,7 @@ public class DockerClient {
     public DockerClient(HttpClientWrapper http, String baseUrl, String authToken) {
         this.client = new DockerEngineAPIRequesterClient(new OkHttpRequesterFactory(http, () -> baseUrl), new JsonFactory(), baseUrl);
         this.baseUrl = baseUrl;
+        this.dockerAuth = DockerAuth.fromEnv();
     }
 
     public OptionalContainer containerForName(String name) {
@@ -105,7 +108,10 @@ public class DockerClient {
 
     private void ensureImageIsUpToDate(String imageTag) {
         try {
-            CreateImagePostResponse response = this.client.images().createImage().post(req -> req.fromImage(imageTag));
+            CreateImagePostResponse response = this.client.images().createImage().post(req -> req
+                    .fromImage(imageTag)
+                    .xRegistryAuth(this.dockerAuth.xRegistryAuth(imageTag))
+            );
             if(! response.opt().status200().isPresent()) {
                 // TODO should a policy be used ?
                 log.warn("couldn't update image {} : {}", imageTag, response);
@@ -140,7 +146,10 @@ public class DockerClient {
                     .orElseThrow(assertFails("no such container %s", id));
 
 
-            InspectImageGetResponse imageGetResponse = this.client.images().inspectImage().get(req -> req.imageId(container.image()));
+            InspectImageGetResponse imageGetResponse = this.client.images().inspectImage().get(req -> req
+                    .imageId(container.image())
+                    .xRegistryAuth(this.dockerAuth.xRegistryAuth(container.image()))
+            );
             Image image = imageGetResponse
                     .opt().status200().payload()
                     .orElseThrow(assertFails("no such image %s", container.image()));
