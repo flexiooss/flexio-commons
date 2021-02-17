@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public class DockerAuth {
 
+    public static final String DEFAULT_REGISTRY_SERVER_ADDRESS = "index.docker.io";
+
     static public DockerAuth fromEnv() {
         return new DockerAuth();
     }
@@ -38,6 +40,7 @@ public class DockerAuth {
                 email.get().asString(),
                 server
         );
+        System.out.printf("[docker registry auth] authenticated as %s to %s\n", username.get().asString(), server);
         return Base64.getEncoder().encodeToString(jsonAuth.getBytes());
     }
 
@@ -47,26 +50,28 @@ public class DockerAuth {
             if(candidate.indexOf('.') != -1) {
                 return candidate;
             } else {
-                return "";
+                return DEFAULT_REGISTRY_SERVER_ADDRESS;
             }
         }
 
         if(serverOrImage.indexOf(':') != -1) {
-            return "";
+            return DEFAULT_REGISTRY_SERVER_ADDRESS;
         }
 
         if(serverOrImage.indexOf('.') != -1) {
             return serverOrImage;
         } else {
-            return "";
+            return DEFAULT_REGISTRY_SERVER_ADDRESS;
         }
     }
 
     private String base(String serverOrImage) {
         if(serverOrImage == null || serverOrImage.isEmpty()) {
+            serverOrImage = DEFAULT_REGISTRY_SERVER_ADDRESS;
+        }
+        if(serverOrImage.equals(DEFAULT_REGISTRY_SERVER_ADDRESS)) {
             serverOrImage = "docker.io";
         }
-
         return serverOrImage.replaceAll("\\.", "_").toUpperCase() + "_LOGIN";
     }
 

@@ -25,7 +25,7 @@ public class MariaDBResource extends ExternalResource {
         this.docker = docker;
 
         this.docker.with(CONTAINER_NAME, ContainerCreationData.builder()
-                .image("mariadb:10")
+                .image("harbor.ci.flexio.io/ci/mariadb:10")
                 .env(
                         "MYSQL_ROOT_PASSWORD=" + MYSQL_ROOT_PASSWORD,
                         "MYSQL_DATABASE=" + MYSQL_DATABASE,
