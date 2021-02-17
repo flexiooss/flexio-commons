@@ -31,7 +31,10 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     public static final String VERSION_FIELD = "__version";
 
     static public <V, Q> MandatoryToDocument<V, Q> repository(String database, String collection) {
-        return new Builder<>(database, collection);
+        return repository(database, collection, builder -> {});
+    }
+    static public <V, Q> MandatoryToDocument<V, Q> repository(String database, String collection, Consumer<Collation.Builder> collationConfig) {
+        return new Builder<>(database, collection, collationConfig);
     }
 
     public interface MandatoryToDocument<V, Q> {
@@ -56,11 +59,12 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         private BsonFromQueryProvider<Q> sort = q -> null;
         private Function<V, Document> toDocument;
         private Function<Document,V> toValue;
-        private Consumer<Collation.Builder> collationConfig = builder -> {};
+        private Consumer<Collation.Builder> collationConfig;
 
-        public Builder(String databaseName, String collectionName) {
+        public Builder(String databaseName, String collectionName, Consumer<Collation.Builder> collationConfig) {
             this.databaseName = databaseName;
             this.collectionName = collectionName;
+            this.collationConfig = collationConfig;
         }
 
         public Builder<V,Q> withFilter(Function<Q, Bson> filter) {
