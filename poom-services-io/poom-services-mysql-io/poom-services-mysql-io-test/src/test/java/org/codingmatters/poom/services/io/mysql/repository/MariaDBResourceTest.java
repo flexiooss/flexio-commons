@@ -14,16 +14,17 @@ import static org.hamcrest.Matchers.is;
 
 public class MariaDBResourceTest {
 
-    @ClassRule
+    @ClassRule(order = 0)
     static public DockerResource docker = DockerResource.client();
 
-    @Rule
-    public MariaDBResource mariaDBResource = new MariaDBResource(docker);
+    @ClassRule(order = 1)
+    static public MariaDBResource mariaDBResource = new MariaDBResource(docker);
 
     private Connection connection;
 
     @Before
     public void setUp() throws Exception {
+        mariaDBResource.wipe();
         this.connection = this.mariaDBResource.ds().getConnection();
     }
 

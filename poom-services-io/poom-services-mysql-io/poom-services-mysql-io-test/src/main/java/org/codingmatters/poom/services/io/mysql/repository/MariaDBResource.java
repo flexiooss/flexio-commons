@@ -36,9 +36,6 @@ public class MariaDBResource extends ExternalResource {
     }
 
     public DataSource ds() throws Exception {
-        if(!this.inited) {
-            this.initialize();
-        }
         return this.ds;
     }
 
@@ -50,7 +47,13 @@ public class MariaDBResource extends ExternalResource {
                 )
         );
         this.awaitServerReady();
+        this.inited = true;
+    }
 
+    public void wipe() throws Exception {
+        if(!this.inited) {
+            this.initialize();
+        }
         Connection connection = this.ds.getConnection();
 
         ResultSet tables = connection.getMetaData().getTables(MYSQL_DATABASE, "%", "%", new String[]{"TABLE"});
@@ -58,7 +61,6 @@ public class MariaDBResource extends ExternalResource {
             String tableName = tables.getString("TABLE_NAME");
             connection.createStatement().execute("DROP TABLE " + tableName);
         }
-        this.inited = true;
     }
 
     private void awaitServerReady() {
@@ -73,7 +75,7 @@ public class MariaDBResource extends ExternalResource {
     @Override
     protected void before() throws Throwable {
         super.before();
-        this.inited = false;
+        this.wipe();
     }
 
     @Override

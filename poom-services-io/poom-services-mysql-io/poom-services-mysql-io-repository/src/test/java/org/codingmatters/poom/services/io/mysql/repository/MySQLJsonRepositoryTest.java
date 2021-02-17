@@ -31,11 +31,11 @@ import static org.hamcrest.Matchers.is;
 
 public class MySQLJsonRepositoryTest {
 
-    @ClassRule
+    @ClassRule(order = 0)
     static public DockerResource docker = DockerResource.client();
 
-    @Rule
-    public MariaDBResource mariaDBResource = new MariaDBResource(docker);
+    @ClassRule(order = 1)
+    static public MariaDBResource mariaDBResource = new MariaDBResource(docker);
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -46,6 +46,7 @@ public class MySQLJsonRepositoryTest {
 
     @Before
     public void setUp() throws Exception {
+        mariaDBResource.wipe();
         this.connection = this.mariaDBResource.ds().getConnection();
     }
 
