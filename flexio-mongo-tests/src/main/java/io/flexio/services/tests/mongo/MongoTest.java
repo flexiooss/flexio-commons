@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 public class MongoTest {
 
     static public final String MONGO = System.getProperty("ut.container.prefix", "") + "mongo-ut";
-    static public final String MONGO_IMAGE = "mongo:" + System.getProperty("ut.mongo.version", "4.0.3");
+    static public final String MONGO_IMAGE = "harbor.ci.flexio.io/ci/mongo:" + System.getProperty("ut.mongo.version", "4.0.3");
 
     static public DockerResource.ContainerInitialStatus docker() {
         DockerResource docker = DockerResource.client();

@@ -34,7 +34,7 @@ import static org.junit.Assert.assertThat;
 public class DockerClientTest {
 
     static private final Logger log = LoggerFactory.getLogger(DockerClientTest.class);
-    public static final String ALPINE_IMAGE = "alpine:3.8";
+    public static final String ALPINE_IMAGE = "harbor.ci.flexio.io/ci/alpine:3.8";
 
     private HttpClientWrapper http = OkHttpClientWrapper.build();
     private DockerClient dockerClient = new DockerClient(http, DockerResource.resolveDockerUrl());
