@@ -7,11 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services</artifactId>
-<<<<<<< HEAD
         <version>1.74.0-SNAPSHOT</version>
-=======
-        <version>1.74.0</version>
->>>>>>> b01d770c0e0077cc03160727cce52dde13579235
     </parent>
 
     <groupId>io.flexio.commons</groupId>
