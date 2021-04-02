@@ -129,16 +129,18 @@ public class BsonFilterEvents implements FilterEvents {
 
     @Override
     public Object and() throws FilterEventError {
-        Bson and = Filters.and(new ArrayList<>(this.stack));
-        this.stack.clear();
+        Bson right = this.stack.pop();
+        Bson left = this.stack.pop();
+        Bson and = Filters.and(left, right);
         this.stack.push(and);
         return null;
     }
 
     @Override
     public Object or() throws FilterEventError {
-        Bson or = Filters.or(new ArrayList<>(this.stack));
-        this.stack.clear();
+        Bson right = this.stack.pop();
+        Bson left = this.stack.pop();
+        Bson or = Filters.or(left, right);
         this.stack.push(or);
         return null;
     }
