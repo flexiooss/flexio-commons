@@ -146,19 +146,23 @@ public class DocFilterEvents implements FilterEvents {
 
     @Override
     public Object or() throws FilterEventError {
-        this.stack.push(String.format("(%s) OR (%s)", this.stack.pop(), this.stack.pop()));
+        String right = this.stack.pop();
+        String left = this.stack.pop();
+        this.stack.push(String.format("(%s) || (%s)", left, right));
         return null;
     }
 
     @Override
     public Object and() throws FilterEventError {
-        this.stack.push(String.format("(%s) AND (%s)", this.stack.pop(), this.stack.pop()));
+        String right = this.stack.pop();
+        String left = this.stack.pop();
+        this.stack.push(String.format("(%s) && (%s)", left, right));
         return null;
     }
 
     @Override
     public Object not() throws FilterEventError {
-        this.stack.push(String.format("NOT (%s)", this.stack.pop()));
+        this.stack.push(String.format("! (%s)", this.stack.pop()));
         return null;
     }
 
