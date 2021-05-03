@@ -145,6 +145,22 @@ public class DocFilterEvents implements FilterEvents {
     }
 
     @Override
+    public Object in(String left, List right) throws FilterEventError {
+        StringBuilder clause = new StringBuilder(String.format("JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") IN (", left));
+        for (int i = 0; i < right.size(); i++) {
+            if(i != 0) {
+                clause.append(", ");
+            }
+            clause.append("?");
+            Object element = this.prepared(right.get(i));
+            this.paramsSetters.add((statement, index) -> statement.setObject(index, element));
+        }
+        clause.append(")");
+        this.stack.push(clause.toString());
+        return null;
+    }
+
+    @Override
     public Object or() throws FilterEventError {
         String right = this.stack.pop();
         String left = this.stack.pop();

@@ -9,10 +9,7 @@ import org.codingmatters.poom.services.domain.property.query.events.FilterEventE
 import java.math.BigDecimal;
 import java.time.*;
 import java.time.temporal.Temporal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Stack;
+import java.util.*;
 
 public class BsonFilterEvents implements FilterEvents {
 
@@ -124,6 +121,12 @@ public class BsonFilterEvents implements FilterEvents {
     @Override
     public Object contains(String left, Object right) throws FilterEventError {
         this.stack.push(Filters.regex(this.property(left, right), "^.*" + this.value(right) + ".*$"));
+        return null;
+    }
+
+    @Override
+    public Object in(String left, List right) throws FilterEventError {
+        this.stack.push(Filters.in(this.property(left, right), right));
         return null;
     }
 
