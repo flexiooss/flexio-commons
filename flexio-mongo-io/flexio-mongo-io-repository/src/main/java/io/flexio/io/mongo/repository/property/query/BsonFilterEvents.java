@@ -119,15 +119,29 @@ public class BsonFilterEvents implements FilterEvents {
     }
 
     @Override
-    public Object contains(String left, Object right) throws FilterEventError {
-        this.stack.push(Filters.regex(this.property(left, right), "^.*" + this.value(right) + ".*$"));
+    public Object in(String left, List right) throws FilterEventError {
+        this.stack.push(Filters.in(this.property(left, right), right));
         return null;
     }
 
     @Override
-    public Object in(String left, List right) throws FilterEventError {
-        this.stack.push(Filters.in(this.property(left, right), right));
+    public Object contains(String left, Object right) throws FilterEventError {
+        this.stack.push(this.containsRegex(left, right));
         return null;
+    }
+
+    @Override
+    public Object contains(String left, List right) throws FilterEventError {
+        List<Bson> oneOf = new LinkedList<>();
+        for (Object value : right) {
+            oneOf.add(this.containsRegex(left, value));
+        }
+        this.stack.push(Filters.or(oneOf));
+        return null;
+    }
+
+    private Bson containsRegex(String property, Object value) {
+        return Filters.regex(this.property(property, value), "^.*" + this.value(value) + ".*$");
     }
 
     @Override

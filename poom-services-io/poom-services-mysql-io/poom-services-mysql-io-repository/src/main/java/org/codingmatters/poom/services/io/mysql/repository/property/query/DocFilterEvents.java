@@ -13,6 +13,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 public class DocFilterEvents implements FilterEvents {
     private final Stack<String> stack = new Stack<>();
@@ -141,6 +142,19 @@ public class DocFilterEvents implements FilterEvents {
     @Override
     public Object containsProperty(String left, String right) throws FilterEventError {
         this.appendPropertySurroundedPrepicate(left, "LIKE", "%", right, "%");
+        return null;
+    }
+
+    @Override
+    public Object contains(String left, List right) throws FilterEventError {
+        List<String> oneOf = new LinkedList<>();
+        for (Object value : right) {
+            this.contains(left, value);
+            oneOf.add(this.stack.pop());
+        }
+        this.stack.push(
+                oneOf.stream().map(s -> String.format("(%s)", s)).collect(Collectors.joining(" || "))
+        );
         return null;
     }
 
