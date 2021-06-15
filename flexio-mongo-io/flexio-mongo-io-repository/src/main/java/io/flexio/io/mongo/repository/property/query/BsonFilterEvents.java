@@ -131,12 +131,22 @@ public class BsonFilterEvents implements FilterEvents {
     }
 
     @Override
-    public Object contains(String left, List right) throws FilterEventError {
-        List<Bson> oneOf = new LinkedList<>();
+    public Object containsAny(String left, List right) throws FilterEventError {
+        List<Bson> any = new LinkedList<>();
         for (Object value : right) {
-            oneOf.add(this.containsRegex(left, value));
+            any.add(this.containsRegex(left, value));
         }
-        this.stack.push(Filters.or(oneOf));
+        this.stack.push(Filters.or(any));
+        return null;
+    }
+
+    @Override
+    public Object containsAll(String left, List right) throws FilterEventError {
+        List<Bson> all = new LinkedList<>();
+        for (Object value : right) {
+            all.add(this.containsRegex(left, value));
+        }
+        this.stack.push(Filters.and(all));
         return null;
     }
 

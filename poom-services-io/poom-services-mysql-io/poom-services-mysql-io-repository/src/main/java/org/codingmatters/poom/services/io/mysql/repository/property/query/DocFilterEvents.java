@@ -146,14 +146,27 @@ public class DocFilterEvents implements FilterEvents {
     }
 
     @Override
-    public Object contains(String left, List right) throws FilterEventError {
-        List<String> oneOf = new LinkedList<>();
+    public Object containsAny(String left, List right) throws FilterEventError {
+        List<String> any = new LinkedList<>();
         for (Object value : right) {
             this.contains(left, value);
-            oneOf.add(this.stack.pop());
+            any.add(this.stack.pop());
         }
         this.stack.push(
-                oneOf.stream().map(s -> String.format("(%s)", s)).collect(Collectors.joining(" || "))
+                any.stream().map(s -> String.format("(%s)", s)).collect(Collectors.joining(" || "))
+        );
+        return null;
+    }
+
+    @Override
+    public Object containsAll(String left, List right) throws FilterEventError {
+        List<String> all = new LinkedList<>();
+        for (Object value : right) {
+            this.contains(left, value);
+            all.add(this.stack.pop());
+        }
+        this.stack.push(
+                all.stream().map(s -> String.format("(%s)", s)).collect(Collectors.joining(" && "))
         );
         return null;
     }
