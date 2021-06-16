@@ -107,6 +107,24 @@ public class BsonFilterEvents implements FilterEvents {
     }
 
     @Override
+    public Object isEmpty(String property) throws FilterEventError {
+        this.stack.push(Filters.or(
+                Filters.eq(property, null),
+                Filters.eq(property, "")
+        ));
+        return null;
+    }
+
+    @Override
+    public Object isNotEmpty(String property) throws FilterEventError {
+        this.stack.push(Filters.and(
+                Filters.ne(property, null),
+                Filters.ne(property, "")
+        ));
+        return null;
+    }
+
+    @Override
     public Object startsWith(String left, Object right) throws FilterEventError {
         this.stack.push(Filters.regex(this.property(left, right), "^" + this.value(right) + ".*"));
         return null;

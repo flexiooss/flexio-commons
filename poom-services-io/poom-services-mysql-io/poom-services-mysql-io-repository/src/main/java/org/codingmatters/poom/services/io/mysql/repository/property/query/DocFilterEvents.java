@@ -62,6 +62,22 @@ public class DocFilterEvents implements FilterEvents {
     }
 
     @Override
+    public Object isEmpty(String property) throws FilterEventError {
+        this.appendNullPredicate(property, "=");
+        this.appendSimplePredicate(property, "=", "");
+        this.or();
+        return null;
+    }
+
+    @Override
+    public Object isNotEmpty(String property) throws FilterEventError {
+        this.appendNullPredicate(property, "!=");
+        this.appendSimplePredicate(property, "!=", "");
+        this.and();
+        return null;
+    }
+
+    @Override
     public Object graterThan(String left, Object right) throws FilterEventError {
         this.appendSimplePredicate(left, ">", right);
         return null;
