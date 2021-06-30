@@ -1,6 +1,7 @@
 package io.flexio.io.mongo.repository;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoException;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -181,25 +182,33 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         return this.rawCreate(this.mongoIdValue(id), withValue);
     }
 
-    private Entity<V> rawCreate(Object id, V withValue) {
-        MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
-        Document doc = this.toDocument(withValue);
-        doc.put("_id", id);
-        doc.put(VERSION_FIELD, BigInteger.ONE.longValue());
+    private Entity<V> rawCreate(Object id, V withValue) throws RepositoryException {
+        try {
+            MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
+            Document doc = this.toDocument(withValue);
+            doc.put("_id", id);
+            doc.put(VERSION_FIELD, BigInteger.ONE.longValue());
 
-        collection.insertOne(doc);
+            collection.insertOne(doc);
 
-        return new ImmutableEntity<>(doc.get("_id").toString(), BigInteger.ONE, this.toValue(doc));
+            return new ImmutableEntity<>(doc.get("_id").toString(), BigInteger.ONE, this.toValue(doc));
+        } catch (MongoException e) {
+            throw new RepositoryException("mongo exception while creating entity", e);
+        }
     }
 
     @Override
     public Entity<V> retrieve(String id) throws RepositoryException {
-        MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
-        Document doc = collection.find(this.idFilter(id)).limit(1).first();
-        if (doc != null) {
-            return new ImmutableEntity<>(id, BigInteger.valueOf(documentVersion(doc)), this.toValue(doc));
-        } else {
-            return null;
+        try {
+            MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
+            Document doc = collection.find(this.idFilter(id)).limit(1).first();
+            if (doc != null) {
+                return new ImmutableEntity<>(id, BigInteger.valueOf(documentVersion(doc)), this.toValue(doc));
+            } else {
+                return null;
+            }
+        } catch (MongoException e) {
+            throw new RepositoryException("mongo exception while retrieving entity", e);
         }
     }
 
@@ -210,32 +219,44 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
     @Override
     public Entity<V> update(Entity<V> entity, V withValue) throws RepositoryException {
-        Entity<V> stored = this.retrieve(entity.id());
-        Document newDoc = this.toDocument(withValue);
+        try {
+            Entity<V> stored = this.retrieve(entity.id());
+            Document newDoc = this.toDocument(withValue);
 
-        BigInteger newVersion = stored.version().add(BigInteger.ONE);
-        newDoc.put(VERSION_FIELD, newVersion.longValue());
+            BigInteger newVersion = stored.version().add(BigInteger.ONE);
+            newDoc.put(VERSION_FIELD, newVersion.longValue());
 
-        UpdateResult results = this.resourceCollection(this.mongoClient).replaceOne(this.idFilter(entity.id()), newDoc);
-        if(results.getModifiedCount() <= 1) {
-            return new ImmutableEntity<>(entity.id(), newVersion, withValue);
-        } else {
-            throw new RepositoryException("failed updating entity " + entity.id() + " (updated count was " + results.getModifiedCount() + ")");
+            UpdateResult results = this.resourceCollection(this.mongoClient).replaceOne(this.idFilter(entity.id()), newDoc);
+            if (results.getModifiedCount() <= 1) {
+                return new ImmutableEntity<>(entity.id(), newVersion, withValue);
+            } else {
+                throw new RepositoryException("failed updating entity " + entity.id() + " (updated count was " + results.getModifiedCount() + ")");
+            }
+        } catch (MongoException e) {
+            throw new RepositoryException("mongo exception while updating entity", e);
         }
     }
 
     @Override
     public void delete(Entity<V> entity) throws RepositoryException {
-        DeleteResult result = this.resourceCollection(this.mongoClient).deleteOne(this.idFilter(entity.id()));
-        if(result.getDeletedCount() != 1) {
-            throw new RepositoryException("error deleting entity " + entity.id() + " (deleted count was " + result.getDeletedCount() + ")");
+        try {
+            DeleteResult result = this.resourceCollection(this.mongoClient).deleteOne(this.idFilter(entity.id()));
+            if (result.getDeletedCount() != 1) {
+                throw new RepositoryException("error deleting entity " + entity.id() + " (deleted count was " + result.getDeletedCount() + ")");
+            }
+        } catch (MongoException e) {
+            throw new RepositoryException("mongo exception while deleting entity", e);
         }
     }
 
     @Override
     public void deleteFrom( Q query ) throws RepositoryException {
-        Bson filter = query != null ? this.filterFrom( query ) : new Document();
-        this.resourceCollection( this.mongoClient ).deleteMany(filter, new DeleteOptions().collation(this.buildCollation()));
+        try {
+            Bson filter = query != null ? this.filterFrom(query) : new Document();
+            this.resourceCollection(this.mongoClient).deleteMany(filter, new DeleteOptions().collation(this.buildCollation()));
+        } catch (MongoException e) {
+            throw new RepositoryException("mongo exception while deleting from query", e);
+        }
     }
 
     @Override
@@ -250,28 +271,32 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
 
     private PagedEntityList<V> filteredQuery(Q query, long startIndex, long endIndex, MongoClient mongoClient) throws RepositoryException {
-        Bson filter = query != null ? this.filterFrom(query) : null;
-        Bson sort = query != null ? this.sortFrom(query) : null;
+        try {
+            Bson filter = query != null ? this.filterFrom(query) : null;
+            Bson sort = query != null ? this.sortFrom(query) : null;
 
-        MongoCollection<Document> collection = this.resourceCollection(mongoClient);
+            MongoCollection<Document> collection = this.resourceCollection(mongoClient);
 
-        long totalCount = filter != null ? collection.countDocuments(filter) : collection.estimatedDocumentCount();
-        if(startIndex >= totalCount) {
-            return new PagedEntityList.DefaultPagedEntityList<>(0L, 0L, totalCount, new ArrayList<>());
+            long totalCount = filter != null ? collection.countDocuments(filter) : collection.estimatedDocumentCount();
+            if (startIndex >= totalCount) {
+                return new PagedEntityList.DefaultPagedEntityList<>(0L, 0L, totalCount, new ArrayList<>());
+            }
+
+            FindIterable<Document> result = (filter != null ? collection.find(filter) : collection.find())
+                    .collation(this.buildCollation())
+                    .sort(sort)
+                    .skip((int) startIndex)
+                    .limit((int) (endIndex - startIndex + 1));
+
+            Collection<Entity<V>> found = new LinkedList<>();
+            for (Document document : result) {
+                found.add(new ImmutableEntity<>(this.documentId(document), BigInteger.ONE, this.toValue(document)));
+            }
+
+            return new PagedEntityList.DefaultPagedEntityList<>(startIndex, startIndex + found.size() - 1, totalCount, found);
+        } catch (MongoException e) {
+            throw new RepositoryException("mongo exception while querying entities", e);
         }
-
-        FindIterable<Document> result = (filter != null ? collection.find(filter) : collection.find())
-                .collation(this.buildCollation())
-                .sort(sort)
-                .skip((int) startIndex)
-                .limit((int) (endIndex - startIndex + 1));
-
-        Collection<Entity<V>> found = new LinkedList<>();
-        for (Document document : result) {
-            found.add(new ImmutableEntity<>(this.documentId(document), BigInteger.ONE, this.toValue(document)));
-        }
-
-        return new PagedEntityList.DefaultPagedEntityList<>(startIndex, startIndex + found.size() - 1, totalCount, found);
     }
 
     private Collation buildCollation() {
