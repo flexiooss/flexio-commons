@@ -5,18 +5,21 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.flexio.commons</groupId>
-        <artifactId>flexio-commons</artifactId>
+        <groupId>org.codingmatters.poom.services.io</groupId>
+        <artifactId>poom-services-io</artifactId>
         <version>1.89.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.codingmatters.poom.services.io</groupId>
-    <artifactId>poom-services-io</artifactId>
+    <groupId>org.codingmatters.poom.services.io.redis</groupId>
+    <artifactId>poom-services-redis-io</artifactId>
     <packaging>pom</packaging>
 
+    <properties>
+        <ut.redis.version>6.2.5-alpine</ut.redis.version>
+    </properties>
+
     <modules>
-        <module>poom-services-mysql-io</module>
-        <module>poom-services-redis-io</module>
+        <module>poom-services-redis-io-cache</module>
     </modules>
     
 </project>
