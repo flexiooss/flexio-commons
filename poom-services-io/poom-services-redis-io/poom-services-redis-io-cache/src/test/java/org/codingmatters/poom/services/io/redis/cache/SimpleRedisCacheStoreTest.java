@@ -6,6 +6,8 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.Optional;
 
@@ -31,7 +33,7 @@ public class SimpleRedisCacheStoreTest {
         this.jedis.flushAll();
 
         this.store = new SimpleRedisCacheStore<>(
-                new Jedis(this.docker.containerInfo("redis-ut").get().networkSettings().iPAddress(), 6379),
+                new JedisPool(this.docker.containerInfo("redis-ut").get().networkSettings().iPAddress(), 6379),
                 "prefix",
                 s -> s, s -> s, s -> s, s -> s
         );
