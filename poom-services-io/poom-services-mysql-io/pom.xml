@@ -18,15 +18,4 @@
         <module>poom-services-mysql-io-test</module>
         <module>poom-services-mysql-io-repository</module>
     </modules>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.mariadb.jdbc</groupId>
-                <artifactId>mariadb-java-client</artifactId>
-                <version>2.7.0</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-    
 </project>
