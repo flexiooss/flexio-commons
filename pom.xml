@@ -170,6 +170,12 @@
                 <version>1.91.0-SNAPSHOT</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.codingmatters.poom.services.io.redis.cache</groupId>
+                <artifactId>poom-services-redis-io-cache</artifactId>
+                <version>1.91.0-SNAPSHOT</version>
+            </dependency>
+
             <!--//BOM-->
         </dependencies>
     </dependencyManagement>
