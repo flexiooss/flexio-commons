@@ -175,6 +175,32 @@ public class DocFilterEvents implements FilterEvents {
     }
 
     @Override
+    public Object startsWithAny(String left, List right) throws FilterEventError {
+        List<String> any = new LinkedList<>();
+        for (Object value : right) {
+            this.startsWith(left, value);
+            any.add(this.stack.pop());
+        }
+        this.stack.push(
+                any.stream().map(s -> String.format("(%s)", s)).collect(Collectors.joining(" || "))
+        );
+        return null;
+    }
+
+    @Override
+    public Object endsWithAny(String left, List right) throws FilterEventError {
+        List<String> any = new LinkedList<>();
+        for (Object value : right) {
+            this.endsWith(left, value);
+            any.add(this.stack.pop());
+        }
+        this.stack.push(
+                any.stream().map(s -> String.format("(%s)", s)).collect(Collectors.joining(" || "))
+        );
+        return null;
+    }
+
+    @Override
     public Object containsAll(String left, List right) throws FilterEventError {
         List<String> all = new LinkedList<>();
         for (Object value : right) {
