@@ -126,14 +126,22 @@ public class BsonFilterEvents implements FilterEvents {
 
     @Override
     public Object startsWith(String left, Object right) throws FilterEventError {
-        this.stack.push(Filters.regex(this.property(left, right), "^" + this.value(right) + ".*"));
+        this.stack.push(this.startsWithRegex(left, right));
         return null;
+    }
+
+    private Bson startsWithRegex(String left, Object right) {
+        return Filters.regex(this.property(left, right), "^" + this.value(right) + ".*");
     }
 
     @Override
     public Object endsWith(String left, Object right) throws FilterEventError {
-        this.stack.push(Filters.regex(this.property(left, right), ".*" + this.value(right) + "$"));
+        this.stack.push(this.endsWithRegex(left, right));
         return null;
+    }
+
+    private Bson endsWithRegex(String left, Object right) {
+        return Filters.regex(this.property(left, right), ".*" + this.value(right) + "$");
     }
 
     @Override
@@ -153,6 +161,26 @@ public class BsonFilterEvents implements FilterEvents {
         List<Bson> any = new LinkedList<>();
         for (Object value : right) {
             any.add(this.containsRegex(left, value));
+        }
+        this.stack.push(Filters.or(any));
+        return null;
+    }
+
+    @Override
+    public Object startsWithAny(String left, List right) throws FilterEventError {
+        List<Bson> any = new LinkedList<>();
+        for (Object value : right) {
+            any.add(this.startsWithRegex(left, value));
+        }
+        this.stack.push(Filters.or(any));
+        return null;
+    }
+
+    @Override
+    public Object endsWithAny(String left, List right) throws FilterEventError {
+        List<Bson> any = new LinkedList<>();
+        for (Object value : right) {
+            any.add(this.endsWithRegex(left, value));
         }
         this.stack.push(Filters.or(any));
         return null;
