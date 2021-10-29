@@ -1,15 +1,19 @@
 package org.codingmatters.poom.services.io.redis.cache;
 
 import org.codingmatters.poom.caches.management.stores.CacheStore;
+import org.codingmatters.poom.services.logging.CategorizedLogger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.exceptions.JedisException;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
+    static private final CategorizedLogger log = CategorizedLogger.getLogger(SimpleRedisCacheStore.class);
 
     private final JedisPool pool;
     private final String keyPrefix;
@@ -36,13 +40,19 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
                 return Optional.empty();
             } else {
                 return Optional.ofNullable(this.stringToValue.apply(redisValue));
-        }}
+            }
+        } catch (JedisException e) {
+            log.error("error reaching redis cache", e);
+            return null;
+        }
     }
 
     @Override
     public void store(K k, V v) {
         try (Jedis client = pool.getResource()) {
             client.set(this.redisKey(k), this.valueToString.apply(v));
+        } catch (JedisException e) {
+            log.error("error storing to redis cache", e);
         }
     }
 
@@ -50,6 +60,9 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
     public boolean has(K k) {
         try (Jedis client = pool.getResource()) {
             return !client.keys(this.redisKey(k)).isEmpty();
+        } catch (JedisException e) {
+            log.warn("error looking up key in redis cache", e);
+            return false;
         }
     }
 
@@ -57,6 +70,8 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
     public void remove(K k) {
         try (Jedis client = pool.getResource()) {
             client.del(this.redisKey(k));
+        } catch (JedisException e) {
+            log.error("error removing key from redis cache", e);
         }
     }
 
@@ -67,6 +82,8 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
             if (keys.length > 0) {
                 client.del(keys);
             }
+        } catch (JedisException e) {
+            log.error("error clearing redis cache", e);
         }
     }
 
@@ -77,6 +94,9 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
             return redisKeys.stream()
                     .map(rk -> this.stringToKey.apply(rk.substring(this.keyPrefix.length() + 1)))
                     .collect(Collectors.toSet());
+        } catch (JedisException e) {
+            log.error("error listing key from redis cache", e);
+            return Collections.emptySet();
         }
     }
 
