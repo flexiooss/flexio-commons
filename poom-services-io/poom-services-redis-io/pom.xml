@@ -19,6 +19,7 @@
     </properties>
 
     <modules>
+        <module>poom-services-redis-io-commons</module>
         <module>poom-services-redis-io-cache</module>
     </modules>
     
