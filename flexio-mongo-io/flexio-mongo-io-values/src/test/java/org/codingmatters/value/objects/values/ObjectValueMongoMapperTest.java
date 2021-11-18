@@ -2,6 +2,7 @@ package org.codingmatters.value.objects.values;
 
 import org.bson.Document;
 import org.codingmatters.value.objects.values.mongo.ObjectValueMongoMapper;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -29,7 +30,7 @@ public class ObjectValueMongoMapperTest {
         assertThat(doc.get("prop"), is("str"));
 
         ObjectValue value = this.mapper.toValue(doc);
-        assertThat(value.property("prop").single().stringValue(), is("str"));
+        MatcherAssert.assertThat(value.property("prop").single().stringValue(), is("str"));
     }
 
     @Test

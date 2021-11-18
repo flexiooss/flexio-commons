@@ -1,6 +1,6 @@
 package io.flexio.services.tests.mongo.dump;
 
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
 import io.flexio.docker.DockerResource;
 import io.flexio.services.tests.mongo.MongoResource;
 import io.flexio.services.tests.mongo.MongoTest;
@@ -9,7 +9,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DatabaseRestorerTest {
 

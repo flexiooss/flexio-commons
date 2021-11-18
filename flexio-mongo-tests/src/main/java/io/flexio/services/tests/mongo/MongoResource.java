@@ -1,7 +1,7 @@
 package io.flexio.services.tests.mongo;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import io.flexio.services.tests.mongo.dump.DatabaseRestorer;
 import io.flexio.services.tests.mongo.dump.DumpReader;
 import io.flexio.services.tests.mongo.dump.ResourceDumpReader;
@@ -33,7 +33,6 @@ public class MongoResource extends ExternalResource {
     private final HashSet<DBImport> dbImports = new HashSet<>();
 
 
-
     public MongoResource(Supplier<String> host, int port) {
         this.hostProvider = host;
         this.port = port;
@@ -48,10 +47,10 @@ public class MongoResource extends ExternalResource {
     }
 
     public MongoClient newClient() {
-        MongoClientURI mongoClientURI = new MongoClientURI(
-                this.mongoUrl()
-        );
-        MongoClient mongoClient = new MongoClient(mongoClientURI);
+//        MongoClientURI mongoClientURI = new MongoClientURI(
+//                this.mongoUrl()
+//        );
+        MongoClient mongoClient = MongoClients.create(this.mongoUrl());
         this.clients.add(mongoClient);
         return mongoClient;
     }
@@ -87,7 +86,7 @@ public class MongoResource extends ExternalResource {
 
     @Override
     protected void before() throws Throwable {
-        try(MongoClient client = this.newClient()) {
+        try (MongoClient client = this.newClient()) {
             for (CollectionImport anImport : this.collectionImports) {
                 this.doImport(anImport, client);
             }
@@ -99,9 +98,9 @@ public class MongoResource extends ExternalResource {
 
     private void doImport(CollectionImport anImport, MongoClient client) throws Exception {
         List<Document> docs = new LinkedList<>();
-        try(BufferedReader reader = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(anImport.mongoExportResource)))) {
-            for(String line = reader.readLine() ; line != null ; line = reader.readLine()) {
-                if(line.trim().startsWith("{")) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(anImport.mongoExportResource)))) {
+            for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+                if (line.trim().startsWith("{")) {
                     docs.add(Document.parse(line.trim()));
                 }
             }
@@ -115,13 +114,13 @@ public class MongoResource extends ExternalResource {
     protected void after() {
         MongoClient c = this.newClient();
         for (DbCollection dbCollection : this.testCollections) {
-            if(contains(c.listDatabaseNames(), dbCollection.db) && contains(c.getDatabase(dbCollection.db).listCollectionNames(), dbCollection.collection)) {
+            if (contains(c.listDatabaseNames(), dbCollection.db) && contains(c.getDatabase(dbCollection.db).listCollectionNames(), dbCollection.collection)) {
                 c.getDatabase(dbCollection.db).getCollection(dbCollection.collection).drop();
                 log.debug("dropped collection {}", dbCollection);
             }
         }
         for (String db : this.testDBs) {
-            if(contains(c.listDatabaseNames(), db)) {
+            if (contains(c.listDatabaseNames(), db)) {
                 c.getDatabase(db).drop();
                 log.debug("dropped db {}", db);
             }
@@ -134,7 +133,7 @@ public class MongoResource extends ExternalResource {
 
     private static <T> boolean contains(Iterable<T> iterable, T elmt) {
         for (T v : iterable) {
-            if(v.equals(elmt)) return true;
+            if (v.equals(elmt)) return true;
         }
         return false;
     }

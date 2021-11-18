@@ -1,8 +1,7 @@
 package org.codingmatters.poom.etag.repository;
 
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
 import io.flexio.io.mongo.repository.MongoCollectionRepository;
-import io.flexio.io.mongo.repository.property.query.PropertyQuerier;
 import org.codingmatters.poom.etag.storage.Etag;
 import org.codingmatters.poom.etag.storage.mongo.EtagMongoMapper;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
@@ -20,8 +19,8 @@ public class EtagMongoRepository {
         EtagMongoMapper mapper = new EtagMongoMapper();
 
         return MongoCollectionRepository.<Etag, PropertyQuery>repository(database, collectionName)
-                .withToDocument(mapper::toDocument )
-                .withToValue(mapper::toValue )
+                .withToDocument(mapper::toDocument)
+                .withToValue(mapper::toValue)
                 .buildWithPropertyQuery(mongoClient);
     }
 }

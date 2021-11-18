@@ -1,7 +1,7 @@
 package io.flexio.services.tests.mongo;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import io.flexio.docker.DockerResource;
 import org.junit.Before;
@@ -15,7 +15,7 @@ import java.util.UUID;
 
 import static io.flexio.services.tests.mongo.MongoTest.MONGO;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MongoResourceTest {
 
@@ -37,12 +37,11 @@ public class MongoResourceTest {
     }
 
     private MongoClient rawClient() {
-        MongoClientURI mongoClientURI = new MongoClientURI(
+        return MongoClients.create(
                 String.format("mongodb://%s:%s",
                         docker.containerInfo(MONGO).networkSettings().iPAddress().orElseThrow(() -> new AssertionError("no ip address for container")),
                         27017)
         );
-        return new MongoClient(mongoClientURI);
     }
 
     @Test
@@ -54,12 +53,12 @@ public class MongoResourceTest {
             MongoDatabase dataBase = client.getDatabase(db);
             dataBase.createCollection("test-collection");
 
-            try(MongoClient rawClient = this.rawClient()) {
+            try (MongoClient rawClient = this.rawClient()) {
                 assertThat(rawClient.listDatabaseNames(), hasItem(db));
             }
         });
 
-        try(MongoClient rawClient = this.rawClient()) {
+        try (MongoClient rawClient = this.rawClient()) {
             assertThat(rawClient.listDatabaseNames(), not(hasItem(db)));
         }
     }
@@ -72,12 +71,12 @@ public class MongoResourceTest {
             MongoDatabase dataBase = client.getDatabase(db);
             dataBase.createCollection("test-collection");
 
-            try(MongoClient rawClient = this.rawClient()) {
+            try (MongoClient rawClient = this.rawClient()) {
                 assertThat(rawClient.listDatabaseNames(), hasItem(db));
             }
         });
 
-        try(MongoClient rawClient = this.rawClient()) {
+        try (MongoClient rawClient = this.rawClient()) {
             assertThat(rawClient.listDatabaseNames(), hasItem(db));
             rawClient.getDatabase(db).drop();
         }
@@ -88,7 +87,7 @@ public class MongoResourceTest {
         String db = UUID.randomUUID().toString();
         this.mongoResource.testCollection(db, "test-collection");
 
-        try(MongoClient rawClient = this.rawClient()) {
+        try (MongoClient rawClient = this.rawClient()) {
             rawClient.getDatabase(db).createCollection("resilient");
             assertThat(rawClient.listDatabaseNames(), hasItem(db));
         }
@@ -97,13 +96,13 @@ public class MongoResourceTest {
             MongoClient client = this.mongoResource.newClient();
             client.getDatabase(db).createCollection("test-collection");
 
-            try(MongoClient rawClient = this.rawClient()) {
+            try (MongoClient rawClient = this.rawClient()) {
                 assertThat(rawClient.listDatabaseNames(), hasItem(db));
                 assertThat(rawClient.getDatabase(db).listCollectionNames(), hasItem("test-collection"));
             }
         });
 
-        try(MongoClient rawClient = this.rawClient()) {
+        try (MongoClient rawClient = this.rawClient()) {
             assertThat(rawClient.getDatabase(db).listCollectionNames(), not(hasItem("test-collection")));
             assertThat(rawClient.getDatabase(db).listCollectionNames(), hasItem("resilient"));
             rawClient.getDatabase(db).drop();
@@ -118,9 +117,9 @@ public class MongoResourceTest {
                 .importCollectionContent("mongo-export.json", db, "imported-collection");
 
         this.applyMongoResource(() -> {
-            try(MongoClient rawClient = this.rawClient()) {
+            try (MongoClient rawClient = this.rawClient()) {
                 assertThat(rawClient.getDatabase(db).listCollectionNames(), hasItem("imported-collection"));
-                assertThat(rawClient.getDatabase(db).getCollection("imported-collection").count(), is(11L));
+                assertThat(rawClient.getDatabase(db).getCollection("imported-collection").countDocuments(), is(11L));
             }
         });
     }
