@@ -1,5 +1,6 @@
 package io.flexio.services.support.mondo;
 
+import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
@@ -39,7 +40,7 @@ public class MongoProvider {
 
     static public MongoClient from(MongoClientSettings.Builder settingBuilder) {
         if (Env.optional(MONGO_URL).isPresent()) {
-            return MongoClients.create(settingBuilder.applyToClusterSettings(builder -> builder.hosts(List.of(new ServerAddress(Env.mandatory(MONGO_URL).asString()))).build()).build());
+            return MongoClients.create(settingBuilder.applyConnectionString(new ConnectionString(Env.mandatory(MONGO_URL).asString())).build());
         } else {
             return MongoClients.create(settingBuilder.applyToClusterSettings(builder -> builder.hosts(addressListFromEnv()).build()).build());
         }
