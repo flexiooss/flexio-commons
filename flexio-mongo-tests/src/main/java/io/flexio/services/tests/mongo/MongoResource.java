@@ -47,9 +47,6 @@ public class MongoResource extends ExternalResource {
     }
 
     public MongoClient newClient() {
-//        MongoClientURI mongoClientURI = new MongoClientURI(
-//                this.mongoUrl()
-//        );
         MongoClient mongoClient = MongoClients.create(this.mongoUrl());
         this.clients.add(mongoClient);
         return mongoClient;
