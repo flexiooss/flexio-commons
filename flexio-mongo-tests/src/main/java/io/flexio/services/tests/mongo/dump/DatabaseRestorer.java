@@ -1,6 +1,6 @@
 package io.flexio.services.tests.mongo.dump;
 
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

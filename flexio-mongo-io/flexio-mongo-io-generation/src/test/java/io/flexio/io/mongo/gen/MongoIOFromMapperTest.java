@@ -1,6 +1,6 @@
 package io.flexio.io.mongo.gen;
 
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
 import io.flexio.docker.DockerResource;
 import io.flexio.services.tests.mongo.MongoResource;
 import io.flexio.services.tests.mongo.MongoTest;

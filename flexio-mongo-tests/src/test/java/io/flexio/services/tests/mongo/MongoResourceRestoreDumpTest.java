@@ -1,13 +1,13 @@
 package io.flexio.services.tests.mongo;
 
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
 import io.flexio.docker.DockerResource;
 import org.hamcrest.Matchers;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MongoResourceRestoreDumpTest {
 
@@ -22,7 +22,7 @@ public class MongoResourceRestoreDumpTest {
 
     @Test
     public void givenResourceDumpDirExists__whenCreatingTestDatabaseFromDump__thenDBCrteatedWithContent() throws Exception {
-        try(MongoClient client = this.mongo.newClient()) {
+        try (MongoClient client = this.mongo.newClient()) {
             assertThat(
                     client.getDatabase(DB).listCollectionNames(),
                     Matchers.containsInAnyOrder(

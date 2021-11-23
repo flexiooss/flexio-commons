@@ -1,11 +1,13 @@
 package io.flexio.io.mongo.repository;
 
-import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.*;
+import com.mongodb.client.model.Collation;
+import com.mongodb.client.model.DeleteOptions;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import io.flexio.io.mongo.repository.property.query.PropertyQuerier;
@@ -23,7 +25,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -32,8 +33,10 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     public static final String VERSION_FIELD = "__version";
 
     static public <V, Q> MandatoryToDocument<V, Q> repository(String database, String collection) {
-        return repository(database, collection, builder -> {});
+        return repository(database, collection, builder -> {
+        });
     }
+
     static public <V, Q> MandatoryToDocument<V, Q> repository(String database, String collection, Consumer<Collation.Builder> collationConfig) {
         return new Builder<>(database, collection, collationConfig);
     }
@@ -48,8 +51,11 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
     public interface OptionalFilter<V, Q> {
         Builder<V, Q> withCheckedFilter(BsonFromQueryProvider<Q> filter);
+
         Builder<V, Q> withFilter(Function<Q, Bson> filter);
+
         Repository<V, Q> build(MongoClient mongoClient);
+
         Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient);
     }
 
@@ -59,7 +65,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         private BsonFromQueryProvider<Q> filter = q -> null;
         private BsonFromQueryProvider<Q> sort = q -> null;
         private Function<V, Document> toDocument;
-        private Function<Document,V> toValue;
+        private Function<Document, V> toValue;
         private Consumer<Collation.Builder> collationConfig;
 
         public Builder(String databaseName, String collectionName, Consumer<Collation.Builder> collationConfig) {
@@ -68,34 +74,35 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             this.collationConfig = collationConfig;
         }
 
-        public Builder<V,Q> withFilter(Function<Q, Bson> filter) {
+        public Builder<V, Q> withFilter(Function<Q, Bson> filter) {
             return this.withCheckedFilter((BsonFromQueryProvider<Q>) query -> filter.apply(query));
         }
 
-        public Builder<V,Q> withCheckedFilter(BsonFromQueryProvider<Q> filter) {
+        public Builder<V, Q> withCheckedFilter(BsonFromQueryProvider<Q> filter) {
             this.filter = filter;
             return this;
         }
 
-        public Builder<V,Q> withSort(Function<Q, Bson> sort) {
+        public Builder<V, Q> withSort(Function<Q, Bson> sort) {
             return this.withCheckedSort((BsonFromQueryProvider<Q>) query -> sort.apply(query));
         }
-        public Builder<V,Q> withCheckedSort(BsonFromQueryProvider<Q> sort) {
+
+        public Builder<V, Q> withCheckedSort(BsonFromQueryProvider<Q> sort) {
             this.sort = sort;
             return this;
         }
 
-        public Builder<V,Q> withToDocument(Function<V, Document> toDocument) {
+        public Builder<V, Q> withToDocument(Function<V, Document> toDocument) {
             this.toDocument = toDocument;
             return this;
         }
 
-        public Builder<V,Q> withCollationConfig(Consumer<Collation.Builder> collationConfig) {
+        public Builder<V, Q> withCollationConfig(Consumer<Collation.Builder> collationConfig) {
             this.collationConfig = collationConfig;
             return this;
         }
 
-        public Builder<V,Q> withToValue(Function<Document, V> toValue) {
+        public Builder<V, Q> withToValue(Function<Document, V> toValue) {
             this.toValue = toValue;
             return this;
         }
@@ -110,7 +117,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
                     this.toDocument,
                     this.toValue,
                     this.collationConfig
-                    );
+            );
         }
 
         public Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient) {
@@ -124,7 +131,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
                     this.toDocument,
                     this.toValue,
                     this.collationConfig
-                    );
+            );
         }
     }
 
@@ -147,6 +154,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     private Document toDocument(V value) {
         return this.toDocument.apply(value);
     }
+
     private V toValue(Document document) {
         return this.toValue.apply(document);
     }
@@ -250,7 +258,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     }
 
     @Override
-    public void deleteFrom( Q query ) throws RepositoryException {
+    public void deleteFrom(Q query) throws RepositoryException {
         try {
             Bson filter = query != null ? this.filterFrom(query) : new Document();
             this.resourceCollection(this.mongoClient).deleteMany(filter, new DeleteOptions().collation(this.buildCollation()));
@@ -301,8 +309,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
     private Collation buildCollation() {
         Collation.Builder collation = Collation.builder()
-                .locale("simple")
-                ;
+                .locale("simple");
 
         this.collationConfig.accept(collation);
         return collation.build();

@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom.etag</groupId>
         <artifactId>poom-etag-support</artifactId>
-        <version>1.97.0</version>
+        <version>1.98.0</version>
     </parent>
 
     <artifactId>poom-etag-support-repositories</artifactId>
@@ -32,7 +32,7 @@
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver</artifactId>
+            <artifactId>mongodb-driver-sync</artifactId>
         </dependency>
     </dependencies>
 

@@ -1,13 +1,15 @@
 package io.flexio.services.support.mondo;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoClientURI;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import org.codingmatters.poom.services.support.Env;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MongoProvider {
     static public final String MONGO_URL = "MONGO_URL";
@@ -25,21 +27,22 @@ public class MongoProvider {
     }
 
     static public MongoClient fromEnv() {
-        MongoClientOptions.Builder builder = MongoClientOptions.builder()
-                .serverSelectionTimeout(Env.optional(MONGO_SELECT_TIMEOUT)
-                        .orElse(Env.Var.value(DEFAULT_MONGO_SELECT_TIMEOUT))
-                        .asInteger())
-                .connectTimeout(Env.optional(MONGO_CONNECTION_TIMEOUT)
+        MongoClientSettings.Builder settingsBuilder = MongoClientSettings.builder()
+                .applyToSocketSettings(b -> b.connectTimeout(Env.optional(MONGO_CONNECTION_TIMEOUT)
                         .orElse(Env.Var.value(DEFAULT_MONGO_CONNECTION_TIMEOUT))
-                        .asInteger());
-        return from(builder);
+                        .asInteger(), TimeUnit.MILLISECONDS))
+                .applyToClusterSettings(b -> b.serverSelectionTimeout(Env.optional(MONGO_SELECT_TIMEOUT)
+                        .orElse(Env.Var.value(DEFAULT_MONGO_SELECT_TIMEOUT))
+                        .asInteger(), TimeUnit.MILLISECONDS));
+
+        return from(settingsBuilder);
     }
 
-    static public MongoClient from(MongoClientOptions.Builder optionsBuilder) {
+    static public MongoClient from(MongoClientSettings.Builder settingBuilder) {
         if (Env.optional(MONGO_URL).isPresent()) {
-            return new MongoClient(new MongoClientURI(Env.mandatory(MONGO_URL).asString(), optionsBuilder));
+            return MongoClients.create(settingBuilder.applyConnectionString(new ConnectionString(Env.mandatory(MONGO_URL).asString())).build());
         } else {
-            return new MongoClient(addressListFromEnv(), optionsBuilder.build());
+            return MongoClients.create(settingBuilder.applyToClusterSettings(builder -> builder.hosts(addressListFromEnv()).build()).build());
         }
     }
 

@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.flexio.io</groupId>
         <artifactId>flexio-mongo-io</artifactId>
-        <version>1.97.0</version>
+        <version>1.98.0</version>
     </parent>
 
     <artifactId>flexio-mongo-io-values</artifactId>
@@ -21,7 +21,7 @@
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver</artifactId>
+            <artifactId>mongodb-driver-sync</artifactId>
         </dependency>
 
         <dependency>

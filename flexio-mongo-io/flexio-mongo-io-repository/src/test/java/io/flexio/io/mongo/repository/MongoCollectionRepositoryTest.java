@@ -1,7 +1,7 @@
 package io.flexio.io.mongo.repository;
 
-import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.model.Filters;
 import io.flexio.docker.DockerResource;
 import io.flexio.io.mongo.repository.domain.MongoQuery;
