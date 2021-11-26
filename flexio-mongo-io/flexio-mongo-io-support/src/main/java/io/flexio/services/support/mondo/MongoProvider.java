@@ -22,36 +22,46 @@ public class MongoProvider {
     private static final String MONGO_SELECT_TIMEOUT = "MONGO_SELECT_TIMEOUT";
     private static final String DEFAULT_MONGO_SELECT_TIMEOUT = "2000";
 
+    @Deprecated
     static public boolean isAvailable() {
         return Env.optional(MONGO_URL).isPresent() || Env.optional(MONGO_HOST).isPresent() && Env.optional(MONGO_PORT).isPresent();
     }
 
     static public MongoClient fromEnv() {
+        return fromEnv("");
+    }
+    static public MongoClient fromEnv(String envPrefix) {
         MongoClientSettings.Builder settingsBuilder = MongoClientSettings.builder()
-                .applyToSocketSettings(b -> b.connectTimeout(Env.optional(MONGO_CONNECTION_TIMEOUT)
+                .applyToSocketSettings(b -> b.connectTimeout(Env.optional(envPrefix + MONGO_CONNECTION_TIMEOUT)
                         .orElse(Env.Var.value(DEFAULT_MONGO_CONNECTION_TIMEOUT))
                         .asInteger(), TimeUnit.MILLISECONDS))
-                .applyToClusterSettings(b -> b.serverSelectionTimeout(Env.optional(MONGO_SELECT_TIMEOUT)
+                .applyToClusterSettings(b -> b.serverSelectionTimeout(Env.optional(envPrefix + MONGO_SELECT_TIMEOUT)
                         .orElse(Env.Var.value(DEFAULT_MONGO_SELECT_TIMEOUT))
                         .asInteger(), TimeUnit.MILLISECONDS));
 
-        return from(settingsBuilder);
+        if (Env.optional(envPrefix + MONGO_URL).isPresent()) {
+            settingsBuilder = settingsBuilder.applyConnectionString(new ConnectionString(Env.mandatory(envPrefix + MONGO_URL).asString()));
+        } else if(Env.optional(envPrefix + MONGO_HOST).isPresent() && Env.optional(envPrefix + MONGO_PORT).isPresent()) {
+            settingsBuilder = settingsBuilder.applyToClusterSettings(builder -> builder.hosts(addressListFromEnv(envPrefix)).build());
+        }
+        return MongoClients.create(settingsBuilder.build());
     }
 
+    @Deprecated
     static public MongoClient from(MongoClientSettings.Builder settingBuilder) {
         if (Env.optional(MONGO_URL).isPresent()) {
             return MongoClients.create(settingBuilder.applyConnectionString(new ConnectionString(Env.mandatory(MONGO_URL).asString())).build());
         } else {
-            return MongoClients.create(settingBuilder.applyToClusterSettings(builder -> builder.hosts(addressListFromEnv()).build()).build());
+            return MongoClients.create(settingBuilder.applyToClusterSettings(builder -> builder.hosts(addressListFromEnv("")).build()).build());
         }
     }
 
-    private static List<ServerAddress> addressListFromEnv() {
+    private static List<ServerAddress> addressListFromEnv(String envPrefix) {
         List<ServerAddress> result = new LinkedList<>();
 
         result.add(new ServerAddress(
-                Env.mandatory(MONGO_HOST).asString(),
-                Env.mandatory(MONGO_PORT).asInteger()
+                Env.mandatory(envPrefix + MONGO_HOST).asString(),
+                Env.mandatory(envPrefix + MONGO_PORT).asInteger()
         ));
         return result;
     }
