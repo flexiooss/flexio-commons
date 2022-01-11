@@ -9,6 +9,7 @@ import com.mongodb.client.model.Collation;
 import com.mongodb.client.model.DeleteOptions;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import io.flexio.io.mongo.repository.property.query.PropertyQuerier;
 import org.bson.Document;
@@ -55,8 +56,10 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         Builder<V, Q> withFilter(Function<Q, Bson> filter);
 
         Repository<V, Q> build(MongoClient mongoClient);
+        Repository<V, Q> build(MongoClient mongoClient, boolean withOptimisticLocking);
 
         Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient);
+        Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient, boolean withOptimisticLocking);
     }
 
     static public class Builder<V, Q> implements MandatoryToDocument<V, Q>, MandatoryToValue<V, Q>, OptionalFilter<V, Q> {
@@ -108,6 +111,9 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         }
 
         public Repository<V, Q> build(MongoClient mongoClient) {
+            return this.build(mongoClient, false);
+        }
+        public Repository<V, Q> build(MongoClient mongoClient, boolean withOptimisticLocking) {
             return new MongoCollectionRepository<>(
                     mongoClient,
                     this.databaseName,
@@ -116,11 +122,15 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
                     this.sort,
                     this.toDocument,
                     this.toValue,
-                    this.collationConfig
+                    this.collationConfig,
+                    withOptimisticLocking
             );
         }
 
         public Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient) {
+            return this.buildWithPropertyQuery(mongoClient, false);
+        }
+        public Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient, boolean withOptimisticLocking) {
             PropertyQuerier querier = new PropertyQuerier();
             return new MongoCollectionRepository<>(
                     mongoClient,
@@ -130,7 +140,8 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
                     querier.sorter(),
                     this.toDocument,
                     this.toValue,
-                    this.collationConfig
+                    this.collationConfig,
+                    withOptimisticLocking
             );
         }
     }
@@ -168,8 +179,9 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     private final Function<Document, V> toValue;
 
     private final Consumer<Collation.Builder> collationConfig;
+    private final boolean withOptimisticLocking;
 
-    private MongoCollectionRepository(MongoClient mongoClient, String databaseName, String collectionName, BsonFromQueryProvider<Q> filterProvider, BsonFromQueryProvider<Q> sortProvider, Function<V, Document> toDocument, Function<Document, V> toValue, Consumer<Collation.Builder> collationConfig) {
+    private MongoCollectionRepository(MongoClient mongoClient, String databaseName, String collectionName, BsonFromQueryProvider<Q> filterProvider, BsonFromQueryProvider<Q> sortProvider, Function<V, Document> toDocument, Function<Document, V> toValue, Consumer<Collation.Builder> collationConfig, boolean withOptimisticLocking) {
         this.mongoClient = mongoClient;
         this.databaseName = databaseName;
         this.collectionName = collectionName;
@@ -178,28 +190,35 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         this.toDocument = toDocument;
         this.toValue = toValue;
         this.collationConfig = collationConfig;
+        this.withOptimisticLocking = withOptimisticLocking;
     }
 
     @Override
     public Entity<V> create(V withValue) throws RepositoryException {
-        return this.rawCreate(new ObjectId(), withValue);
+        return this.rawCreate(new ObjectId(), withValue, BigInteger.ONE);
     }
 
     @Override
     public Entity<V> createWithId(String id, V withValue) throws RepositoryException {
-        return this.rawCreate(this.mongoIdValue(id), withValue);
+        return this.rawCreate(this.mongoIdValue(id), withValue, BigInteger.ONE);
     }
 
-    private Entity<V> rawCreate(Object id, V withValue) throws RepositoryException {
+    @Override
+    public Entity<V> createWithIdAndVersion(String id, BigInteger version, V withValue) throws RepositoryException {
+        return this.rawCreate(this.mongoIdValue(id), withValue, version);
+    }
+
+    private Entity<V> rawCreate(Object id, V withValue, BigInteger version) throws RepositoryException {
         try {
             MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
             Document doc = this.toDocument(withValue);
             doc.put("_id", id);
-            doc.put(VERSION_FIELD, BigInteger.ONE.longValue());
+            doc.put(VERSION_FIELD, version.longValue());
 
-            collection.insertOne(doc);
+            InsertOneResult result = collection.insertOne(doc);
+            System.out.println(result);
 
-            return new ImmutableEntity<>(doc.get("_id").toString(), BigInteger.ONE, this.toValue(doc));
+            return new ImmutableEntity<>(doc.get("_id").toString(), version, this.toValue(doc));
         } catch (MongoException e) {
             throw new RepositoryException("mongo exception while creating entity", e);
         }
@@ -208,8 +227,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     @Override
     public Entity<V> retrieve(String id) throws RepositoryException {
         try {
-            MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
-            Document doc = collection.find(this.idFilter(id)).limit(1).first();
+            Document doc = this.rawRetrieve(id);
             if (doc != null) {
                 return new ImmutableEntity<>(id, BigInteger.valueOf(documentVersion(doc)), this.toValue(doc));
             } else {
@@ -220,6 +238,12 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         }
     }
 
+    private Document rawRetrieve(String id) {
+        MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
+        Document doc = collection.find(this.idFilter(id)).limit(1).first();
+        return doc;
+    }
+
     private Long documentVersion(Document doc) {
         Long version = doc.getLong(VERSION_FIELD);
         return version != null ? version : 1L;
@@ -227,22 +251,49 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
     @Override
     public Entity<V> update(Entity<V> entity, V withValue) throws RepositoryException {
+        if(this.withOptimisticLocking && entity.version() == null) {
+            throw new RepositoryException("cannot update entity : since optimistic locking activated, must provide a version");
+        }
         try {
-            Entity<V> stored = this.retrieve(entity.id());
             Document newDoc = this.toDocument(withValue);
+            Long nextVersion = this.nextVersion(entity);
+            if(this.withOptimisticLocking && entity.version().longValue() != nextVersion - 1 ) {
+                throw new RepositoryException(String.format("optimistic locking error, version %s does not match", entity.version()));
+            }
 
-            BigInteger newVersion = stored.version().add(BigInteger.ONE);
-            newDoc.put(VERSION_FIELD, newVersion.longValue());
+            newDoc.put(VERSION_FIELD, nextVersion);
 
-            UpdateResult results = this.resourceCollection(this.mongoClient).replaceOne(this.idFilter(entity.id()), newDoc);
-            if (results.getModifiedCount() <= 1) {
-                return new ImmutableEntity<>(entity.id(), newVersion, withValue);
+            Bson filter = this.idFilter(entity.id());
+            if(this.withOptimisticLocking) {
+                filter = Filters.and(filter, Filters.eq(VERSION_FIELD, entity.version().longValue()));
+            }
+            UpdateResult results = this.resourceCollection(this.mongoClient).replaceOne(filter, newDoc);
+            if (results.getModifiedCount() == 1) {
+                return new ImmutableEntity<>(entity.id(), BigInteger.valueOf(nextVersion), this.toValue(newDoc));
             } else {
-                throw new RepositoryException("failed updating entity " + entity.id() + " (updated count was " + results.getModifiedCount() + ")");
+                if(this.withOptimisticLocking) {
+                    throw new RepositoryException(String.format("optimistic locking error, version %s does not match", entity.version()));
+                } else {
+                    throw new RepositoryException("failed updating entity " + entity.id() + " (updated count was " + results.getModifiedCount() + ")");
+                }
             }
         } catch (MongoException e) {
             throw new RepositoryException("mongo exception while updating entity", e);
         }
+    }
+
+    private Long nextVersion(Entity<V> entity) {
+        Long nextVersion;
+        Document currentVersionDoc = this.resourceCollection(this.mongoClient)
+                .find(this.idFilter(entity.id()))
+                .projection(new Document(VERSION_FIELD, 1))
+                .first();
+        if(currentVersionDoc != null && currentVersionDoc.containsKey(VERSION_FIELD)) {
+            nextVersion = currentVersionDoc.getLong(VERSION_FIELD) + 1;
+        } else {
+            nextVersion = 2L;
+        }
+        return nextVersion;
     }
 
     @Override
@@ -298,7 +349,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
             Collection<Entity<V>> found = new LinkedList<>();
             for (Document document : result) {
-                found.add(new ImmutableEntity<>(this.documentId(document), BigInteger.ONE, this.toValue(document)));
+                found.add(new ImmutableEntity<>(this.documentId(document), BigInteger.valueOf(documentVersion(document)), this.toValue(document)));
             }
 
             return new PagedEntityList.DefaultPagedEntityList<>(startIndex, startIndex + found.size() - 1, totalCount, found);
