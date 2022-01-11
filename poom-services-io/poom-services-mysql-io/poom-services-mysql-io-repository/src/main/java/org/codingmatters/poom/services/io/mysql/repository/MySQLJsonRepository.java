@@ -115,7 +115,8 @@ public class MySQLJsonRepository<V, Q> implements Repository<V, Q> {
     public void delete(Entity<V> entity) throws RepositoryException {
         try(Connection connection = this.dataSource.getConnection()) {
             PreparedStatement statement = this.tableModel.deleteEntity(connection, entity.id());
-            statement.executeUpdate();
+            int count = statement.executeUpdate();
+            if(count == 0) throw new RepositoryException("cannot delete entity, no such entity in store : " + entity.id());
         } catch (SQLException e) {
             throw new RepositoryException("error retrieving entity from database, id : " + entity.id(), e);
         }
