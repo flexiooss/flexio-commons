@@ -34,17 +34,11 @@ public class MongoCollectionRepositoryBaseAcceptanceTest extends RepositoryBaseA
 
     @Override
     public void givenEntityStoredWithVersion_andEntityUpdatedFromId__whenFromGratherVersion__thenIdKept_andVersionIncremented_andValueChanged() throws Exception {
+        super.givenEntityStoredWithVersion_andEntityUpdatedFromId__whenFromGratherVersion__thenIdKept_andVersionIncremented_andValueChanged();
     }
 
     @Override
     public void givenEntityStoredWithVersion_andEntityUpdatedFromId__whenFromLowerVersion__thenIdKept_andVersionIncremented_andValueChanged() throws Exception {
-    }
-
-    @Override
-    public void givenIdStoredWithId__whenCreatingEntityWithSameIdAndDifferentVersion__thenRepositoryException() throws Exception {
-    }
-
-    @Override
-    public void whenCreatingWithIdAndVersion__thenEntityStoredWithIdAndVersion() throws Exception {
+        super.givenEntityStoredWithVersion_andEntityUpdatedFromId__whenFromLowerVersion__thenIdKept_andVersionIncremented_andValueChanged();
     }
 }

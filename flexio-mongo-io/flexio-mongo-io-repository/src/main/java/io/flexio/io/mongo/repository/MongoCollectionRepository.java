@@ -9,6 +9,7 @@ import com.mongodb.client.model.Collation;
 import com.mongodb.client.model.DeleteOptions;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import io.flexio.io.mongo.repository.property.query.PropertyQuerier;
 import org.bson.Document;
@@ -182,24 +183,30 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
     @Override
     public Entity<V> create(V withValue) throws RepositoryException {
-        return this.rawCreate(new ObjectId(), withValue);
+        return this.rawCreate(new ObjectId(), withValue, BigInteger.ONE);
     }
 
     @Override
     public Entity<V> createWithId(String id, V withValue) throws RepositoryException {
-        return this.rawCreate(this.mongoIdValue(id), withValue);
+        return this.rawCreate(this.mongoIdValue(id), withValue, BigInteger.ONE);
     }
 
-    private Entity<V> rawCreate(Object id, V withValue) throws RepositoryException {
+    @Override
+    public Entity<V> createWithIdAndVersion(String id, BigInteger version, V withValue) throws RepositoryException {
+        return this.rawCreate(this.mongoIdValue(id), withValue, version);
+    }
+
+    private Entity<V> rawCreate(Object id, V withValue, BigInteger version) throws RepositoryException {
         try {
             MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
             Document doc = this.toDocument(withValue);
             doc.put("_id", id);
-            doc.put(VERSION_FIELD, BigInteger.ONE.longValue());
+            doc.put(VERSION_FIELD, version.longValue());
 
-            collection.insertOne(doc);
+            InsertOneResult result = collection.insertOne(doc);
+            System.out.println(result);
 
-            return new ImmutableEntity<>(doc.get("_id").toString(), BigInteger.ONE, this.toValue(doc));
+            return new ImmutableEntity<>(doc.get("_id").toString(), version, this.toValue(doc));
         } catch (MongoException e) {
             throw new RepositoryException("mongo exception while creating entity", e);
         }
@@ -298,7 +305,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
             Collection<Entity<V>> found = new LinkedList<>();
             for (Document document : result) {
-                found.add(new ImmutableEntity<>(this.documentId(document), BigInteger.ONE, this.toValue(document)));
+                found.add(new ImmutableEntity<>(this.documentId(document), BigInteger.valueOf(documentVersion(document)), this.toValue(document)));
             }
 
             return new PagedEntityList.DefaultPagedEntityList<>(startIndex, startIndex + found.size() - 1, totalCount, found);
