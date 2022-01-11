@@ -15,10 +15,7 @@ import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.math.BigInteger;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -86,6 +83,29 @@ public class MongoCollectionRepositoryTest {
 
         assertThat(entity.id(), is("5a0188c7d5c64000165d50bd"));
         assertThat(entity.value(), is(MongoValue.builder().name("updated").build()));
+    }
+
+    @Test
+    public void updateWhenIdNotSet() throws Exception {
+        String id;
+        try(MongoClient client = this.mongo.newClient()) {
+            Document doc = new MongoValueMongoMapper().toDocument(MongoValue.builder().name("init").build());
+            ObjectId objectId = new ObjectId();
+            doc.put("_id", objectId);
+            id = objectId.toString();
+            client.getDatabase(DB).getCollection(COLLECTION).insertOne(doc).getInsertedId();
+        }
+
+        Entity<MongoValue> entity = this.repository.retrieve(id);
+        assertThat(entity.value().name(), is("init"));
+        assertThat(entity.version(), is(BigInteger.ONE));
+
+        Entity<MongoValue> updated = this.repository.update(entity, MongoValue.builder().name("changed").build());
+        assertThat(updated.version(), is(BigInteger.TWO));
+
+        entity = this.repository.retrieve(id);
+        assertThat(entity.value().name(), is("changed"));
+        assertThat(entity.version(), is(BigInteger.TWO));
     }
 
     @Test
