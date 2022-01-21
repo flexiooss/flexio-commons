@@ -215,9 +215,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             doc.put("_id", id);
             doc.put(VERSION_FIELD, version.longValue());
 
-            InsertOneResult result = collection.insertOne(doc);
-            System.out.println(result);
-
+            collection.insertOne(doc);
             return new ImmutableEntity<>(doc.get("_id").toString(), version, this.toValue(doc));
         } catch (MongoException e) {
             throw new RepositoryException("mongo exception while creating entity", e);
