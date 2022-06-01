@@ -1,6 +1,5 @@
 package org.codingmatters.poom.services.io.redis.repository;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import io.flexio.docker.DockerResource;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.servives.domain.entities.Entity;
@@ -19,11 +18,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThrows;
+import static org.hamcrest.Matchers.*;
 
-public class RedisHashRepositoryTest {
+public class RedisPrefixedKeysRepositoryTest {
 
     public static final String REDIS_VERSION_ENV = "ut.redis.version";
     @ClassRule
@@ -34,12 +32,11 @@ public class RedisHashRepositoryTest {
             .finallyDeleted()
             ;
 
-    private final String hashName = UUID.randomUUID().toString();
+    private final String keyPrefix = UUID.randomUUID().toString();
 
     private JedisPool jedisPool;
     private Jedis jedis;
     private Repository<String, Void> repository;
-
 
     @Before
     public void setUp() throws Exception {
@@ -48,7 +45,7 @@ public class RedisHashRepositoryTest {
 
         this.jedisPool = new JedisPool(this.docker.containerInfo("redis-ut").get().networkSettings().iPAddress(), 6379);
 
-        this.repository = new RedisHashRepository<>(this.jedisPool, hashName) {
+        this.repository = new RedisPrefixedKeysRepository<>(this.jedisPool, keyPrefix) {
             @Override
             protected String marshall(String value) throws IOException {
                 return value;
@@ -66,7 +63,7 @@ public class RedisHashRepositoryTest {
         Entity<String> entity = this.repository.create("test-value");
 
         assertThat(
-                this.jedis.hget(hashName, entity.id()),
+                this.jedis.get(keyPrefix + "::" + entity.id()),
                 is("test-value||1")
         );
     }
@@ -76,7 +73,7 @@ public class RedisHashRepositoryTest {
         Entity<String> entity = this.repository.createWithId("33", "test-value");
 
         assertThat(
-                this.jedis.hget(hashName, "33"),
+                this.jedis.get(keyPrefix + "::" + "33"),
                 is("test-value||1")
         );
     }
@@ -86,39 +83,39 @@ public class RedisHashRepositoryTest {
         Entity<String> entity = this.repository.createWithIdAndVersion("33", BigInteger.valueOf(75), "test-value");
 
         assertThat(
-                this.jedis.hget(hashName, "33"),
+                this.jedis.get(keyPrefix + "::" + "33"),
                 is("test-value||75")
         );
     }
 
     @Test
     public void nominalRetrieve() throws Exception {
-        this.jedis.hset(hashName, "12", "test-value||42");
+        this.jedis.set(keyPrefix + "::" + "12", "test-value||42");
 
         assertThat(this.repository.retrieve("12"), is(new ImmutableEntity<>("12", BigInteger.valueOf(42), "test-value")));
     }
 
     @Test
     public void nominalUpdate() throws Exception {
-        this.jedis.hset(hashName, "12", "test-value||42");
+        this.jedis.set(keyPrefix + "::" + "12", "test-value||42");
 
         Entity<String> updated = this.repository.update(new ImmutableEntity<>("12", null, null), "changed");
 
         assertThat(updated.id(), is("12"));
         assertThat(updated.version(), is(BigInteger.valueOf(43)));
         assertThat(
-                this.jedis.hget(hashName, updated.id()),
+                this.jedis.get(keyPrefix + "::" + updated.id()),
                 is("changed||43")
         );
     }
 
     @Test
     public void nominalDelete() throws Exception {
-        this.jedis.hset(hashName, "12", "test-value||42");
+        this.jedis.set(keyPrefix + "::" + "12", "test-value||42");
 
         this.repository.delete(new ImmutableEntity<>("12", null, null));
 
-        assertThat(this.jedis.hget(hashName, "12"), is(nullValue()));
+        assertThat(this.jedis.get(keyPrefix + "::" + "12"), is(nullValue()));
     }
 
     @Test
@@ -134,9 +131,8 @@ public class RedisHashRepositoryTest {
     @Test
     public void nominalAll() throws Exception {
         for (int i = 0; i < 100;  i++) {
-            this.jedis.hset(
-                    hashName,
-                    String.format("%03d", i),
+            this.jedis.set(
+                    keyPrefix + "::" + String.format("%03d", i),
                     String.format("test-value-%s||1", i)
             );
         }

@@ -20,9 +20,8 @@ import java.io.IOException;
 import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
 
-public class RedisHashRepositoryBaseAcceptanceTest extends RepositoryBaseAcceptanceTest {
+public class RedisPrefixedKeysRepositoryBaseAcceptanceTest extends RepositoryBaseAcceptanceTest {
 
     public static final String REDIS_VERSION_ENV = "ut.redis.version";
     @ClassRule
@@ -30,8 +29,7 @@ public class RedisHashRepositoryBaseAcceptanceTest extends RepositoryBaseAccepta
             .with("redis-ut", c -> c
                     .image("harbor.ci.flexio.io/ci/" + "redis:" + System.getProperty(REDIS_VERSION_ENV))
             ).started()
-            .finallyDeleted()
-            ;
+            .finallyDeleted();
 
     final String hashName = UUID.randomUUID().toString();
 
@@ -52,10 +50,10 @@ public class RedisHashRepositoryBaseAcceptanceTest extends RepositoryBaseAccepta
     protected Repository<QAValue, Void> createRepository() throws Exception {
         assertThat(this.pool, Matchers.is(Matchers.notNullValue()));
 
-        return new RedisHashRepository<>(this.pool, hashName) {
+        return new RedisPrefixedKeysRepository<>(this.pool, hashName) {
             @Override
             protected String marshall(QAValue value) throws IOException {
-                try(ByteArrayOutputStream out = new ByteArrayOutputStream() ; JsonGenerator generator = jsonFactory.createGenerator(out)) {
+                try (ByteArrayOutputStream out = new ByteArrayOutputStream(); JsonGenerator generator = jsonFactory.createGenerator(out)) {
                     new QAValueWriter().write(generator, value);
                     generator.flush();
                     generator.close();
@@ -65,11 +63,10 @@ public class RedisHashRepositoryBaseAcceptanceTest extends RepositoryBaseAccepta
 
             @Override
             protected QAValue unmarshall(String value) throws IOException {
-                try(JsonParser parser = jsonFactory.createParser(value)) {
+                try (JsonParser parser = jsonFactory.createParser(value)) {
                     return new QAValueReader().read(parser);
                 }
             }
         };
     }
-
 }
