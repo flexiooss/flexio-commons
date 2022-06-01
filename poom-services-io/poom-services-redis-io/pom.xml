@@ -21,6 +21,7 @@
     <modules>
         <module>poom-services-redis-io-commons</module>
         <module>poom-services-redis-io-cache</module>
+        <module>poom-services-redis-io-repository</module>
     </modules>
     
 </project>
