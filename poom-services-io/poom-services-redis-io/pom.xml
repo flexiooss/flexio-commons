@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom.services.io</groupId>
         <artifactId>poom-services-io</artifactId>
-        <version>1.116.0</version>
+        <version>1.117.0</version>
     </parent>
 
     <groupId>org.codingmatters.poom.services.io.redis</groupId>
@@ -21,6 +21,7 @@
     <modules>
         <module>poom-services-redis-io-commons</module>
         <module>poom-services-redis-io-cache</module>
+        <module>poom-services-redis-io-repository</module>
     </modules>
     
 </project>
