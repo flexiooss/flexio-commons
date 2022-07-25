@@ -14,9 +14,8 @@ import java.util.Date;
 import java.util.List;
 
 import static org.codingmatters.poom.services.tests.DateMatchers.around;
-import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class ObjectValueMongoMapperTest {
 
@@ -30,7 +29,7 @@ public class ObjectValueMongoMapperTest {
         assertThat(doc.get("prop"), is("str"));
 
         ObjectValue value = this.mapper.toValue(doc);
-        MatcherAssert.assertThat(value.property("prop").single().stringValue(), is("str"));
+        assertThat(value.property("prop").single().stringValue(), is("str"));
     }
 
     @Test
@@ -123,7 +122,7 @@ public class ObjectValueMongoMapperTest {
         ).build();
 
         Document doc = this.mapper.toDocument(initial);
-        assertThat(((Document)doc.get("prop")).get("embedded"), is("str"));
+        assertThat(((Document) doc.get("prop")).get("embedded"), is("str"));
 
         ObjectValue value = this.mapper.toValue(doc);
         assertThat(value.property("prop").single().objectValue().property("embedded").single().stringValue(), is("str"));
@@ -132,7 +131,7 @@ public class ObjectValueMongoMapperTest {
     @Test
     public void stringArrayProperty() throws Exception {
         ObjectValue initial = ObjectValue.builder().property("prop", PropertyValue.multiple(PropertyValue.Type.STRING,
-                p -> p.stringValue("str")))
+                        p -> p.stringValue("str")))
                 .build();
         Document doc = this.mapper.toDocument(initial);
         assertThat(doc.get("prop"), is(Arrays.asList("str")));
@@ -144,7 +143,7 @@ public class ObjectValueMongoMapperTest {
     @Test
     public void longArrayProperty() throws Exception {
         ObjectValue initial = ObjectValue.builder().property("prop", PropertyValue.multiple(PropertyValue.Type.LONG,
-                p -> p.longValue(12L)))
+                        p -> p.longValue(12L)))
                 .build();
         Document doc = this.mapper.toDocument(initial);
         assertThat(doc.get("prop"), is(Arrays.asList(12L)));
@@ -156,12 +155,12 @@ public class ObjectValueMongoMapperTest {
     @Test
     public void objectArrayProperty() throws Exception {
         ObjectValue initial = ObjectValue.builder().property("prop", PropertyValue.multiple(PropertyValue.Type.OBJECT, p -> p
-                .objectValue(ObjectValue.builder().property("embedded", e -> e.stringValue("str")))
+                        .objectValue(ObjectValue.builder().property("embedded", e -> e.stringValue("str")))
                 )
         ).build();
 
         Document doc = this.mapper.toDocument(initial);
-        assertThat(((Document)((List)doc.get("prop")).get(0)).get("embedded"), is("str"));
+        assertThat(((Document) ((List) doc.get("prop")).get(0)).get("embedded"), is("str"));
 
         ObjectValue value = this.mapper.toValue(doc);
         assertThat(value.property("prop").multiple()[0].objectValue().property("embedded").single().stringValue(), is("str"));
@@ -177,8 +176,8 @@ public class ObjectValueMongoMapperTest {
 
         Document doc = this.mapper.toDocument(initial);
         assertThat(doc.get("prop"), is(Arrays.asList(
-                Date.from(now.toInstant(ZoneOffset.UTC)),
-                Date.from(now.plusHours(1L).toInstant(ZoneOffset.UTC))
+                        Date.from(now.toInstant(ZoneOffset.UTC)),
+                        Date.from(now.plusHours(1L).toInstant(ZoneOffset.UTC))
                 )
         ));
         ObjectValue value = this.mapper.toValue(doc);
@@ -199,8 +198,8 @@ public class ObjectValueMongoMapperTest {
 
         Document doc = this.mapper.toDocument(initial);
         assertThat(doc.get("prop"), is(Arrays.asList(
-                Date.from(now.atStartOfDay().toInstant(ZoneOffset.UTC)),
-                Date.from(now.atStartOfDay().plusDays(1L).toInstant(ZoneOffset.UTC))
+                        Date.from(now.atStartOfDay().toInstant(ZoneOffset.UTC)),
+                        Date.from(now.atStartOfDay().plusDays(1L).toInstant(ZoneOffset.UTC))
                 )
         ));
 
@@ -222,8 +221,8 @@ public class ObjectValueMongoMapperTest {
 
         Document doc = this.mapper.toDocument(initial);
         assertThat(doc.get("prop"), is(Arrays.asList(
-                Date.from(now.atDate(LocalDate.ofYearDay(1970, 1)).toInstant(ZoneOffset.UTC)),
-                Date.from(now.atDate(LocalDate.ofYearDay(1970, 1)).plusHours(1L).toInstant(ZoneOffset.UTC))
+                        Date.from(now.atDate(LocalDate.ofYearDay(1970, 1)).toInstant(ZoneOffset.UTC)),
+                        Date.from(now.atDate(LocalDate.ofYearDay(1970, 1)).plusHours(1L).toInstant(ZoneOffset.UTC))
                 )
         ));
         ObjectValue value = this.mapper.toValue(doc);
@@ -233,4 +232,25 @@ public class ObjectValueMongoMapperTest {
         assertThat(value.property("prop").multiple()[0].type(), is(PropertyValue.Type.DATETIME));
         assertThat(value.property("prop").multiple()[1].datetimeValue(), is(around(now.plusHours(1L).atDate(LocalDate.ofYearDay(1970, 1)))));
     }
+
+    @Test
+    public void nullSubObjectProperty() {
+        ObjectValue objectValue = ObjectValue.builder()
+                .property("null-without-type", PropertyValue.builder().build())
+                .property("null-with-type-object", PropertyValue.builder().objectValue((ObjectValue) null).build())
+                .property("null-date-withValue", PropertyValue.builder().datetimeValue(null).build())
+                .property("null-date", PropertyValue.builder().build())
+                .build();
+        Document doc = this.mapper.toDocument(objectValue);
+
+        assertThat(doc.get("null-without-type"), is(nullValue()));
+        assertThat(doc.containsKey("null-without-type"), is(true));
+        assertThat(doc.get("null-with-type-object"), is(nullValue()));
+        assertThat(doc.containsKey("null-with-type-object"), is(true));
+        assertThat(doc.get("null-date-withValue"), is(nullValue()));
+        assertThat(doc.getString("null-date-withValue"), is(nullValue()));
+        assertThat(doc.get("null-date"), is(nullValue()));
+        assertThat(doc.getString("null-date"), is(nullValue()));
+    }
+
 }
