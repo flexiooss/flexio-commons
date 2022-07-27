@@ -80,10 +80,13 @@ public class ObjectValueMongoMapper {
     }
 
     public Document toDocument(ObjectValue value) {
+        if (value == null) {
+            return null;
+        }
         Document document = new Document();
         for (String propertyName : value.propertyNames()) {
             PropertyValue property = value.property(propertyName);
-            if(PropertyValue.Cardinality.SINGLE.equals(property.cardinality())) {
+            if (PropertyValue.Cardinality.SINGLE.equals(property.cardinality())) {
                 this.addSinglePropertyToDocument(document, propertyName, property.single());
             } else {
                 this.addMultiplePropertyToDocument(document, propertyName, property.multiple());
@@ -93,16 +96,20 @@ public class ObjectValueMongoMapper {
     }
 
     private void addSinglePropertyToDocument(Document document, String name, PropertyValue.Value value) {
-        if(value.type().equals(PropertyValue.Type.OBJECT)) {
-            document.put(name, this.toDocument(value.objectValue()));
-        } else if(value.type().equals(PropertyValue.Type.DATE)) {
-            document.put(name, Date.from(value.dateValue().atStartOfDay().toInstant(ZoneOffset.UTC)));
-        } else if(value.type().equals(PropertyValue.Type.TIME)) {
-            document.put(name, Date.from(value.timeValue().atDate(START_OF_TIME).toInstant(ZoneOffset.UTC)));
-        } else if(value.type().equals(PropertyValue.Type.DATETIME)) {
-            document.put(name, Date.from(value.datetimeValue().toInstant(ZoneOffset.UTC)));
-        } else {
-            document.put(name, value.rawValue());
+        if (value != null && !value.isNull()) {
+            if (value.type().equals(PropertyValue.Type.OBJECT)) {
+                document.put(name, this.toDocument(value.objectValue()));
+            } else if (value.type().equals(PropertyValue.Type.DATE)) {
+                document.put(name, Date.from(value.dateValue().atStartOfDay().toInstant(ZoneOffset.UTC)));
+            } else if (value.type().equals(PropertyValue.Type.TIME)) {
+                document.put(name, Date.from(value.timeValue().atDate(START_OF_TIME).toInstant(ZoneOffset.UTC)));
+            } else if (value.type().equals(PropertyValue.Type.DATETIME)) {
+                document.put(name, Date.from(value.datetimeValue().toInstant(ZoneOffset.UTC)));
+            } else {
+                document.put(name, value.rawValue());
+            }
+        }else{
+            document.put(name, null);
         }
     }
 
