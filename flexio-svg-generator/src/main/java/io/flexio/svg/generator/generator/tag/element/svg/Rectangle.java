@@ -16,8 +16,8 @@ public final class Rectangle extends AutoClosableElement<Rectangle> implements S
     }
 
     public Rectangle rounded(Radius radius) {
-        attributes("rx", radius.x());
-        attributes("ry", radius.y());
+        this.attributes("rx", radius.x());
+        this.attributes("ry", radius.y());
         return this;
     }
 }

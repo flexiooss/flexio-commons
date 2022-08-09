@@ -16,7 +16,7 @@ public final class Path extends AutoClosableElement<Path> implements SVGElement<
     }
 
     public Path path(String d) {
-        attributes("d", d);
+        this.attributes("d", d);
         return this;
     }
 

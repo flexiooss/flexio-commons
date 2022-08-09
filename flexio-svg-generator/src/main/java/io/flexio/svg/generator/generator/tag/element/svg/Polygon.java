@@ -17,7 +17,7 @@ public final class Polygon extends AutoClosableElement<Polygon> implements SVGEl
     }
 
     public Polygon points(String points) {
-        attributes("points", points);
+        this.attributes("points", points);
         return this;
     }
 

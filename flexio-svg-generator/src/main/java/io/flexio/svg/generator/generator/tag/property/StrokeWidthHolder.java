@@ -6,9 +6,14 @@ import java.math.BigDecimal;
 import java.util.Locale;
 
 public interface StrokeWidthHolder<S extends StrokeWidthHolder> extends Attribute {
+    String STROKE_WIDTH = "stroke-width";
     @SuppressWarnings("unchecked")
     default S strokeWidth(String strokeWidth) {
-        attributes("stroke-width", strokeWidth);
+        if (strokeWidth == null) {
+            this.attributesMap().remove(STROKE_WIDTH);
+        } else {
+            this.attributes("stroke-width", strokeWidth);
+        }
         return (S) this;
     }
     

@@ -5,9 +5,14 @@ import io.flexio.svg.generator.generator.Attribute;
 import java.util.Locale;
 
 public interface Stylable<S extends Stylable> extends Attribute {
+    String STYLE = "style";
     @SuppressWarnings("unchecked")
     default S style(String style) {
-        attributes("style", style);
+        if (style == null) {
+            this.attributesMap().remove(STYLE);
+        } else {
+            this.attributes(STYLE, style);
+        }
         return (S) this;
     }
 

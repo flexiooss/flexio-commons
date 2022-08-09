@@ -9,7 +9,7 @@ public interface Attribute {
 
     default Attribute attributes(String name, String value) {
         if (value != null) {
-            attributesMap().put(name, value);
+            this.attributesMap().put(name, value);
         }
         return this;
     }

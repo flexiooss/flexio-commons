@@ -18,12 +18,12 @@ public final class Text extends ClosableElement<Text> implements SVGElement<Text
     }
 
     public Text fontFamily(String value) {
-        attributes("font-family", value);
+        this.attributes("font-family", value);
         return this;
     }
 
     public Text fontSize(String value) {
-        attributes("font-size", value);
+        this.attributes("font-size", value);
         return this;
     }
 
@@ -40,7 +40,7 @@ public final class Text extends ClosableElement<Text> implements SVGElement<Text
     }
 
     public Text fontWeight(String weight) {
-        attributes("font-weight", weight);
+        this.attributes("font-weight", weight);
         return this;
     }
 
@@ -78,7 +78,7 @@ public final class Text extends ClosableElement<Text> implements SVGElement<Text
     }
 
     public Text anchor(String anchor) {
-        attributes("text-anchor", anchor);
+        this.attributes("text-anchor", anchor);
         return this;
     }
 

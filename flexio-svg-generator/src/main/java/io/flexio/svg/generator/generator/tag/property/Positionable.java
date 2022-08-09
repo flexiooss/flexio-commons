@@ -9,15 +9,15 @@ public interface Positionable<P extends Positionable> extends Attribute {
     String X = "x", Y = "y";
     @SuppressWarnings("unchecked")
     default P position(Point position) {
-        attributes(X, position.x());
-        attributes(Y, position.y());
+        this.attributes(X, position.x());
+        this.attributes(Y, position.y());
         return (P) this;
     }
 
     @SuppressWarnings("unchecked")
     default P position(String x, String y) {
-        attributes(X, x);
-        attributes(Y, y);
+        this.attributes(X, x);
+        this.attributes(Y, y);
         return (P) this;
     }
 

@@ -9,7 +9,7 @@ public interface SVGElement<A extends SVGElement> extends Attribute {
     @SuppressWarnings("unchecked")
     default A embed(String property, String data) {
         if (property != null && ! property.trim().isEmpty() && data != null) {
-            attributesMap().put(property, encodeBase64(data));
+            this.attributesMap().put(property, encodeBase64(data));
         }
         return (A) this;
     }

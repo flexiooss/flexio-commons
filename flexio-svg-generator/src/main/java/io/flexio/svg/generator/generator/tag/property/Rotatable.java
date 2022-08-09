@@ -5,9 +5,14 @@ import io.flexio.svg.generator.generator.Attribute;
 import java.util.Locale;
 
 public interface Rotatable<R extends Rotatable> extends Attribute {
+    String ROTATE = "rotate";
     @SuppressWarnings("unchecked")
     default R rotate(String mode) {
-        this.attributes("rotate", mode);
+        if (mode == null) {
+            this.attributesMap().remove(ROTATE);
+        } else {
+            this.attributes(ROTATE, mode);
+        }
         return (R) this;
     }
 
