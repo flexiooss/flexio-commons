@@ -7,8 +7,8 @@ import java.util.Objects;
 import static io.flexio.svg.generator.generator.Attribute.NUMERIC_FORMAT;
 
 public class Point {
-    String x;
-    String y;
+    private final String x;
+    private final String y;
 
     public Point(BigDecimal x, BigDecimal y) {
         this(x.toPlainString(), y.toPlainString());

@@ -14,7 +14,7 @@ public interface PathLengthHolder<P extends PathLengthHolder> extends Attribute 
         if (defaultValue.equals(length)) {
             attributesMap().remove(PATH_LENGTH);
         } else {
-            attributes(PATH_LENGTH, length);
+            this.attributes(PATH_LENGTH, length);
         }
 
         return (P) this;

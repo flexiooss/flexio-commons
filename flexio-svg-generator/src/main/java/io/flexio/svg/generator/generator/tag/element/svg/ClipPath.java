@@ -12,7 +12,7 @@ public final class ClipPath extends ClosableElement<ClipPath> implements SVGElem
 
     public ClipPath clipPathUnits(Unit unit) {
         if (unit != null) {
-            attributes("clipPathUnits", unit.toString());
+            this.attributes("clipPathUnits", unit.toString());
         }
         return this;
     }

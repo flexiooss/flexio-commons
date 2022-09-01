@@ -18,7 +18,7 @@ public final class Circle extends AutoClosableElement<Circle> implements SVGElem
     }
 
     public Circle radius(String radius) {
-        attributes("r", radius);
+        this.attributes("r", radius);
         return this;
     }
 
@@ -32,22 +32,22 @@ public final class Circle extends AutoClosableElement<Circle> implements SVGElem
 
     @Override
     public Circle position(Point position) {
-        attributes("cx", position.x());
-        attributes("cy", position.y());
+        this.attributes("cx", position.x());
+        this.attributes("cy", position.y());
         return this;
     }
 
     @Override
     public Circle position(String x, String y) {
-        attributes("cx", x);
-        attributes("cy", y);
+        this.attributes("cx", x);
+        this.attributes("cy", y);
         return this;
     }
 
     @Override
     public Circle position(double x, double y) {
-        attributes("cx", String.format(Locale.US, "%.5f", x));
-        attributes("cy", String.format(Locale.US, "%.5f", y));
+        this.attributes("cx", String.format(Locale.US, "%.5f", x));
+        this.attributes("cy", String.format(Locale.US, "%.5f", y));
         return this;
     }
 }

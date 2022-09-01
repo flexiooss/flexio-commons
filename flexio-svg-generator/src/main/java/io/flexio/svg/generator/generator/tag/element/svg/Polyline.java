@@ -17,7 +17,7 @@ public final class Polyline extends AutoClosableElement<Polyline> implements SVG
     }
 
     public Polyline points(String points) {
-        attributes("points", points);
+        this.attributes("points", points);
         return this;
     }
 

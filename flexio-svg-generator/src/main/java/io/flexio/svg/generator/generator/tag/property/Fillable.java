@@ -6,14 +6,15 @@ import java.math.BigDecimal;
 import java.util.Locale;
 
 public interface Fillable<F extends Fillable> extends Attribute {
+    String FILL = "fill";
     @SuppressWarnings("unchecked")
     default F fill(String fill) {
-        final String fillProperty = "fill", defaultValue = "black";
+        final String defaultValue = "black";
 
-        if (defaultValue.equals(fill)) {
-            attributesMap().remove(fillProperty);
+        if (fill == null || defaultValue.equals(fill)) {
+            this.attributesMap().remove(FILL);
         } else {
-            attributes(fillProperty, fill);
+            this.attributes(FILL, fill);
         }
 
         return (F) this;
@@ -29,10 +30,10 @@ public interface Fillable<F extends Fillable> extends Attribute {
     default F fillOpacity(String fill) {
         final String defaultValue = "1";
 
-        if (defaultValue.equals(fill)) {
-            attributesMap().remove(FILL_OPACITY);
+        if (fill == null || defaultValue.equals(fill)) {
+            this.attributesMap().remove(FILL_OPACITY);
         } else {
-            attributes(FILL_OPACITY, fill);
+            this.attributes(FILL_OPACITY, fill);
         }
 
         return (F) this;

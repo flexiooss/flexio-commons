@@ -5,9 +5,14 @@ import io.flexio.svg.generator.generator.Attribute;
 import java.util.Locale;
 
 public interface ClipPathHolder<C extends ClipPathHolder> extends Attribute {
+    String CLIP_PATH = "clip-path";
     @SuppressWarnings("unchecked")
     default C clipPath(String clipPath) {
-        attributes("clip-path", clipPath);
+        if (clipPath == null) {
+            attributesMap().remove(CLIP_PATH);
+        } else {
+            this.attributes(CLIP_PATH, clipPath);
+        }
         return (C) this;
     }
 

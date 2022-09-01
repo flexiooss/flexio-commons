@@ -24,12 +24,12 @@ public final class Svg extends ClosableElement<Svg> implements SVGElement<Svg>, 
     }
 
     public Svg lang(String lang) {
-        attributes("xml:lang", lang);
+        this.attributes("xml:lang", lang);
         return this;
     }
 
     public Svg viewBox(String viewBox) {
-        attributes("viewBox", viewBox);
+        this.attributes("viewBox", viewBox);
         return this;
     }
 

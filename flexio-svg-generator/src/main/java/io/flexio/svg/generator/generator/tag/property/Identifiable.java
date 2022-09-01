@@ -8,7 +8,11 @@ public interface Identifiable<I extends Identifiable> extends Attribute {
     String ID = "id";
     @SuppressWarnings("unchecked")
     default I id(String id) {
-        attributes(ID, id);
+        if (id == null) {
+            attributesMap().remove(ID);
+        } else {
+            this.attributes(ID, id);
+        }
         return (I) this;
     }
 

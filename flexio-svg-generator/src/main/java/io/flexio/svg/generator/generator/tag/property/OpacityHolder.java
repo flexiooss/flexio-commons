@@ -11,10 +11,10 @@ public interface OpacityHolder<O extends OpacityHolder<O>> extends Attribute {
     default O opacity(String opacity) {
         final String defaultValue = "1";
 
-        if (defaultValue.equals(opacity)) {
+        if (opacity == null || defaultValue.equals(opacity)) {
             this.attributesMap().remove(OPACITY);
         } else {
-            attributes(OPACITY, opacity);
+            this.attributes(OPACITY, opacity);
         }
 
         return (O) this;

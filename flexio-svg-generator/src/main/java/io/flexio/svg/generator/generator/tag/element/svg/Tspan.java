@@ -19,8 +19,8 @@ public final class Tspan extends ClosableElement<Tspan> implements SVGElement<Ts
     }
 
     public Tspan relativePosition(Point position) {
-        attributes("dx", position.x());
-        attributes("dy", position.y());
+        this.attributes("dx", position.x());
+        this.attributes("dy", position.y());
         return this;
     }
 }

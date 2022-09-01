@@ -6,9 +6,14 @@ import java.math.BigDecimal;
 import java.util.Locale;
 
 public interface Sizeable<S extends Sizeable> extends Attribute {
+    String WIDTH = "width";
     @SuppressWarnings("unchecked")
     default S width(String width) {
-        attributes("width", width);
+        if (width == null) {
+            this.attributesMap().remove(WIDTH);
+        } else {
+            this.attributes(WIDTH, width);
+        }
         return (S) this;
     }
 
@@ -24,10 +29,14 @@ public interface Sizeable<S extends Sizeable> extends Attribute {
         return this.width(width.toPlainString());
     }
 
-
+    String HEIGHT = "height";
     @SuppressWarnings("unchecked")
     default S height(String height) {
-        attributes("height", height);
+        if (height == null) {
+            this.attributesMap().remove(HEIGHT);
+        } else {
+            this.attributes("height", height);
+        }
         return (S) this;
     }
 
