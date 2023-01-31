@@ -16,6 +16,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
+import org.codingmatters.poom.services.domain.exceptions.OptimisticLockingException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.servives.domain.entities.Entity;
@@ -256,7 +257,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             Document newDoc = this.toDocument(withValue);
             Long nextVersion = this.nextVersion(entity);
             if(this.withOptimisticLocking && entity.version().longValue() != nextVersion - 1 ) {
-                throw new RepositoryException(String.format("optimistic locking error, version %s does not match", entity.version()));
+                throw new OptimisticLockingException(String.format("optimistic locking error, version %s does not match", entity.version()));
             }
 
             newDoc.put(VERSION_FIELD, nextVersion);
@@ -270,7 +271,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
                 return new ImmutableEntity<>(entity.id(), BigInteger.valueOf(nextVersion), this.toValue(newDoc));
             } else {
                 if(this.withOptimisticLocking) {
-                    throw new RepositoryException(String.format("optimistic locking error, version %s does not match", entity.version()));
+                    throw new OptimisticLockingException(String.format("optimistic locking error, version %s does not match", entity.version()));
                 } else {
                     throw new RepositoryException("failed updating entity " + entity.id() + " (updated count was " + results.getModifiedCount() + ")");
                 }
