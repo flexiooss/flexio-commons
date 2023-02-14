@@ -1,0 +1,132 @@
+[
+  {
+    "Id": "sha256:14cfea360513a4972fd7860c16869ce0bc7396061d6ed87e68744fab95403d74",
+    "RepoTags": [
+      "harbor.ci.flexio.io/ci/mongo:4.0.3"
+    ],
+    "RepoDigests": [
+      "harbor.ci.flexio.io/ci/mongo@sha256:461974a3234ccba586287e03f76ff52b94c939027a9c030e24c66fe6b98e5c69"
+    ],
+    "Parent": "",
+    "Comment": "",
+    "Created": "2022-03-10T14:41:05.337762874Z",
+    "Container": "294c81eecf2fa5fbbbd9f4fdf4fa040115786a530c7cb987a94e25478bb1f54f",
+    "ContainerConfig": {
+      "Hostname": "294c81eecf2f",
+      "Domainname": "",
+      "User": "",
+      "AttachStdin": false,
+      "AttachStdout": false,
+      "AttachStderr": false,
+      "ExposedPorts": {
+        "27017/tcp": {}
+      },
+      "Tty": false,
+      "OpenStdin": false,
+      "StdinOnce": false,
+      "Env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "GOSU_VERSION=1.10",
+        "JSYAML_VERSION=3.10.0",
+        "GPG_KEYS=9DA31620334BD75D9DCB49F368818C72E52529D4",
+        "MONGO_PACKAGE=mongodb-org",
+        "MONGO_REPO=repo.mongodb.org",
+        "MONGO_MAJOR=4.0",
+        "MONGO_VERSION=4.0.3"
+      ],
+      "Cmd": [
+        "/bin/sh",
+        "-c",
+        "#(nop) ",
+        "MAINTAINER dev@flexio.fr"
+      ],
+      "ArgsEscaped": true,
+      "Image": "sha256:05b3651ee24e6bbe59d646afd06aa4d37b86e5ad5f91ce2f200d22cef5c722c0",
+      "Volumes": {
+        "/data/configdb": {},
+        "/data/db": {}
+      },
+      "WorkingDir": "",
+      "Entrypoint": [
+        "docker-entrypoint.sh"
+      ],
+      "OnBuild": [],
+      "Labels": {}
+    },
+    "DockerVersion": "19.03.12",
+    "Author": "dev@flexio.fr",
+    "Config": {
+      "Hostname": "",
+      "Domainname": "",
+      "User": "",
+      "AttachStdin": false,
+      "AttachStdout": false,
+      "AttachStderr": false,
+      "ExposedPorts": {
+        "27017/tcp": {}
+      },
+      "Tty": false,
+      "OpenStdin": false,
+      "StdinOnce": false,
+      "Env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "GOSU_VERSION=1.10",
+        "JSYAML_VERSION=3.10.0",
+        "GPG_KEYS=9DA31620334BD75D9DCB49F368818C72E52529D4",
+        "MONGO_PACKAGE=mongodb-org",
+        "MONGO_REPO=repo.mongodb.org",
+        "MONGO_MAJOR=4.0",
+        "MONGO_VERSION=4.0.3"
+      ],
+      "Cmd": [
+        "mongod"
+      ],
+      "ArgsEscaped": true,
+      "Image": "sha256:05b3651ee24e6bbe59d646afd06aa4d37b86e5ad5f91ce2f200d22cef5c722c0",
+      "Volumes": {
+        "/data/configdb": {},
+        "/data/db": {}
+      },
+      "WorkingDir": "",
+      "Entrypoint": [
+        "docker-entrypoint.sh"
+      ],
+      "OnBuild": [],
+      "Labels": null
+    },
+    "Architecture": "amd64",
+    "Os": "linux",
+    "Size": 382198721,
+    "VirtualSize": 382198721,
+    "GraphDriver": {
+      "Data": {
+        "LowerDir": "/var/lib/docker/overlay2/a02d4147d4355f867e18e380d31f8c7f9a7e9acdd679af51c44e91eaf5d7b4f5/diff:/var/lib/docker/overlay2/a50ee4c879b080c9eb10c0fc6739a7f2dc8bde1a97ca0c5700f3d37adf83e41c/diff:/var/lib/docker/overlay2/91ca6d4eaa2d2afcd0d751cedcc3c25626813bf9dc39f9f1d07f7e341ff7878a/diff:/var/lib/docker/overlay2/6a5519ed5194b421c98fe7f05c8106b07c752cc07e8bc97e7b0908b86113e81f/diff:/var/lib/docker/overlay2/6cc6ed03e2a4a31dba79cda1375c3477caaf3a08b561eb8240e4a4852e3e13e9/diff:/var/lib/docker/overlay2/a30311e1d5d6a15085499814294bfd2e01633afab4d9cf4c2a9c97967e79f6b3/diff:/var/lib/docker/overlay2/c00c54fadaacadac9b00ebbfddb4e6b07e3cdbd00aa6cd3108ddee8aba7bec12/diff:/var/lib/docker/overlay2/c32e60a33d5e1ef4cdb5ed917f0f5e8ac8035eea556d8866323628a4c2120528/diff:/var/lib/docker/overlay2/2b4e07399a58abccfbd960d7a803c9146a36d7f7e4df71147f47483854441adb/diff:/var/lib/docker/overlay2/57ab80851954b8dbe786b367f8e9081c730213304f0fd49fd97a87e51d7f20be/diff:/var/lib/docker/overlay2/bfb0f423f56d46c51f7523a8eb38b86d6fb20031b83f00d20ee7c16f0533b040/diff:/var/lib/docker/overlay2/7fd2e159ab586545df1649edf54742bb8ded2d98482769c2b6d79b64b841c662/diff",
+        "MergedDir": "/var/lib/docker/overlay2/7d54539ade76db2cfa6f2bd697f44a4fde063d40f70e54d4b0a87326bc63210b/merged",
+        "UpperDir": "/var/lib/docker/overlay2/7d54539ade76db2cfa6f2bd697f44a4fde063d40f70e54d4b0a87326bc63210b/diff",
+        "WorkDir": "/var/lib/docker/overlay2/7d54539ade76db2cfa6f2bd697f44a4fde063d40f70e54d4b0a87326bc63210b/work"
+      },
+      "Name": "overlay2"
+    },
+    "RootFS": {
+      "Type": "layers",
+      "Layers": [
+        "sha256:b8c891f0ffec910a12757d733b178e3f62d81dbbde2b31d3b754071c416108ed",
+        "sha256:33db8ccd260b025f6778ac555e05430a5f61a7211cd712e971d372afd2fa87ef",
+        "sha256:79109c0f8a0be18efd3812060bdd570c6007095045684cb5256aa6abdc06a2fd",
+        "sha256:f1dfa8049aa60c426b275914bb9d38172cb6ce32c27ad5e08c7c2de348ff2b86",
+        "sha256:fe88aff8ea8cb4ebf69317c4d3ad43914a99159db451b36cf517b26f66ced651",
+        "sha256:9772dbd1a936cf6cd53c3ce1316a50b4bab7b4182f0832454e6d8e59dcd15117",
+        "sha256:7837be971df3b7cc6778678146f9d41b68f2801eea7eaa0106fad4c129ed099a",
+        "sha256:2d7a7473af8ac9b538ddb05191340af682fa7b162367f9ed45eca57d2c094403",
+        "sha256:fba15fe8b640357a176e8d7aff5afa8c1329f59404e5a1c994a3cc5499900894",
+        "sha256:1dfa40414fde0f32ec85fda4837b4368d0f27e79656b6e44b3ce401a389226a5",
+        "sha256:cc4953435a338b9c9136a56f019098119260f293f512ac838f925cc80d8fe388",
+        "sha256:412b16fceddafff5208c04f5b3b3aab9b93ec9f02d762bb5658e5dc798afbfd9",
+        "sha256:023d8023d42300fcf57199f894abf802f2826fe7bd1faff70e3e7bfde7ebf857"
+      ]
+    },
+    "Metadata": {
+      "LastTagTime": "0001-01-01T00:00:00Z"
+    }
+  }
+]

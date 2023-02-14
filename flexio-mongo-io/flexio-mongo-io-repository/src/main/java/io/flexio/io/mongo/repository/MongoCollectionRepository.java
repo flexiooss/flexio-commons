@@ -12,6 +12,7 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import io.flexio.io.mongo.repository.property.query.PropertyQuerier;
+import io.flexio.io.mongo.repository.util.EndIndex;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -350,7 +351,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
                 found.add(new ImmutableEntity<>(this.documentId(document), BigInteger.valueOf(documentVersion(document)), this.toValue(document)));
             }
 
-            return new PagedEntityList.DefaultPagedEntityList<>(startIndex, startIndex + found.size() - 1, totalCount, found);
+            return new PagedEntityList.DefaultPagedEntityList<>(startIndex, new EndIndex(startIndex, found.size()).index(), totalCount, found);
         } catch (MongoException e) {
             throw new RepositoryException("mongo exception while querying entities", e);
         }

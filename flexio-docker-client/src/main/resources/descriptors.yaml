@@ -3,7 +3,7 @@ containerCreationLog:
     $value-object: io.flexio.docker.api.types.Container
   success: bool
   action:
-    $enum: CREATION, NONE, UPDATE
+    $enum: CREATION, NONE, UPDATE, PULL
   message: string
 containerStartLog:
   container:

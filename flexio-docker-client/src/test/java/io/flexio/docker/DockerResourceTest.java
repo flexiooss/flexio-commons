@@ -7,7 +7,10 @@ import io.flexio.docker.api.ValueList;
 import io.flexio.docker.client.DockerEngineAPIClient;
 import io.flexio.docker.client.DockerEngineAPIRequesterClient;
 import io.flexio.docker.api.types.container.State;
+import io.flexio.docker.cmd.CommandLineDockerClient;
+import io.flexio.docker.cmd.commands.CommandProvider;
 import okhttp3.OkHttpClient;
+import org.codingmatters.poom.services.support.process.ProcessInvoker;
 import org.codingmatters.rest.api.client.okhttp.OkHttpClientWrapper;
 import org.codingmatters.rest.api.client.okhttp.OkHttpRequesterFactory;
 import org.hamcrest.Matcher;
@@ -26,7 +29,7 @@ import java.util.logging.Logger;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isOneOf;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Ignore
 public class DockerResourceTest {
@@ -46,7 +49,9 @@ public class DockerResourceTest {
     public void setUp() throws Exception {
         Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
 
-        this.dockerClient = new DockerClient(OkHttpClientWrapper.build(), "http://localhost:2375");
+//        this.dockerClient = new ApiDockerClient(OkHttpClientWrapper.build(), "http://localhost:2375");
+//        this.dockerClient = new CommandLineDockerClient(CommandProvider.process(new ProcessInvoker(), new ObjectMapper()));
+        this.dockerClient = DockerClient.fromEnv();
     }
 
     @After

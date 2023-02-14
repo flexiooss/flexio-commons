@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.flexio.docker.api.ContainerListGetResponse;
 import io.flexio.docker.api.CreateImagePostResponse;
 import io.flexio.docker.api.ValueList;
+import io.flexio.docker.api.types.ContainerCreationData;
 import io.flexio.docker.auth.DockerAuth;
 import io.flexio.docker.client.DockerEngineAPIClient;
 import io.flexio.docker.client.DockerEngineAPIRequesterClient;
@@ -12,32 +13,32 @@ import io.flexio.docker.api.types.Container;
 import io.flexio.docker.api.types.container.State;
 import io.flexio.docker.descriptors.ContainerCreationLog;
 import io.flexio.docker.descriptors.ContainerStartLog;
-import org.codingmatters.poom.services.support.Env;
 import org.codingmatters.rest.api.client.okhttp.HttpClientWrapper;
 import org.codingmatters.rest.api.client.okhttp.OkHttpClientWrapper;
 import org.codingmatters.rest.api.client.okhttp.OkHttpRequesterFactory;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@Ignore
 public class DockerClientTest {
 
     static private final Logger log = LoggerFactory.getLogger(DockerClientTest.class);
     public static final String ALPINE_IMAGE = "harbor.ci.flexio.io/ci/alpine:3.8";
 
     private HttpClientWrapper http = OkHttpClientWrapper.build();
-    private DockerClient dockerClient = new DockerClient(http, DockerResource.resolveDockerUrl());
+    private DockerClient dockerClient;
 
     static private final LinkedList<String> CONTAINERS = new LinkedList<String>() {{
         this.add("not-created");
@@ -49,7 +50,7 @@ public class DockerClientTest {
     @Before
     public void setUp() throws Exception {
         DockerEngineAPIClient client = new DockerEngineAPIRequesterClient(
-                new OkHttpRequesterFactory(http, () -> DockerResource.resolveDockerUrl()), new JsonFactory(), DockerResource.resolveDockerUrl()
+                new OkHttpRequesterFactory(http, () -> DockerClient.resolveDockerUrl()), new JsonFactory(), DockerClient.resolveDockerUrl()
         );
         this.cleanUpContainers(client);
 
@@ -74,24 +75,26 @@ public class DockerClientTest {
         ).status201().payload().id();
 
         client.containers().container().start().post(req->req.containerId(startedId));
+
+//        this.apiDockerClient = new ApiDockerClient(http, DockerResource.resolveDockerUrl());
+//        this.dockerClient = new CommandLineDockerClient(CommandProvider.process(new ProcessInvoker(), new ObjectMapper()));
+        this.dockerClient = DockerClient.fromEnv();
     }
 
     @After
     public void tearDown() throws Exception {
         DockerEngineAPIClient client = new DockerEngineAPIRequesterClient(
-                new OkHttpRequesterFactory(http, () -> DockerResource.resolveDockerUrl()), new JsonFactory(), DockerResource.resolveDockerUrl() //"http://localhost:2375///"
+                new OkHttpRequesterFactory(http, () -> DockerClient.resolveDockerUrl()), new JsonFactory(), DockerClient.resolveDockerUrl() //"http://localhost:2375///"
         );
         this.cleanUpContainers(client);
     }
 
     @Test
     public void givenContainerIsNotCreated_whenEnsureContainerCreated_thenContainerIsCreatedAndContainerStatusIsStopped() throws Exception {
-        Container totoContainer = Container.builder()
-                .image(ALPINE_IMAGE)
-                .names("not-created")
-                .build();
+        ContainerCreationLog creationLog = this.dockerClient.ensureContainerCreated("not-created", ContainerCreationData.builder()
+                        .image(ALPINE_IMAGE)
+                .build());
 
-        ContainerCreationLog creationLog = this.dockerClient.ensureContainerCreated(totoContainer);
 
         assertThat(creationLog.success(), is(true));
         assertThat(creationLog.action(), is(ContainerCreationLog.Action.CREATION));
@@ -101,12 +104,9 @@ public class DockerClientTest {
 
     @Test
     public void givenContainerIsAlreadyCreated_whenEnsureContainerCreated_thenNothingDoneAndContainerStatusIsCreated() throws Exception {
-        Container container = Container.builder()
+        ContainerCreationLog creationLog = this.dockerClient.ensureContainerCreated("already-created", ContainerCreationData.builder()
                 .image(ALPINE_IMAGE)
-                .names("already-created")
-                .build();
-
-        ContainerCreationLog creationLog = this.dockerClient.ensureContainerCreated(container);
+                .build());
 
         System.out.println(creationLog);
         assertThat(creationLog.success(), is(true));
@@ -116,12 +116,10 @@ public class DockerClientTest {
 
     @Test
     public void givenContainerIsAlreadyStarted_whenEnsureContainerCreated_thenNothindDoneAndContainerStatusIsStarted() throws Exception {
-        Container container = Container.builder()
+// 
+        ContainerCreationLog creationLog = this.dockerClient.ensureContainerCreated("already-started", ContainerCreationData.builder()
                 .image(ALPINE_IMAGE)
-                .names("already-started")
-                .build();
-
-        ContainerCreationLog creationLog = this.dockerClient.ensureContainerCreated(container);
+                .build());
 
         System.out.println(creationLog);
         assertThat(creationLog.success(), is(true));

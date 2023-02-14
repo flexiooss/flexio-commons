@@ -1,39 +1,27 @@
-package io.flexio.docker.cmd;
+package io.flexio.docker.cmd.parsers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.flexio.docker.api.types.Container;
 import io.flexio.docker.api.types.optional.OptionalContainer;
+import io.flexio.docker.cmd.utils.JsonParser;
 import io.flexio.docker.cmd.exceptions.Unparsable;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 public class DockerInspectParser {
-
-    private final ObjectMapper mapper;
+    private final JsonParser jsonParser;
 
     public DockerInspectParser(ObjectMapper mapper) {
-        this.mapper = mapper;
+        this.jsonParser = new JsonParser(mapper);
     }
 
     public OptionalContainer containerFor(String json) throws Unparsable {
-        List jsonList;
-        try {
-            jsonList = this.mapper.readValue(json, List.class);
-        } catch (JsonProcessingException e) {
-            throw new Unparsable("failed reading list from : " + json, e);
-        }
-        if(jsonList.isEmpty()) return OptionalContainer.of(null);
-
-        if(jsonList.get(0) instanceof Map) {
-            Map mapValue = (Map) jsonList.get(0);
-            return OptionalContainer.of(this.parseMap(mapValue));
-        } else {
-            throw new Unparsable("failed reading map from first element: " + json);
-        }
+        Map mapValue = this.jsonParser.readMapFromJsonListFirstElement(json);
+        if(mapValue == null) return OptionalContainer.of(null);
+        return OptionalContainer.of(this.parseMap(mapValue));
     }
+
 
     private Container parseMap(Map mapValue) {
         Container container = Container.fromMap(mapValue).build();
