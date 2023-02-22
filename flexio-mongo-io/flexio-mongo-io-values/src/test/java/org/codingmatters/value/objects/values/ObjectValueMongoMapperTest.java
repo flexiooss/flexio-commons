@@ -240,6 +240,7 @@ public class ObjectValueMongoMapperTest {
                 .property("null-with-type-object", PropertyValue.builder().objectValue((ObjectValue) null).build())
                 .property("null-date-withValue", PropertyValue.builder().datetimeValue(null).build())
                 .property("null-date", PropertyValue.builder().build())
+                .property("null", (PropertyValue) null)
                 .build();
         Document doc = this.mapper.toDocument(objectValue);
 
@@ -251,6 +252,7 @@ public class ObjectValueMongoMapperTest {
         assertThat(doc.getString("null-date-withValue"), is(nullValue()));
         assertThat(doc.get("null-date"), is(nullValue()));
         assertThat(doc.getString("null-date"), is(nullValue()));
+        assertThat(doc.getString("null"), is(nullValue()));
     }
 
 }
