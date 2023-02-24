@@ -86,10 +86,14 @@ public class ObjectValueMongoMapper {
         Document document = new Document();
         for (String propertyName : value.propertyNames()) {
             PropertyValue property = value.property(propertyName);
-            if (PropertyValue.Cardinality.SINGLE.equals(property.cardinality())) {
-                this.addSinglePropertyToDocument(document, propertyName, property.single());
+            if (property == null) {
+                document.put(propertyName, null);
             } else {
-                this.addMultiplePropertyToDocument(document, propertyName, property.multiple());
+                if (PropertyValue.Cardinality.SINGLE.equals(property.cardinality())) {
+                    this.addSinglePropertyToDocument(document, propertyName, property.single());
+                } else {
+                    this.addMultiplePropertyToDocument(document, propertyName, property.multiple());
+                }
             }
         }
         return document;
