@@ -9,7 +9,7 @@ import org.codingmatters.generated.mongo.QAValueMongoMapper;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.property.query.PropertyQueryAcceptanceTest;
 import org.codingmatters.poom.services.domain.repositories.Repository;
-import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;

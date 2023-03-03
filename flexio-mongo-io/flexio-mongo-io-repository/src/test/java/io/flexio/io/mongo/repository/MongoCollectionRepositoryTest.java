@@ -12,9 +12,9 @@ import io.flexio.services.tests.mongo.MongoTest;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.codingmatters.poom.services.domain.repositories.Repository;
-import org.codingmatters.poom.servives.domain.entities.Entity;
-import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
-import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 import org.junit.*;
 
 import java.math.BigInteger;

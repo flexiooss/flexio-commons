@@ -7,9 +7,9 @@ import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.io.mysql.repository.table.TableModel;
-import org.codingmatters.poom.servives.domain.entities.Entity;
-import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
-import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 
 import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;

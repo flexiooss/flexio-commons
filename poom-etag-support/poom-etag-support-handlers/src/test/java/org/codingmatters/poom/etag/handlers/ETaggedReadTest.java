@@ -6,7 +6,7 @@ import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.repositories.inmemory.InMemoryRepositoryWithPropertyQuery;
 import org.codingmatters.poom.services.support.date.UTC;
-import org.codingmatters.poom.servives.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.Entity;
 import org.generated.api.ResourceGetRequest;
 import org.generated.api.ResourceGetResponse;
 import org.generated.api.TestApiHandlers;
