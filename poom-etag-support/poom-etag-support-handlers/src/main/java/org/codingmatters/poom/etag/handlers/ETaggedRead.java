@@ -4,6 +4,7 @@ import org.codingmatters.poom.etag.api.ETaggedReadRequest;
 import org.codingmatters.poom.etag.handlers.exception.UnETaggable;
 import org.codingmatters.poom.etag.handlers.responses.ETaggedReadResponse;
 import org.codingmatters.poom.etag.storage.Etag;
+import org.codingmatters.poom.services.domain.entities.Entity;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
@@ -119,13 +120,17 @@ public class ETaggedRead<Request extends ETaggedReadRequest, Response> implement
             if(etagged.cacheControl() == null) {
                 etagged.cacheControl(this.defaultCacheControl);
             }
-            if(this.etagRepository.retrieve(id) == null) {
-                this.etagRepository.createWithId(id, Etag.builder()
-                        .etag(etagged.eTag())
-                        .id(etagged.xEntityId())
-                        .cacheControl(etagged.cacheControl())
-                        .created(UTC.now())
-                        .build());
+            Entity<Etag> etagEntity = this.etagRepository.retrieve(id);
+            Etag toStoreEtag = Etag.builder()
+                    .etag(etagged.eTag())
+                    .id(etagged.xEntityId())
+                    .cacheControl(etagged.cacheControl())
+                    .created(UTC.now())
+                    .build();
+            if(etagEntity == null) {
+                this.etagRepository.createWithId(id, toStoreEtag);
+            } else {
+                this.etagRepository.update(etagEntity, toStoreEtag);
             }
             return etagged.response();
         } catch (UnETaggable e) {

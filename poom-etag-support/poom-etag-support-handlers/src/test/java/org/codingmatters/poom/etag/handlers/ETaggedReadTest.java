@@ -114,7 +114,7 @@ public class ETaggedReadTest {
     }
 
     @Test
-    public void givenRequestWithIfNoneMatch__whenDifferentEtagStored__thenUnderlyingResponseReturned_andEtagNotStored() throws Exception {
+    public void givenRequestWithIfNoneMatch__whenDifferentEtagStored__thenUnderlyingResponseReturned_andEtagUpdated() throws Exception {
         Entity<Etag> etag = this.etags.createWithId(COMPLETE_UNDERLYING_RESPONSE.status200().xEntityId(), Etag.builder()
                 .id(COMPLETE_UNDERLYING_RESPONSE.status200().xEntityId())
                 .cacheControl(COMPLETE_UNDERLYING_RESPONSE.status200().cacheControl())
@@ -132,6 +132,9 @@ public class ETaggedReadTest {
 
         assertThat(response, is(COMPLETE_UNDERLYING_RESPONSE));
 
-        assertThat(this.etags.retrieve(COMPLETE_UNDERLYING_RESPONSE.status200().xEntityId()), is(etag));
+        assertThat(
+                this.etags.retrieve(COMPLETE_UNDERLYING_RESPONSE.status200().xEntityId()).value().etag(),
+                is(COMPLETE_UNDERLYING_RESPONSE.status200().eTag())
+        );
     }
 }
