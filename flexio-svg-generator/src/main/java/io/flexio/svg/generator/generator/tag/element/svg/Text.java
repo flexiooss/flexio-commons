@@ -9,12 +9,24 @@ import java.util.Locale;
 
 public final class Text extends ClosableElement<Text> implements SVGElement<Text>,
         Positionable<Text>, Fillable<Text>, Strokable<Text>, StrokeWidthHolder<Text>, Rotatable<Text>, ClipPathHolder<Text>,
-        OpacityHolder<Text>
-{
+        OpacityHolder<Text> {
     private static final String text = "text";
+
     @Override
     public String name() {
         return text;
+    }
+
+    private String format(int value) {
+        return String.format(Locale.US, "%d", value);
+    }
+
+    private String format(long value) {
+        return String.format(Locale.US, "%d", value);
+    }
+
+    private String format(double value) {
+        return String.format(Locale.US, "%d", Math.round(value));
     }
 
     public Text fontFamily(String value) {
@@ -27,12 +39,8 @@ public final class Text extends ClosableElement<Text> implements SVGElement<Text
         return this;
     }
 
-    public Text fontSize(String fontSizeFormat, Object... args) {
-        return this.fontSize(String.format(Locale.US, fontSizeFormat, args));
-    }
-
     public Text fontSize(double value) {
-        return this.fontSize("%.5f", value);
+        return this.fontSize(this.format(value));
     }
 
     public Text fontSize(BigDecimal value) {
@@ -44,20 +52,16 @@ public final class Text extends ClosableElement<Text> implements SVGElement<Text
         return this;
     }
 
-    public Text fontWeight(String weightFormat, Object... args) {
-        return this.fontWeight(String.format(Locale.US, weightFormat, args));
-    }
-
     public Text fontWeight(int weight) {
-        return this.fontWeight("%d", weight);
+        return this.fontWeight(this.format(weight));
     }
 
     public Text fontWeight(long weight) {
-        return this.fontWeight("%d", weight);
+        return this.fontWeight(this.format(weight));
     }
 
     public Text fontWeight(double weight) {
-        return this.fontWeight("%.5f", weight);
+        return this.fontWeight(this.format(weight));
     }
 
     public Text fontWeight(BigDecimal weight) {
