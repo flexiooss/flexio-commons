@@ -17,4 +17,5 @@ public interface Attribute {
     Attribute EMPTY = LinkedHashMap::new;
 
     String NUMERIC_FORMAT = "%.1f";
+    String NUMERIC_FORMAT_2F = "%.2f";
 }
