@@ -27,8 +27,8 @@ public class CircleTest {
         StringWriter stringWriter = new StringWriter();
         PrintWriter printer = new PrintWriter(stringWriter);
         SvgWriter writer = new SvgWriter(printer);
-        new Circle().position(0.12345, 0.12345).radius(0.514551).open(writer);
+        new Circle().position(0.12345, 0.12345).radius(0.514551).opacity(0.145).open(writer);
         String string = stringWriter.toString();
-        assertThat(string, is("<circle cx=\"0.1\" cy=\"0.1\" r=\"0.5\"/>"));
+        assertThat(string, is("<circle cx=\"0.1\" cy=\"0.1\" r=\"0.5\" opacity=\"0.15\"/>"));
     }
 }

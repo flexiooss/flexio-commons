@@ -7,6 +7,7 @@ import java.util.Locale;
 
 public interface OpacityHolder<O extends OpacityHolder<O>> extends Attribute {
     String OPACITY = "opacity";
+
     @SuppressWarnings("unchecked")
     default O opacity(String opacity) {
         final String defaultValue = "1";
@@ -33,7 +34,7 @@ public interface OpacityHolder<O extends OpacityHolder<O>> extends Attribute {
             return (O) this;
         }
 
-        return this.opacity(NUMERIC_FORMAT, opacity);
+        return this.opacity(NUMERIC_FORMAT_2F, opacity);
     }
 
     default O opacity(BigDecimal opacity) {
