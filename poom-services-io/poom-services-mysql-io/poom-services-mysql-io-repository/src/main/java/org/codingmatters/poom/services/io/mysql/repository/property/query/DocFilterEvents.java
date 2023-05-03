@@ -151,7 +151,12 @@ public class DocFilterEvents implements FilterEvents {
 
     @Override
     public Object contains(String left, Object right) throws FilterEventError {
-        this.appendSimplePredicate(left, "LIKE", "%" + right + "%");
+        if(right instanceof String) {
+            this.appendSimplePredicate(left, "LIKE", "%" + right + "%");
+        } else {
+            this.stack.push(String.format("JSON_CONTAINS(JSON_EXTRACT(doc, \"$.%s\"), ?, \"$\")", left));
+            this.paramsSetters.add((statement, index) -> statement.setObject(index, this.prepared(right)));
+        }
         return null;
     }
 
