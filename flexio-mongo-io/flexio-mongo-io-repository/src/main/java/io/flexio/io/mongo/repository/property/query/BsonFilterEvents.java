@@ -151,22 +151,6 @@ public class BsonFilterEvents implements FilterEvents {
     }
 
     @Override
-    public Object contains(String left, Object right) throws FilterEventError {
-        this.stack.push(this.containsRegex(left, right));
-        return null;
-    }
-
-    @Override
-    public Object containsAny(String left, List right) throws FilterEventError {
-        List<Bson> any = new LinkedList<>();
-        for (Object value : right) {
-            any.add(this.containsRegex(left, value));
-        }
-        this.stack.push(Filters.or(any));
-        return null;
-    }
-
-    @Override
     public Object startsWithAny(String left, List right) throws FilterEventError {
         List<Bson> any = new LinkedList<>();
         for (Object value : right) {
@@ -187,6 +171,22 @@ public class BsonFilterEvents implements FilterEvents {
     }
 
     @Override
+    public Object contains(String left, Object right) throws FilterEventError {
+        this.stack.push(this.containsRegex(left, right));
+        return null;
+    }
+
+    @Override
+    public Object containsAny(String left, List right) throws FilterEventError {
+        List<Bson> any = new LinkedList<>();
+        for (Object value : right) {
+            any.add(this.containsRegex(left, value));
+        }
+        this.stack.push(Filters.or(any));
+        return null;
+    }
+
+    @Override
     public Object containsAll(String left, List right) throws FilterEventError {
         List<Bson> all = new LinkedList<>();
         for (Object value : right) {
@@ -197,7 +197,11 @@ public class BsonFilterEvents implements FilterEvents {
     }
 
     private Bson containsRegex(String property, Object value) {
-        return Filters.regex(this.property(property, value), "^.*" + this.value(value) + ".*$");
+        if(value instanceof String) {
+            return Filters.regex(this.property(property, value), "^.*" + this.value(value) + ".*$");
+        } else {
+            return Filters.eq(this.property(property, value), this.value(value));
+        }
     }
 
     @Override

@@ -2,6 +2,7 @@ package io.flexio.io.mongo.gen;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -147,37 +148,51 @@ public class ValueMongoMapper {
     }
 
     private void temporalPropertyToValue(MethodSpec.Builder result, PropertySpec propertySpec) {
-        if (propertySpec.typeSpec().cardinality().isCollection()) {
-            result.addStatement("$T<$T> $LElmts = new $T<>()",
-                    LinkedList.class, this.mapperConfig.propertySingleType(propertySpec), propertySpec.name(), LinkedList.class);
-            result.beginControlFlow("for($T elmt : ($T<$T>)document.get($S))",
-                    Date.class, Collection.class, Date.class, this.documentProperty(propertySpec));
+        if(this.mapperConfig.isZonedDateTime(propertySpec)) {
+            if(propertySpec.typeSpec().cardinality().isCollection()) {
+                result.addStatement("$T<$T> $LElmts = new $T<>()",
+                        List.class,
+                        ZonedDateTime.class,
+                        propertySpec.name(),
+                        LinkedList.class
+                        );
+                result.beginControlFlow("for($T e : ($T<$T>)document.get($S))",
+                        Object.class, Collection.class, Date.class, propertySpec.name());
+                result.addStatement("$T elmt = (e instanceof $T) ? ($T) (($T) e).get($S) : ($T) e",
+                        Date.class, Document.class, Date.class, Document.class, "ts", Date.class);
+                result.addStatement("$T zone = (e instanceof $T) ? $T.of((($T) e).getString($S)) : $T.of($S)",
+                        ZoneId.class, Document.class, ZoneId.class, Document.class, "tz", ZoneId.class, "Z");
+                result.addStatement("$T $LElmt = $T.ofInstant(elmt.toInstant(), zone)",
+                        ZonedDateTime.class, propertySpec.name(), ZonedDateTime.class);
+                result.addStatement("$LElmts.add($LElmt)",
+                        propertySpec.name(), propertySpec.name());
+                result.endControlFlow();
+            } else {
+                result.addStatement("$T elmt = (document.get($S) instanceof $T) ? ($T) (($T) document.get($S)).get($S) : ($T)document.get($S)",
+                        Date.class, propertySpec.name(), Document.class, Date.class, Document.class, propertySpec.name(), "ts", Date.class, propertySpec.name());
+                result.addStatement("$T zone = (document.get($S) instanceof $T) ? $T.of((($T) document.get($S)).getString($S)) : $T.of($S)",
+                        ZoneId.class, propertySpec.name(), Document.class, ZoneId.class, Document.class, propertySpec.name(), "tz", ZoneId.class, "Z");
+                result.addStatement("$T $LElmt = $T.ofInstant(elmt.toInstant(), zone)",
+                        ZonedDateTime.class, propertySpec.name(), ZonedDateTime.class);
+                result.addStatement("builder.$L($LElmt)",
+                        propertySpec.name(), propertySpec.name());
+            }
         } else {
-            if (this.mapperConfig.isZonedDateTime(propertySpec)) {
-                result.addStatement("$T elmt = (document.get($S) instanceof $T) ? " +
-                                "($T) (($T) document.get($S)).get($S) : " +
-                                "($T)document.get($S)",
-                        Date.class, this.documentProperty(propertySpec), Document.class,
-                        Date.class, Document.class, this.documentProperty(propertySpec), "ts",
-                        Date.class, this.documentProperty(propertySpec));
+            if (propertySpec.typeSpec().cardinality().isCollection()) {
+                result.addStatement("$T<$T> $LElmts = new $T<>()",
+                        LinkedList.class, this.mapperConfig.propertySingleType(propertySpec), propertySpec.name(), LinkedList.class);
+                result.beginControlFlow("for($T elmt : ($T<$T>)document.get($S))",
+                        Date.class,
+                        Collection.class,
+                        Date.class,
+                        this.documentProperty(propertySpec)
+                );
             } else {
                 result.addStatement("$T elmt = ($T)document.get($S)",
                         Date.class, Date.class, this.documentProperty(propertySpec));
             }
-        }
 
-        String temporalClassName = ClassName.bestGuess(propertySpec.typeSpec().typeRef()).simpleName();
-        if (this.mapperConfig.isZonedDateTime(propertySpec)) {
-            result.addStatement("$T zone = (document.get($S) instanceof $T) ? " +
-                            "$T.of((($T) document.get($S)).getString($S)) : " +
-                            "$T.of($S)",
-                    ZoneId.class, this.documentProperty(propertySpec), Document.class,
-                    ZoneId.class, Document.class, this.documentProperty(propertySpec), "tz",
-                    ZoneId.class, "Z"
-            );
-            result.addStatement("$T $LElmt = $T.ofInstant(elmt.toInstant(), zone)",
-                    ZonedDateTime.class, propertySpec.name(), ZonedDateTime.class);
-        } else {
+            String temporalClassName = ClassName.bestGuess(propertySpec.typeSpec().typeRef()).simpleName();
             result.addStatement("$T $LZoned = $T.ofInstant(elmt.toInstant(), $T.of($S))",
                     ZonedDateTime.class, propertySpec.name(), ZonedDateTime.class, ZoneId.class, "Z");
             result.addStatement("$T $LElmt = $LZoned.to$L()",
@@ -186,15 +201,15 @@ public class ValueMongoMapper {
                     propertySpec.name(),
                     temporalClassName
             );
-        }
 
 
-        if (propertySpec.typeSpec().cardinality().isCollection()) {
-            result.addStatement("$LElmts.add($LElmt)", propertySpec.name(), propertySpec.name());
-            result.endControlFlow();
-            result.addStatement("builder.$L($LElmts)", propertySpec.name(), propertySpec.name());
-        } else {
-            result.addStatement("builder.$L($LElmt)", propertySpec.name(), propertySpec.name());
+            if (propertySpec.typeSpec().cardinality().isCollection()) {
+                result.addStatement("$LElmts.add($LElmt)", propertySpec.name(), propertySpec.name());
+                result.endControlFlow();
+                result.addStatement("builder.$L($LElmts)", propertySpec.name(), propertySpec.name());
+            } else {
+                result.addStatement("builder.$L($LElmt)", propertySpec.name(), propertySpec.name());
+            }
         }
     }
 
@@ -282,20 +297,34 @@ public class ValueMongoMapper {
     }
 
     private void documentSimplePropertySetterStatement(MethodSpec.Builder method, PropertySpec propertySpec) {
-        if (this.isObjectId(propertySpec)) {
-            this.documentObjectIdPropertySetterStatement(method, propertySpec);
-        } else if (this.mapperConfig.isTemporalProperty(propertySpec)) {
-            this.documentTemporalPropertySetterStatement(method, propertySpec);
-        } else if (this.mapperConfig.isFloatingType(propertySpec)) {
-            method.addStatement("document.put($S, new $T(value.$L().toString()))",
-                    this.documentProperty(propertySpec),
-                    BigDecimal.class,
-                    propertySpec.name());
-        } else {
-            method.addStatement("document.put($S, value.$L())",
-                    this.documentProperty(propertySpec),
-                    propertySpec.name());
-        }
+            if (this.isObjectId(propertySpec)) {
+                this.documentObjectIdPropertySetterStatement(method, propertySpec);
+            } else if (this.mapperConfig.isTemporalProperty(propertySpec)) {
+                this.documentTemporalPropertySetterStatement(method, propertySpec);
+            } else if (this.mapperConfig.isFloatingType(propertySpec)) {
+                if (propertySpec.typeSpec().cardinality().isCollection()) {
+                    ClassName elementClass = ClassName.get(BigDecimal.class);
+                    method.addStatement("$T<$T> elmnts = new $T()", List.class, elementClass, LinkedList.class);
+                    method.beginControlFlow("for($T elmnt : value.$L())", Object.class, propertySpec.name());
+                    method.addStatement("elmnts.add(new $T(elmnt != null ? elmnt.toString() : null))", elementClass);
+                    method.endControlFlow();
+                    method.addStatement("document.put($S, elmnts)", propertySpec.name());
+                } else {
+                    method.addStatement("document.put($S, new $T(value.$L().toString()))",
+                            this.documentProperty(propertySpec),
+                            BigDecimal.class,
+                            propertySpec.name());
+                }
+            } else {
+                if (propertySpec.typeSpec().cardinality().isCollection()) {
+                    method.addStatement("document.put($S, value.$L())",
+                            propertySpec.name(), propertySpec.name());
+                } else {
+                    method.addStatement("document.put($S, value.$L())",
+                            this.documentProperty(propertySpec),
+                            propertySpec.name());
+                }
+            }
     }
 
     private void documentObjectIdPropertySetterStatement(MethodSpec.Builder method, PropertySpec propertySpec) {
@@ -331,7 +360,11 @@ public class ValueMongoMapper {
     private void documentTemporalPropertySetterStatement(MethodSpec.Builder method, PropertySpec propertySpec) {
         if (propertySpec.typeSpec().cardinality().isCollection()) {
             method.addStatement("$T<$T> $LValues = new $T<>()",
-                            LinkedList.class, Date.class, propertySpec.name(), LinkedList.class)
+                            LinkedList.class,
+                            TypeToken.TZ_DATE_TIME.getImplementationType().equals(propertySpec.typeSpec().typeRef()) ?
+                                    Document.class : Date.class,
+                            propertySpec.name(),
+                            LinkedList.class)
                     .beginControlFlow("for($T elmt : value.$L())",
                             this.mapperConfig.propertySingleType(propertySpec), propertySpec.name());
         } else {
