@@ -281,13 +281,13 @@ public class DocFilterEvents implements FilterEvents {
     }
 
     private void appendNullPredicate(String propertyPath, String operator) {
-        this.stack.push(String.format("JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") %s 'null'", propertyPath, operator));
+        this.stack.push(String.format("JSON_VALUE(JSON_EXTRACT(doc, '$.%s'), '$') IS %sNULL", propertyPath, operator.equals("!=") ? "NOT " : ""));
     }
 
     private void appendIsFalsePredicate(String propertyPath, String operator) {
         this.stack.push(
                 String.format(
-                        "(JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") != 'null' AND JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") %s false)",
+                        "(JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") IS NOT NULL AND JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") %s false)",
                         propertyPath,
                         propertyPath,
                         operator

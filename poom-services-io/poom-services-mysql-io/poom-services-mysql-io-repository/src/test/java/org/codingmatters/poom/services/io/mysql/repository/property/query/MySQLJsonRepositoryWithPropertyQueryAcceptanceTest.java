@@ -5,6 +5,7 @@ import io.flexio.docker.DockerResource;
 import org.codingmatters.generated.QAValue;
 import org.codingmatters.generated.json.QAValueReader;
 import org.codingmatters.generated.json.QAValueWriter;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.property.query.PropertyQueryAcceptanceTest;
 import org.codingmatters.poom.services.domain.repositories.Repository;
@@ -13,6 +14,11 @@ import org.codingmatters.poom.services.io.mysql.repository.MySQLJsonRepository;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
+import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 
 
 public class MySQLJsonRepositoryWithPropertyQueryAcceptanceTest extends PropertyQueryAcceptanceTest {
@@ -47,6 +53,22 @@ public class MySQLJsonRepositoryWithPropertyQueryAcceptanceTest extends Property
             throw new AssertionError("error creating repository", e);
         }
     }
+
+    @Override
+    @Test
+    public void whenNoFilter_andOrderByTwoProperties__thenAllValuesAreOrdered() throws Exception {
+        /*
+         * Just like MongoDB, MariaDB sorts NULL before mainly everything
+         */
+        PagedEntityList<QAValue> actual = this.repository().search(PropertyQuery.builder()
+                .sort("boolProp, stringProp")
+                .build(), 0, 1000);
+
+        assertThat(actual.valueList(), hasSize(100));
+        assertThat(actual.valueList().get(0).stringProp(), is("002"));
+        assertThat(actual.valueList().get(1).stringProp(), is("005"));
+    }
+
 
     @Override
     public void givenFilterOnManyDateProperty__whenContainsAny__thenSelectedValueReturned() {
