@@ -22,7 +22,8 @@ public class DocSortEvents implements SortEvents {
         if(this.orders.isEmpty()) {
             return clause;
         } else {
-            return clause.withOrderBy(this.orders.stream().collect(Collectors.joining(", ")));
+            TableModel.Clause withOrderBy = clause.withOrderBy(this.orders.stream().collect(Collectors.joining(", ")));
+            return withOrderBy;
         }
     }
 }
