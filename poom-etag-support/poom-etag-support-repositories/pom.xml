@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom.etag</groupId>
         <artifactId>poom-etag-support</artifactId>
-        <version>1.161.0</version>
+        <version>1.162.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>poom-etag-support-repositories</artifactId>
