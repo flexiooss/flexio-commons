@@ -3,6 +3,7 @@ package io.flexio.io.mongo.repository.property.query;
 import com.mongodb.client.model.Filters;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.codingmatters.poom.services.domain.property.query.FilterEvents;
 import org.codingmatters.poom.services.domain.property.query.events.FilterEventError;
 
@@ -13,19 +14,31 @@ import java.util.*;
 
 public class BsonFilterEvents implements FilterEvents {
 
+    private final Set<String> potentialObjectIdProperty = new HashSet<>(Arrays.asList("_id"));
+
     private final Stack<Bson> stack = new Stack<>();
+
+    public BsonFilterEvents() {
+    }
 
     @Override
     public Object isEquals(String left, Object right) throws FilterEventError {
-        this.stack.push(Filters.eq(this.property(left, right), this.value(right)));
-        return null;
-    }
-
-    private String property(String name, Object comparedToValue) {
-        if(comparedToValue instanceof ZonedDateTime) {
-            return name + ".ts";
+        Bson filter;
+        if(this.potentialObjectIdProperty.contains(left)) {
+            try {
+                Object rightWithOids = new ObjectId(right.toString());
+                filter = Filters.or(
+                        Filters.eq(this.property(left, right), this.value(right)),
+                        Filters.eq(this.property(left, right), rightWithOids)
+                );
+            } catch (IllegalArgumentException e) {
+                filter = Filters.eq(this.property(left, right), this.value(right));
+            }
+        } else {
+            filter = Filters.eq(this.property(left, right), this.value(right));
         }
-        return name;
+        this.stack.push(filter);
+        return null;
     }
 
     @Override
@@ -36,7 +49,21 @@ public class BsonFilterEvents implements FilterEvents {
 
     @Override
     public Object isNotEquals(String left, Object right) throws FilterEventError {
-        this.stack.push(Filters.ne(this.property(left, right), this.value(right)));
+        Bson filter;
+        if(this.potentialObjectIdProperty.contains(left)) {
+            try {
+                ObjectId rightAsObjectId = new ObjectId(right.toString());
+                filter = Filters.and(
+                        Filters.ne(this.property(left, right), this.value(right)),
+                        Filters.ne(this.property(left, right), rightAsObjectId)
+                );
+            } catch (IllegalArgumentException e) {
+                filter = Filters.ne(this.property(left, right), this.value(right));
+            }
+        } else {
+            filter = Filters.ne(this.property(left, right), this.value(right));
+        }
+        this.stack.push(filter);
         return null;
     }
 
@@ -146,7 +173,32 @@ public class BsonFilterEvents implements FilterEvents {
 
     @Override
     public Object in(String left, List right) throws FilterEventError {
-        this.stack.push(Filters.in(this.property(left, right), right));
+        Bson filter;
+        if(this.potentialObjectIdProperty.contains(left)) {
+            List oids = new ArrayList();
+            List raw = new ArrayList();
+            for (Object o : right) {
+                try {
+                    Object oid = new ObjectId(o.toString());
+                    oids.add(oid);
+                } catch (IllegalArgumentException e) {
+                    raw.add(this.value(o));
+                }
+            }
+            if(raw.isEmpty()) {
+                filter = Filters.in(this.property(left, right), oids);
+            } else if(oids.isEmpty()) {
+                filter = Filters.in(this.property(left, right), raw);
+            } else {
+                filter = Filters.or(
+                        Filters.in(this.property(left, right), raw),
+                        Filters.in(this.property(left, right), oids)
+                );
+            }
+        } else {
+            filter = Filters.in(this.property(left, right), right);
+        }
+        this.stack.push(filter);
         return null;
     }
 
@@ -270,4 +322,12 @@ public class BsonFilterEvents implements FilterEvents {
         }
         return this.stack.peek();
     }
+
+    private String property(String name, Object comparedToValue) {
+        if(comparedToValue instanceof ZonedDateTime) {
+            return name + ".ts";
+        }
+        return name;
+    }
+
 }
