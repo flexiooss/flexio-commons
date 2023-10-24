@@ -1,0 +1,5 @@
+---
+
+MongoFilterConfig:
+  potentialOids:
+    $set: string

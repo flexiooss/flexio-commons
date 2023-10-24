@@ -12,6 +12,7 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import io.flexio.io.mongo.repository.property.query.PropertyQuerier;
+import io.flexio.io.mongo.repository.property.query.config.MongoFilterConfig;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -59,6 +60,8 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         Repository<V, Q> build(MongoClient mongoClient);
         Repository<V, Q> build(MongoClient mongoClient, boolean withOptimisticLocking);
 
+        Builder<V, Q> withMongoFilterConfig(MongoFilterConfig mongoFilterConfig);
+
         Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient);
         Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient, boolean withOptimisticLocking);
     }
@@ -71,6 +74,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         private Function<V, Document> toDocument;
         private Function<Document, V> toValue;
         private Consumer<Collation.Builder> collationConfig;
+        private MongoFilterConfig mongoFilterConfig;
 
         public Builder(String databaseName, String collectionName, Consumer<Collation.Builder> collationConfig) {
             this.databaseName = databaseName;
@@ -111,6 +115,11 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             return this;
         }
 
+        public Builder<V, Q> withMongoFilterConfig(MongoFilterConfig mongoFilterConfig) {
+            this.mongoFilterConfig = mongoFilterConfig;
+            return this;
+        }
+
         public Repository<V, Q> build(MongoClient mongoClient) {
             return this.build(mongoClient, false);
         }
@@ -131,8 +140,9 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         public Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient) {
             return this.buildWithPropertyQuery(mongoClient, false);
         }
+
         public Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient, boolean withOptimisticLocking) {
-            PropertyQuerier querier = new PropertyQuerier();
+            PropertyQuerier querier = new PropertyQuerier(this.mongoFilterConfig);
             return new MongoCollectionRepository<>(
                     mongoClient,
                     this.databaseName,
