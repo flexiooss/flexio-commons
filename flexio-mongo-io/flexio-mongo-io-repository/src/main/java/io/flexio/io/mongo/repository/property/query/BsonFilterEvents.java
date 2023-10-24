@@ -22,11 +22,14 @@ public class BsonFilterEvents implements FilterEvents {
     public BsonFilterEvents() {
         this(null);
     }
+
     public BsonFilterEvents(MongoFilterConfig config) {
-        this.config = config != null ? config : MongoFilterConfig.builder()
-//                .potentialOids("_id")
-                .potentialOids(Collections.emptyList())
-                .build();
+        this.config = config != null ?
+                config.withPotentialOids(config.opt().potentialOids().safe()) :
+                MongoFilterConfig.builder()
+                    .potentialOids(Collections.emptyList())
+                    .build()
+        ;
     }
 
     @Override
