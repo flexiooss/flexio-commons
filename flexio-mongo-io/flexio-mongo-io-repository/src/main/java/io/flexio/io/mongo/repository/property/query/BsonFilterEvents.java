@@ -1,6 +1,7 @@
 package io.flexio.io.mongo.repository.property.query;
 
 import com.mongodb.client.model.Filters;
+import io.flexio.io.mongo.repository.property.query.config.MongoFilterConfig;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -14,17 +15,24 @@ import java.util.*;
 
 public class BsonFilterEvents implements FilterEvents {
 
-    private final Set<String> potentialObjectIdProperty = new HashSet<>(Arrays.asList("_id"));
+    private final MongoFilterConfig config;
 
     private final Stack<Bson> stack = new Stack<>();
 
     public BsonFilterEvents() {
+        this(null);
+    }
+    public BsonFilterEvents(MongoFilterConfig config) {
+        this.config = config != null ? config : MongoFilterConfig.builder()
+//                .potentialOids("_id")
+                .potentialOids(Collections.emptyList())
+                .build();
     }
 
     @Override
     public Object isEquals(String left, Object right) throws FilterEventError {
         Bson filter;
-        if(this.potentialObjectIdProperty.contains(left)) {
+        if(this.config.potentialOids().contains(left)) {
             try {
                 Object rightWithOids = new ObjectId(right.toString());
                 filter = Filters.or(
@@ -50,7 +58,7 @@ public class BsonFilterEvents implements FilterEvents {
     @Override
     public Object isNotEquals(String left, Object right) throws FilterEventError {
         Bson filter;
-        if(this.potentialObjectIdProperty.contains(left)) {
+        if(this.config.potentialOids().contains(left)) {
             try {
                 ObjectId rightAsObjectId = new ObjectId(right.toString());
                 filter = Filters.and(
@@ -174,7 +182,7 @@ public class BsonFilterEvents implements FilterEvents {
     @Override
     public Object in(String left, List right) throws FilterEventError {
         Bson filter;
-        if(this.potentialObjectIdProperty.contains(left)) {
+        if(this.config.potentialOids().contains(left)) {
             List oids = new ArrayList();
             List raw = new ArrayList();
             for (Object o : right) {

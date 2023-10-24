@@ -1,6 +1,7 @@
 package io.flexio.io.mongo.repository.property.query;
 
 import io.flexio.io.mongo.repository.BsonFromQueryProvider;
+import io.flexio.io.mongo.repository.property.query.config.MongoFilterConfig;
 import org.bson.conversions.Bson;
 import org.codingmatters.poom.services.domain.property.query.FilterEvents;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
@@ -16,8 +17,15 @@ import java.util.function.Function;
 public class PropertyQuerier {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(PropertyQuerier.class);
 
+    private final MongoFilterConfig filterConfig;
 
     public PropertyQuerier() {
+        this(MongoFilterConfig.builder()
+                .potentialOids("_id")
+                .build());
+    }
+    public PropertyQuerier(MongoFilterConfig filterConfig) {
+        this.filterConfig = filterConfig;
     }
 
     public BsonFromQueryProvider<PropertyQuery> filterer() {
@@ -25,7 +33,7 @@ public class PropertyQuerier {
     }
 
     private Bson filter(PropertyQuery query) throws Exception {
-        BsonFilterEvents events = new BsonFilterEvents();
+        BsonFilterEvents events = new BsonFilterEvents(this.filterConfig);
         PropertyQueryParser.builder().build(events, SortEvents.noop()).parse(query);
         Bson filter = events.filter();
         return filter;

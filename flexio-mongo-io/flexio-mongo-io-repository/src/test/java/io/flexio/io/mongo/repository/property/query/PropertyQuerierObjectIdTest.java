@@ -6,6 +6,7 @@ import io.flexio.io.mongo.repository.domain.MongoValue;
 import io.flexio.io.mongo.repository.domain.MongoValueWithObject;
 import io.flexio.io.mongo.repository.domain.mongo.MongoValueMongoMapper;
 import io.flexio.io.mongo.repository.domain.mongo.MongoValueWithObjectMongoMapper;
+import io.flexio.io.mongo.repository.property.query.config.MongoFilterConfig;
 import io.flexio.services.tests.mongo.MongoResource;
 import io.flexio.services.tests.mongo.MongoTest;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
@@ -37,10 +38,10 @@ public class PropertyQuerierObjectIdTest {
 
     @Before
     public void setUp() throws Exception {
-        PropertyQuerier propertyQuerier = new PropertyQuerier();
         this.repository = MongoCollectionRepository.<MongoValue, PropertyQuery>repository(DB, COLLECTION)
                 .withToDocument(value -> new MongoValueMongoMapper().toDocument(value))
                 .withToValue(document -> new MongoValueMongoMapper().toValue(document))
+                .withMongoFilterConfig(MongoFilterConfig.builder().potentialOids("_id").build())
                 .buildWithPropertyQuery(mongo.newClient());
     }
 
