@@ -1,11 +1,11 @@
 package org.codingmatters.poom.services.io.redis.repository;
 
-import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
-import org.codingmatters.poom.services.domain.repositories.Repository;
-import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.services.domain.entities.Entity;
 import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
 import org.codingmatters.poom.services.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
+import org.codingmatters.poom.services.domain.repositories.Repository;
+import org.codingmatters.poom.services.logging.CategorizedLogger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.exceptions.JedisException;
@@ -18,11 +18,13 @@ import java.util.UUID;
 
 public abstract class RedisAbstractRepository<V, Q> implements Repository<V, Q> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(RedisAbstractRepository.class);
+    private static final String SEPARATOR = "||";
 
 
     protected final JedisPool pool;
 
     protected abstract String marshall(V value) throws IOException;
+
     protected abstract V unmarshall(String value) throws IOException;
 
     public RedisAbstractRepository(JedisPool pool) {
@@ -31,8 +33,7 @@ public abstract class RedisAbstractRepository<V, Q> implements Repository<V, Q> 
 
 
     protected enum StorePrecondition {
-        CREATE_ONLY,
-        UPDATE_ONLY
+        CREATE_ONLY, UPDATE_ONLY
     }
 
     protected class StorableValue {
@@ -46,8 +47,11 @@ public abstract class RedisAbstractRepository<V, Q> implements Repository<V, Q> 
     }
 
     protected abstract ImmutableEntity<V> doStore(Jedis client, String id, StorableValue storableValue, StorePrecondition precondition) throws IOException, RepositoryException;
+
     protected abstract ImmutableEntity<V> doRetrieve(Jedis client, String id) throws RepositoryException;
+
     protected abstract void doDelete(Entity<V> entity, Jedis client) throws RepositoryException;
+
     protected abstract PagedEntityList.DefaultPagedEntityList<V> doGetPage(long start, long end, Jedis client) throws IOException;
 
 
@@ -120,18 +124,20 @@ public abstract class RedisAbstractRepository<V, Q> implements Repository<V, Q> 
 
 
     protected String storable(StorableValue storableValue) throws IOException {
-        return  this.marshall(storableValue.value)+ "||" + storableValue.version.toString();
+        return this.marshall(storableValue.value) + SEPARATOR + storableValue.version.toString();
     }
 
     protected StorableValue fromStored(String stored) throws IOException {
-        String[] split = stored.split("\\|\\|");
-        return new StorableValue(new BigInteger(split[1]), this.unmarshall(split[0]));
+        int index = stored.lastIndexOf(SEPARATOR);
+        String value = stored.substring(0, index);
+        String version = stored.substring(index + 2);
+        return new StorableValue(new BigInteger(version), this.unmarshall(value));
     }
 
     protected List<Entity<V>> fromStoredList(List<String> keys, List<String> storedList) throws IOException {
         List<Entity<V>> result = new ArrayList<>(storedList.size());
         for (int i = 0; i < keys.size(); i++) {
-            if(storedList.size() > i) {
+            if (storedList.size() > i) {
                 StorableValue storable = this.fromStored(storedList.get(i));
                 result.add(new ImmutableEntity<>(keys.get(i), storable.version, storable.value));
             }
