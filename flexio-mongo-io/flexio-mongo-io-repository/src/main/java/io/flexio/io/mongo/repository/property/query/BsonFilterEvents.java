@@ -7,6 +7,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.codingmatters.poom.services.domain.property.query.FilterEvents;
 import org.codingmatters.poom.services.domain.property.query.events.FilterEventError;
+import org.codingmatters.poom.services.domain.property.query.events.FilterEventsGenerator;
 
 import java.math.BigDecimal;
 import java.time.*;
@@ -14,6 +15,9 @@ import java.time.temporal.Temporal;
 import java.util.*;
 
 public class BsonFilterEvents implements FilterEvents {
+
+    public static final Bson NEVER_MATCHES = Filters.eq("_id", "__idthatwillnevermatch__");
+    public static final Bson ALWAYS_MATCHES = Filters.empty();
 
     private final MongoFilterConfig config;
 
@@ -207,7 +211,7 @@ public class BsonFilterEvents implements FilterEvents {
                 );
             }
         } else {
-            filter = Filters.in(this.property(left, right), right);
+            filter = Filters.in(this.property(left, right), this.values(right));
         }
         this.stack.push(filter);
         return null;
@@ -216,20 +220,28 @@ public class BsonFilterEvents implements FilterEvents {
     @Override
     public Object startsWithAny(String left, List right) throws FilterEventError {
         List<Bson> any = new LinkedList<>();
-        for (Object value : right) {
-            any.add(this.startsWithRegex(left, value));
+        if(right != null && ! right.isEmpty()) {
+            for (Object value : right) {
+                any.add(this.startsWithRegex(left, value));
+            }
+            this.stack.push(Filters.or(any));
+        } else {
+            this.stack.push(NEVER_MATCHES);
         }
-        this.stack.push(Filters.or(any));
         return null;
     }
 
     @Override
     public Object endsWithAny(String left, List right) throws FilterEventError {
         List<Bson> any = new LinkedList<>();
-        for (Object value : right) {
-            any.add(this.endsWithRegex(left, value));
+        if(right != null && ! right.isEmpty()) {
+            for (Object value : right) {
+                any.add(this.endsWithRegex(left, value));
+            }
+            this.stack.push(Filters.or(any));
+        } else {
+            this.stack.push(NEVER_MATCHES);
         }
-        this.stack.push(Filters.or(any));
         return null;
     }
 
@@ -242,20 +254,29 @@ public class BsonFilterEvents implements FilterEvents {
     @Override
     public Object containsAny(String left, List right) throws FilterEventError {
         List<Bson> any = new LinkedList<>();
-        for (Object value : right) {
-            any.add(this.containsRegex(left, value));
+        if(right != null && ! right.isEmpty()) {
+            for (Object value : right) {
+                any.add(this.containsRegex(left, value));
+            }
+            this.stack.push(Filters.or(any));
+        } else {
+            this.stack.push(NEVER_MATCHES);
         }
-        this.stack.push(Filters.or(any));
         return null;
     }
 
     @Override
     public Object containsAll(String left, List right) throws FilterEventError {
         List<Bson> all = new LinkedList<>();
-        for (Object value : right) {
-            all.add(this.containsRegex(left, value));
+        if(right != null && ! right.isEmpty()) {
+            for (Object value : right) {
+                all.add(this.containsRegex(left, value));
+            }
+            this.stack.push(Filters.and(all));
+        } else {
+            this.stack.push(ALWAYS_MATCHES);
         }
-        this.stack.push(Filters.and(all));
+
         return null;
     }
 
@@ -306,6 +327,15 @@ public class BsonFilterEvents implements FilterEvents {
         throw new FilterEventError("cannot apply contains to property");
     }
 
+    private List values(List v) {
+        if(v == null || v.isEmpty()) return v;
+        List result = new ArrayList(v.size());
+        for (Object o : v) {
+            result.add(this.value(o));
+        }
+
+        return result;
+    }
     private Object value(Object v) {
         if(v != null) {
             if(v instanceof Temporal) {
@@ -321,6 +351,12 @@ public class BsonFilterEvents implements FilterEvents {
             }
             if(v instanceof Number) {
                 return new BigDecimal(v.toString());
+            }
+            if(v instanceof FilterEventsGenerator.SpecialValues) {
+                switch (((FilterEventsGenerator.SpecialValues)v)) {
+                    case NULL:
+                        return null;
+                }
             }
         }
         return v;

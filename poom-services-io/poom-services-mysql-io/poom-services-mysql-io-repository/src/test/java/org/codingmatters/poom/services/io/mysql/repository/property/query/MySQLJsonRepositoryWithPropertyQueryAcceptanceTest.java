@@ -191,4 +191,35 @@ public class MySQLJsonRepositoryWithPropertyQueryAcceptanceTest extends Property
         System.err.println("NOT IMPELENTED givenFilterOnManyDateProperty__whenContains__thenSelectedValueReturned");
     }
 
+    @Override
+    public void givenFilterOnStringProperty__whenIsIn_andEmptyList__thenSelectedValueReturned() throws Exception {
+        System.out.println("NOT IMPELENTED givenFilterOnStringProperty__whenIsIn_andEmptyList__thenSelectedValueReturned");
+    }
+
+    @Override
+    public void givenFilterOnStringProperty__whenIsIn_andNullInList__thenSelectedValueReturned() throws Exception {
+        System.out.println("NOT IMPELENTED givenFilterOnStringProperty__whenIsIn_andNullInList__thenSelectedValueReturned");
+    }
+
+    @Override
+    public void givenFilterOnStringProperty__whenStartsWithAny_andEmptyList__thenSelectedValueReturned() throws Exception {
+        System.out.println("NOT IMPELENTED givenFilterOnStringProperty__whenStartsWithAny_andEmptyList__thenSelectedValueReturned");
+    }
+
+    @Override
+    public void givenFilterOnStringProperty__whenEndsWithAny_andEmptyList__thenSelectedValueReturned() throws Exception {
+        System.out.println("NOT IMPELENTED givenFilterOnStringProperty__whenEndsWithAny_andEmptyList__thenSelectedValueReturned");
+    }
+
+    @Override
+    public void givenFilterOnStringProperty__whenContainsAll_andEmptyList__thenSelectedValueReturned() throws Exception {
+        System.out.println("NOT IMPELENTED givenFilterOnStringProperty__whenContainsAll_andEmptyList__thenSelectedValueReturned");
+    }
+
+    @Override
+    public void givenFilterOnStringProperty__whenContainsAny_andEmptyList__thenSelectedValueReturned() throws Exception {
+        System.out.println("NOT IMPELENTED givenFilterOnStringProperty__whenContainsAll_andEmptyList__thenSelectedValueReturned");
+    }
+
+
 }
