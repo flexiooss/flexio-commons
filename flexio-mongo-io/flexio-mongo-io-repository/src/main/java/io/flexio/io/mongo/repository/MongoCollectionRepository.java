@@ -53,15 +53,15 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     }
 
     public interface OptionalFilter<V, Q> {
-        Builder<V, Q> withCheckedFilter(BsonFromQueryProvider<Q> filter);
-
-        Builder<V, Q> withFilter(Function<Q, Bson> filter);
+        OptionalFilter<V, Q> withCheckedFilter(BsonFromQueryProvider<Q> filter);
+        OptionalFilter<V, Q> withFilter(Function<Q, Bson> filter);
+        OptionalFilter<V, Q> withMongoFilterConfig(MongoFilterConfig mongoFilterConfig);
+        OptionalFilter<V, Q> withSort(Function<Q, Bson> sort);
+        OptionalFilter<V, Q> withCheckedSort(BsonFromQueryProvider<Q> sort);
+        OptionalFilter<V, Q> withCollationConfig(Consumer<Collation.Builder> collationConfig);
 
         Repository<V, Q> build(MongoClient mongoClient);
         Repository<V, Q> build(MongoClient mongoClient, boolean withOptimisticLocking);
-
-        Builder<V, Q> withMongoFilterConfig(MongoFilterConfig mongoFilterConfig);
-
         Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient);
         Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient, boolean withOptimisticLocking);
     }
@@ -82,39 +82,47 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             this.collationConfig = collationConfig;
         }
 
+        @Override
         public Builder<V, Q> withFilter(Function<Q, Bson> filter) {
             return this.withCheckedFilter((BsonFromQueryProvider<Q>) query -> filter.apply(query));
         }
 
+        @Override
         public Builder<V, Q> withCheckedFilter(BsonFromQueryProvider<Q> filter) {
             this.filter = filter;
             return this;
         }
 
+        @Override
         public Builder<V, Q> withSort(Function<Q, Bson> sort) {
             return this.withCheckedSort((BsonFromQueryProvider<Q>) query -> sort.apply(query));
         }
 
+        @Override
         public Builder<V, Q> withCheckedSort(BsonFromQueryProvider<Q> sort) {
             this.sort = sort;
             return this;
         }
 
+        @Override
         public Builder<V, Q> withToDocument(Function<V, Document> toDocument) {
             this.toDocument = toDocument;
             return this;
         }
 
+        @Override
         public Builder<V, Q> withCollationConfig(Consumer<Collation.Builder> collationConfig) {
             this.collationConfig = collationConfig;
             return this;
         }
 
+        @Override
         public Builder<V, Q> withToValue(Function<Document, V> toValue) {
             this.toValue = toValue;
             return this;
         }
 
+        @Override
         public Builder<V, Q> withMongoFilterConfig(MongoFilterConfig mongoFilterConfig) {
             this.mongoFilterConfig = mongoFilterConfig;
             return this;
