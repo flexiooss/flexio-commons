@@ -23,10 +23,18 @@ public class ObjectValueMongoMapper {
         ObjectValue.Builder valueBuilder = ObjectValue.builder();
 
         for (String propertyName : document.keySet()) {
-            this.addPropertyToValue(valueBuilder, propertyName, document.get(propertyName));
+            if(propertyName.equals("_id") && document.get(propertyName) != null && document.get(propertyName) instanceof String) {
+                this.addPropertyToValue(valueBuilder, propertyName, this.objectId(document.getString(propertyName)));
+            } else {
+                this.addPropertyToValue(valueBuilder, propertyName, document.get(propertyName));
+            }
         }
 
         return valueBuilder.build();
+    }
+
+    private Object objectId(String id) {
+        return ObjectId.isValid(id) ? new ObjectId(id) : id;
     }
 
     private void addPropertyToValue(ObjectValue.Builder builder, String name, Object value) {
