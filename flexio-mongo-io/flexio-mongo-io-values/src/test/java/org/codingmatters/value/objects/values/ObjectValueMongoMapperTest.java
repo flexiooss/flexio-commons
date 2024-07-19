@@ -1,6 +1,7 @@
 package org.codingmatters.value.objects.values;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.codingmatters.value.objects.values.mongo.ObjectValueMongoMapper;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
@@ -255,4 +256,16 @@ public class ObjectValueMongoMapperTest {
         assertThat(doc.getString("null"), is(nullValue()));
     }
 
+    @Test
+    public void property_idTransformedFromAndToObjectID() throws Exception {
+        Document doc = new Document("_id", new ObjectId());
+
+        ObjectValue value = this.mapper.toValue(doc);
+        assertThat(value.property("_id").type(), is(PropertyValue.Type.STRING));
+        assertThat(value.property("_id").cardinality(), is(PropertyValue.Cardinality.SINGLE));
+
+        doc = this.mapper.toDocument(value);
+        System.out.println(doc);
+        assertThat(doc.get("_id"), isA(ObjectId.class));
+    }
 }
