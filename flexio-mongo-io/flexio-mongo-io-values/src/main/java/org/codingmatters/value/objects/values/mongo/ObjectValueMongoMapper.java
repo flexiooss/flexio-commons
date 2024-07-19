@@ -23,11 +23,7 @@ public class ObjectValueMongoMapper {
         ObjectValue.Builder valueBuilder = ObjectValue.builder();
 
         for (String propertyName : document.keySet()) {
-            if(propertyName.equals("_id") && document.get(propertyName) != null && document.get(propertyName) instanceof String) {
-                this.addPropertyToValue(valueBuilder, propertyName, this.objectId(document.getString(propertyName)));
-            } else {
-                this.addPropertyToValue(valueBuilder, propertyName, document.get(propertyName));
-            }
+            this.addPropertyToValue(valueBuilder, propertyName, document.get(propertyName));
         }
 
         return valueBuilder.build();
@@ -98,7 +94,11 @@ public class ObjectValueMongoMapper {
                 document.put(propertyName, null);
             } else {
                 if (PropertyValue.Cardinality.SINGLE.equals(property.cardinality())) {
-                    this.addSinglePropertyToDocument(document, propertyName, property.single());
+                    if(propertyName.equals("_id") && PropertyValue.Type.STRING.equals(property.type())) {
+                        document.put("_id", this.objectId(property.single().stringValue()));
+                    } else {
+                        this.addSinglePropertyToDocument(document, propertyName, property.single());
+                    }
                 } else {
                     this.addMultiplePropertyToDocument(document, propertyName, property.multiple());
                 }
