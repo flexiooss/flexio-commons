@@ -11,6 +11,7 @@ import io.flexio.services.tests.mongo.MongoResource;
 import io.flexio.services.tests.mongo.MongoTest;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.codingmatters.poom.services.domain.exceptions.AlreadyExistsException;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.entities.Entity;
 import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
@@ -22,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 
 public class MongoCollectionRepositoryTest {
 
@@ -130,6 +132,13 @@ public class MongoCollectionRepositoryTest {
             Document doc = client.getDatabase(DB).getCollection(COLLECTION).find(Filters.eq("_id", "toto")).first();
             assertThat(doc.get("name"), is("created"));
         }
+    }
+
+    @Test
+    public void createWithExistingId() throws Exception {
+        Entity<MongoValue> entity = this.repository.createWithId("toto", MongoValue.builder().name("created").build());
+
+        assertThrows(AlreadyExistsException.class, () -> this.repository.createWithId("toto", MongoValue.builder().name("changed").build()));
     }
 
     @Test

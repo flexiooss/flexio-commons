@@ -1,6 +1,7 @@
 package io.flexio.io.mongo.repository;
 
 import com.mongodb.MongoException;
+import com.mongodb.MongoWriteException;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
@@ -16,6 +17,7 @@ import io.flexio.io.mongo.repository.property.query.config.MongoFilterConfig;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.codingmatters.poom.services.domain.exceptions.AlreadyExistsException;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.exceptions.OptimisticLockingException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
@@ -236,6 +238,12 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
             collection.insertOne(doc);
             return new ImmutableEntity<>(doc.get("_id").toString(), version, this.toValue(doc));
+        } catch (MongoWriteException e) {
+            System.out.println(e.getError());
+            if(e.getError().getCode() == 11000) {
+                throw new AlreadyExistsException("entity with same id already existts", e);
+            }
+            throw new RepositoryException("mongo write error while creating entity", e);
         } catch (MongoException e) {
             throw new RepositoryException("mongo exception while creating entity", e);
         }
