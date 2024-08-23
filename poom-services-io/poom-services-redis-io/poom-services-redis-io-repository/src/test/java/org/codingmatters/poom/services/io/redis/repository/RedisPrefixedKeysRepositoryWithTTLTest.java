@@ -45,7 +45,7 @@ public class RedisPrefixedKeysRepositoryWithTTLTest {
 
         this.jedisPool = new JedisPool(this.docker.containerInfo("redis-ut").get().networkSettings().iPAddress(), 6379);
 
-        this.repository = new RedisPrefixedKeysRepository<>(this.jedisPool, keyPrefix, 500L) {
+        this.repository = new RedisPrefixedKeysRepository<>(this.jedisPool, keyPrefix, 2L) {
             @Override
             protected String marshall(String value) throws IOException {
                 return value;
@@ -64,7 +64,7 @@ public class RedisPrefixedKeysRepositoryWithTTLTest {
 
         assertThat(
                 this.jedis.ttl(keyPrefix + "::" + "33"),
-                is(greaterThan(450L))
+                is(greaterThan(1L))
         );
     }
 
@@ -77,7 +77,7 @@ public class RedisPrefixedKeysRepositoryWithTTLTest {
 
         assertThat(
                 this.jedis.ttl(keyPrefix + "::" + "12"),
-                is(greaterThan(450L))
+                is(greaterThan(1L))
         );
     }
 
@@ -90,7 +90,19 @@ public class RedisPrefixedKeysRepositoryWithTTLTest {
 
         assertThat(
                 this.jedis.ttl(keyPrefix + "::" + "12"),
-                is(greaterThan(450L))
+                is(greaterThan(1L))
         );
+    }
+
+
+
+    @Test
+    public void ttlExpires() throws Exception {
+        Entity<String> entity = this.repository.createWithIdAndVersion("33", BigInteger.valueOf(75), "test-value");
+
+        assertThat(this.repository.retrieve("33"), is(notNullValue()));
+        Thread.sleep(2000L);
+
+        assertThat(this.repository.retrieve("33"), is(nullValue()));
     }
 }
