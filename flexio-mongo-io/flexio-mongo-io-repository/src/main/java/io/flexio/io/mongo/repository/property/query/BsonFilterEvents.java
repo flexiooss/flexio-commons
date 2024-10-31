@@ -14,7 +14,7 @@ import java.time.*;
 import java.time.temporal.Temporal;
 import java.util.*;
 
-public class BsonFilterEvents implements FilterEvents {
+public class BsonFilterEvents implements FilterEvents<Object> {
 
     public static final Bson NEVER_MATCHES = Filters.eq("_id", "__idthatwillnevermatch__");
     public static final Bson ALWAYS_MATCHES = Filters.empty();
@@ -276,7 +276,16 @@ public class BsonFilterEvents implements FilterEvents {
         } else {
             this.stack.push(ALWAYS_MATCHES);
         }
+        return null;
+    }
 
+    @Override
+    public Object isMatchingPattern(String left, String pattern, List<PatternOption> options) throws FilterEventError {
+        if(! options.isEmpty() && options.contains(PatternOption.CASE_INSENSITIVE)) {
+            this.stack.push(Filters.regex(left, pattern, "i"));
+        } else {
+            this.stack.push(Filters.regex(left, pattern));
+        }
         return null;
     }
 

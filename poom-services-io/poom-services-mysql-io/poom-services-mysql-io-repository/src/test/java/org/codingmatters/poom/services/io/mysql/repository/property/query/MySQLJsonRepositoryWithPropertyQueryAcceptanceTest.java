@@ -221,5 +221,13 @@ public class MySQLJsonRepositoryWithPropertyQueryAcceptanceTest extends Property
         System.out.println("NOT IMPELENTED givenFilterOnStringProperty__whenContainsAll_andEmptyList__thenSelectedValueReturned");
     }
 
+    @Override
+    public void givenFilterOnStringPropertyProperty__whenRegexAndInsensitive__thenSelectedValueReturned() throws Exception {
+        System.out.println("NOT IMPELENTED givenFilterOnStringPropertyProperty__whenRegexAndInsensitive__thenSelectedValueReturned");
+    }
 
+    @Override
+    public void givenFilterOnStringPropertyProperty__whenRegexAndSensitive__thenSelectedValueReturned() throws Exception {
+        System.out.println("NOT IMPELENTED givenFilterOnStringPropertyProperty__whenRegexAndSensitive__thenSelectedValueReturned");
+    }
 }
