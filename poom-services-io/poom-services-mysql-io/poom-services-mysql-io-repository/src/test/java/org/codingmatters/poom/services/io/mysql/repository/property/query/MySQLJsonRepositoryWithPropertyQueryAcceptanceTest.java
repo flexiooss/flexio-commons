@@ -230,4 +230,20 @@ public class MySQLJsonRepositoryWithPropertyQueryAcceptanceTest extends Property
     public void givenFilterOnStringPropertyProperty__whenRegexAndSensitive__thenSelectedValueReturned() throws Exception {
         System.out.println("NOT IMPELENTED givenFilterOnStringPropertyProperty__whenRegexAndSensitive__thenSelectedValueReturned");
     }
+
+
+    @Override
+    public void givenFilterOnManyStringProperty__whenAnyIn__thenSelectedValueReturned() throws Exception {
+        System.out.println("NOT IMPLEMENTED FEATURE : AnyIn");
+    }
+
+    @Override
+    public void givenFilterOnManyStringProperty__whenAnyIn_andEmptyList__thenSelectedValueReturned() throws Exception {
+        System.out.println("NOT IMPLEMENTED FEATURE : AnyIn");
+    }
+
+    @Override
+    public void givenFilterOnManyStringProperty__whenAnyIn_andNullInList__thenSelectedValueReturned() throws Exception {
+        System.out.println("NOT IMPLEMENTED FEATURE : AnyIn");
+    }
 }
