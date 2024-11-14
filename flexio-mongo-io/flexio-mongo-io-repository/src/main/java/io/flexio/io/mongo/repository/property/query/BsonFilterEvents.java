@@ -218,6 +218,37 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     }
 
     @Override
+    public Object anyIn(String left, List right) throws FilterEventError {
+        Bson filter;
+        if(this.config.potentialOids().contains(left)) {
+            List oids = new ArrayList();
+            List raw = new ArrayList();
+            for (Object o : right) {
+                try {
+                    Object oid = new ObjectId(o.toString());
+                    oids.add(oid);
+                } catch (IllegalArgumentException e) {
+                    raw.add(this.value(o));
+                }
+            }
+            if(raw.isEmpty()) {
+                filter = Filters.in(this.property(left, right), oids);
+            } else if(oids.isEmpty()) {
+                filter = Filters.in(this.property(left, right), raw);
+            } else {
+                filter = Filters.or(
+                        Filters.in(this.property(left, right), raw),
+                        Filters.in(this.property(left, right), oids)
+                );
+            }
+        } else {
+            filter = Filters.in(this.property(left, right), this.values(right));
+        }
+        this.stack.push(filter);
+        return null;
+    }
+
+    @Override
     public Object startsWithAny(String left, List right) throws FilterEventError {
         List<Bson> any = new LinkedList<>();
         if(right != null && ! right.isEmpty()) {

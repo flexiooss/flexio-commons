@@ -9,6 +9,7 @@ import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.repositories.RepositoryBaseAcceptanceTest;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.sql.Connection;
 
