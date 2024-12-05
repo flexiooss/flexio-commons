@@ -5,6 +5,7 @@ import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.entities.Entity;
 import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
 import org.codingmatters.poom.services.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.tests.Eventually;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Comparator;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -101,8 +103,7 @@ public class RedisPrefixedKeysRepositoryWithTTLTest {
         Entity<String> entity = this.repository.createWithIdAndVersion("33", BigInteger.valueOf(75), "test-value");
 
         assertThat(this.repository.retrieve("33"), is(notNullValue()));
-        Thread.sleep(2000L);
-
+        Thread.sleep(3000L);
         assertThat(this.repository.retrieve("33"), is(nullValue()));
     }
 }

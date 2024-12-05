@@ -18,15 +18,15 @@ public class ETaggedResponse<T> {
     }
 
     public String xEntityId() {
-        return (String) this.status().get("xEntityId");
+        return (String) this.status().get("x-entity-id");
     }
 
     public String eTag() {
-        return (String) this.status().get("eTag");
+        return (String) this.status().get("ETag");
     }
 
     public String cacheControl() {
-        return (String) this.status().get("cacheControl");
+        return (String) this.status().get("Cache-Control");
     }
 
 

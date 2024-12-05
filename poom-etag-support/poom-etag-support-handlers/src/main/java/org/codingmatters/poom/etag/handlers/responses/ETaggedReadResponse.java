@@ -15,9 +15,9 @@ public class ETaggedReadResponse<T> extends ETaggedResponse<T> {
     public static <T> ETaggedReadResponse<T> create304(Class<? extends T> responseType, String xEntityId, String eTag, String cacheControl) {
         Map<String, Object> responseMap = new HashMap<>();
         Map<String, Object> status304 = new HashMap<>();
-        status304.put("xEntityId", xEntityId);
-        status304.put("eTag", eTag);
-        status304.put("cacheControl", cacheControl);
+        status304.put("x-entity-id", xEntityId);
+        status304.put("ETag", eTag);
+        status304.put("Cache-Control", cacheControl);
 
         responseMap.put("status304", status304);
 
@@ -39,17 +39,17 @@ public class ETaggedReadResponse<T> extends ETaggedResponse<T> {
     }
 
     public ETaggedReadResponse<T> xEntityId(String changed) {
-        this.status().put("xEntityId", changed);
+        this.status().put("x-entity-id", changed);
         return this;
     }
 
     public ETaggedReadResponse<T> eTag(String changed) {
-        this.status().put("eTag", changed);
+        this.status().put("ETag", changed);
         return this;
     }
 
     public ETaggedReadResponse<T> cacheControl(String changed) {
-        this.status().put("cacheControl", changed);
+        this.status().put("Cache-Control", changed);
         return this;
     }
 
