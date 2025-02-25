@@ -14,7 +14,9 @@ public class BsonSortEvents implements SortEvents {
 
     @Override
     public Object sorted(String property, Direction direction) throws SortEventError {
-        list.add(direction.equals(Direction.ASC) ? Sorts.ascending(property) : Sorts.descending(property));
+        if (!list.contains(Sorts.ascending(property)) && !list.contains(Sorts.descending(property))) {
+            list.add(direction.equals(Direction.ASC) ? Sorts.ascending(property) : Sorts.descending(property));
+        }
         return null;
     }
 
