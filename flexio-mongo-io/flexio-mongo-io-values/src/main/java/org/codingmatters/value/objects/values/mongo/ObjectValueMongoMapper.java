@@ -128,16 +128,20 @@ public class ObjectValueMongoMapper {
     private void addMultiplePropertyToDocument(Document document, String name, PropertyValue.Value[] values) {
         List v = new LinkedList();
         for (PropertyValue.Value value : values) {
-            if(PropertyValue.Type.OBJECT.equals(value.type())) {
-                v.add(this.toDocument(value.objectValue()));
-            } else if (PropertyValue.Type.DATETIME.equals(value.type())) {
-                v.add(Date.from(value.datetimeValue().toInstant(ZoneOffset.UTC)));
-            } else if (PropertyValue.Type.DATE.equals(value.type())) {
-                v.add(Date.from(value.dateValue().atStartOfDay().toInstant(ZoneOffset.UTC)));
-            } else if (PropertyValue.Type.TIME.equals(value.type())) {
-                v.add(Date.from(value.timeValue().atDate(START_OF_TIME).toInstant(ZoneOffset.UTC)));
+            if (value != null && !value.isNull()) {
+                if (PropertyValue.Type.OBJECT.equals(value.type())) {
+                    v.add(value.objectValue() != null ? this.toDocument(value.objectValue()) : null);
+                } else if (PropertyValue.Type.DATETIME.equals(value.type())) {
+                    v.add(value.datetimeValue() != null ? Date.from(value.datetimeValue().toInstant(ZoneOffset.UTC)) : null);
+                } else if (PropertyValue.Type.DATE.equals(value.type())) {
+                    v.add(value.dateValue() != null ? Date.from(value.dateValue().atStartOfDay().toInstant(ZoneOffset.UTC)) : null);
+                } else if (PropertyValue.Type.TIME.equals(value.type())) {
+                    v.add(value.timeValue() != null ? Date.from(value.timeValue().atDate(START_OF_TIME).toInstant(ZoneOffset.UTC)) : null);
+                } else {
+                    v.add(value.rawValue());
+                }
             } else {
-                v.add(value.rawValue());
+                v.add(null);
             }
         }
 
