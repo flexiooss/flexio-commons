@@ -10,9 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.codingmatters.poom.services.tests.DateMatchers.around;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -21,6 +19,61 @@ import static org.hamcrest.Matchers.*;
 public class ObjectValueMongoMapperTest {
 
     private ObjectValueMongoMapper mapper = new ObjectValueMongoMapper();
+
+    @Test
+    public void simpleNullValue() {
+        ObjectValue initial = ObjectValue.builder().property("prop", p -> p.stringValue(null)).build();
+
+        Document doc = this.mapper.toDocument(initial);
+        assertThat(doc.get("prop"), is(nullValue()));
+
+        ObjectValue value = this.mapper.toValue(doc);
+        assertThat(value.property("prop").single().stringValue(), is(nullValue()));
+    }
+
+    @Test
+    public void arrayWithNullValue() {
+        ObjectValue initial = ObjectValue.builder().property("prop", PropertyValue.multipleString(new String [] {null})).build();
+
+        Document doc = this.mapper.toDocument(initial);
+        assertThat(doc.get("prop"), is(Arrays.asList(new String [] {null})));
+
+        ObjectValue value = this.mapper.toValue(doc);
+        assertThat(value.property("prop").multipleString(), is(new String[]{null}));
+    }
+
+    @Test
+    public void datetimeArrayWithNullValue() {
+        ObjectValue initial = ObjectValue.builder().property("prop", PropertyValue.multipleDateTime(new LocalDateTime[] {null})).build();
+
+        Document doc = this.mapper.toDocument(initial);
+        assertThat(doc.get("prop"), is(Arrays.asList(new LocalDateTime [] {null})));
+
+        ObjectValue value = this.mapper.toValue(doc);
+        assertThat(value.property("prop").multipleDatetime(), is(new LocalDateTime[]{null}));
+    }
+
+    @Test
+    public void dateArrayWithNullValue() {
+        ObjectValue initial = ObjectValue.builder().property("prop", PropertyValue.multipleDate(new LocalDate[] {null})).build();
+
+        Document doc = this.mapper.toDocument(initial);
+        assertThat(doc.get("prop"), is(Arrays.asList(new LocalDate [] {null})));
+
+        ObjectValue value = this.mapper.toValue(doc);
+        assertThat(value.property("prop").multipleDate(), is(new LocalDate[]{null}));
+    }
+
+    @Test
+    public void timeArrayWithNullValue() {
+        ObjectValue initial = ObjectValue.builder().property("prop", PropertyValue.multipleTime(new LocalTime[] {null})).build();
+
+        Document doc = this.mapper.toDocument(initial);
+        assertThat(doc.get("prop"), is(Arrays.asList(new LocalTime [] {null})));
+
+        ObjectValue value = this.mapper.toValue(doc);
+        assertThat(value.property("prop").multipleTime(), is(new LocalTime[]{null}));
+    }
 
     @Test
     public void stringProperty() throws Exception {
