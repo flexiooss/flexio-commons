@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.*;
 import java.time.temporal.Temporal;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class BsonFilterEvents implements FilterEvents<Object> {
 
@@ -173,7 +174,12 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     }
 
     private Bson startsWithRegex(String left, Object right) {
-        return Filters.regex(this.property(left, right), "^" + this.value(right) + ".*");
+        String value = (String) this.value(right);
+        if(value != null) {
+            return Filters.regex(this.property(left, right), "^" + Pattern.quote(value) + ".*");
+        } else {
+            return Filters.eq(left, null);
+        }
     }
 
     @Override
@@ -183,7 +189,12 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     }
 
     private Bson endsWithRegex(String left, Object right) {
-        return Filters.regex(this.property(left, right), ".*" + this.value(right) + "$");
+        String value = (String) this.value(right);
+        if(value != null) {
+            return Filters.regex(this.property(left, right), ".*" + Pattern.quote(value) + "$");
+        } else {
+            return Filters.eq(left, null);
+        }
     }
 
     @Override
@@ -320,11 +331,16 @@ public class BsonFilterEvents implements FilterEvents<Object> {
         return null;
     }
 
-    private Bson containsRegex(String property, Object value) {
-        if(value instanceof String) {
-            return Filters.regex(this.property(property, value), "^.*" + this.value(value) + ".*$");
+    private Bson containsRegex(String left, Object right) {
+        if(right instanceof String) {
+            String value = (String) this.value(right);
+            if (value != null) {
+                return Filters.regex(this.property(left, right), "^.*" + Pattern.quote(value) + ".*$");
+            } else {
+                return Filters.eq(left, null);
+            }
         } else {
-            return Filters.eq(this.property(property, value), this.value(value));
+            return Filters.eq(this.property(left, right), this.value(right));
         }
     }
 
