@@ -6,11 +6,24 @@ import org.codingmatters.value.objects.values.PropertyValue;
 import java.util.LinkedHashMap;
 
 public class Tags {
+
     public static Tags tags() {
         return new Tags();
     }
 
-    private final LinkedHashMap<String, String> values = new LinkedHashMap<>();
+    public static Tags from(Tags tags) {
+        return new Tags(new LinkedHashMap<>(tags.values));
+    }
+
+    private final LinkedHashMap<String, String> values;
+
+    private Tags() {
+        values = new LinkedHashMap<>();
+    }
+
+    private Tags(LinkedHashMap<String, String> values) {
+        this.values = values;
+    }
 
     public Tags tag(String name, String value) {
         this.values.put(name, value);
@@ -22,4 +35,5 @@ public class Tags {
         this.values.forEach((name, value) -> result.property(name, PropertyValue.builder().stringValue(value).build()));
         return result;
     }
+
 }
