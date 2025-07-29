@@ -6,9 +6,7 @@ import com.mongodb.WriteConcern;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Collation;
-import com.mongodb.client.model.DeleteOptions;
-import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
@@ -56,15 +54,23 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
     public interface OptionalFilter<V, Q> {
         OptionalFilter<V, Q> withCheckedFilter(BsonFromQueryProvider<Q> filter);
+
         OptionalFilter<V, Q> withFilter(Function<Q, Bson> filter);
+
         OptionalFilter<V, Q> withMongoFilterConfig(MongoFilterConfig mongoFilterConfig);
+
         OptionalFilter<V, Q> withSort(Function<Q, Bson> sort);
+
         OptionalFilter<V, Q> withCheckedSort(BsonFromQueryProvider<Q> sort);
+
         OptionalFilter<V, Q> withCollationConfig(Consumer<Collation.Builder> collationConfig);
 
         Repository<V, Q> build(MongoClient mongoClient);
+
         Repository<V, Q> build(MongoClient mongoClient, boolean withOptimisticLocking);
+
         Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient);
+
         Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient, boolean withOptimisticLocking);
     }
 
@@ -133,6 +139,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         public Repository<V, Q> build(MongoClient mongoClient) {
             return this.build(mongoClient, false);
         }
+
         public Repository<V, Q> build(MongoClient mongoClient, boolean withOptimisticLocking) {
             return new MongoCollectionRepository<>(
                     mongoClient,
@@ -240,7 +247,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             return new ImmutableEntity<>(doc.get("_id").toString(), version, this.toValue(doc));
         } catch (MongoWriteException e) {
             System.out.println(e.getError());
-            if(e.getError().getCode() == 11000) {
+            if (e.getError().getCode() == 11000) {
                 throw new AlreadyExistsException("entity with same id already existts", e);
             }
             throw new RepositoryException("mongo write error while creating entity", e);
@@ -276,27 +283,27 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
     @Override
     public Entity<V> update(Entity<V> entity, V withValue) throws RepositoryException {
-        if(this.withOptimisticLocking && entity.version() == null) {
+        if (this.withOptimisticLocking && entity.version() == null) {
             throw new RepositoryException("cannot update entity : since optimistic locking activated, must provide a version");
         }
         try {
             Document newDoc = this.toDocument(withValue);
             Long nextVersion = this.nextVersion(entity);
-            if(this.withOptimisticLocking && entity.version().longValue() != nextVersion - 1 ) {
+            if (this.withOptimisticLocking && entity.version().longValue() != nextVersion - 1) {
                 throw new OptimisticLockingException(String.format("optimistic locking error, version %s does not match", entity.version()));
             }
 
             newDoc.put(VERSION_FIELD, nextVersion);
 
             Bson filter = this.idFilter(entity.id());
-            if(this.withOptimisticLocking) {
+            if (this.withOptimisticLocking) {
                 filter = Filters.and(filter, Filters.eq(VERSION_FIELD, entity.version().longValue()));
             }
             UpdateResult results = this.resourceCollection(this.mongoClient).replaceOne(filter, newDoc);
             if (results.getModifiedCount() == 1) {
                 return new ImmutableEntity<>(entity.id(), BigInteger.valueOf(nextVersion), this.toValue(newDoc));
             } else {
-                if(this.withOptimisticLocking) {
+                if (this.withOptimisticLocking) {
                     throw new OptimisticLockingException(String.format("optimistic locking error, version %s does not match", entity.version()));
                 } else {
                     throw new RepositoryException("failed updating entity " + entity.id() + " (updated count was " + results.getModifiedCount() + ")");
@@ -313,7 +320,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
                 .find(this.idFilter(entity.id()))
                 .projection(new Document(VERSION_FIELD, 1))
                 .first();
-        if(currentVersionDoc != null && currentVersionDoc.containsKey(VERSION_FIELD)) {
+        if (currentVersionDoc != null && currentVersionDoc.containsKey(VERSION_FIELD)) {
             nextVersion = currentVersionDoc.getLong(VERSION_FIELD) + 1;
         } else {
             nextVersion = 2L;
@@ -361,13 +368,21 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
             MongoCollection<Document> collection = this.resourceCollection(mongoClient);
 
-            long totalCount = filter != null ? collection.countDocuments(filter) : collection.estimatedDocumentCount();
+            long totalCount;
+            Collation collation = this.buildCollation();
+            if (filter != null) {
+                CountOptions countOptions = new CountOptions();
+                countOptions.collation(collation);
+                totalCount = collection.countDocuments(filter, countOptions);
+            } else {
+                totalCount = collection.estimatedDocumentCount();
+            }
             if (startIndex >= totalCount) {
                 return new PagedEntityList.DefaultPagedEntityList<>(0L, 0L, totalCount, new ArrayList<>());
             }
 
             FindIterable<Document> result = (filter != null ? collection.find(filter) : collection.find())
-                    .collation(this.buildCollation())
+                    .collation(collation)
                     .sort(sort)
                     .skip((int) startIndex)
                     .limit((int) (endIndex - startIndex + 1));

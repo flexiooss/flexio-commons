@@ -1,5 +1,6 @@
 package io.flexio.io.mongo.repository.property.query;
 
+import com.mongodb.client.model.*;
 import io.flexio.docker.DockerResource;
 import io.flexio.io.mongo.repository.MongoCollectionRepository;
 import io.flexio.io.mongo.repository.domain.MongoValueWithObject;
@@ -7,6 +8,8 @@ import io.flexio.io.mongo.repository.domain.mongo.MongoValueWithObjectMongoMappe
 import io.flexio.services.tests.mongo.MongoResource;
 import io.flexio.services.tests.mongo.MongoTest;
 import org.codingmatters.poom.services.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.junit.Before;
@@ -15,6 +18,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -42,6 +46,19 @@ public class PropertyQuerierTest {
                 .withToValue(document -> new MongoValueWithObjectMongoMapper().toValue(document))
                 .withCheckedFilter(propertyQuerier.filterer())
                 .withCheckedSort(propertyQuerier.sorter())
+                .withCollationConfig(new Consumer<Collation.Builder>() {
+                    @Override
+                    public void accept(Collation.Builder builder) {
+                        builder.locale("fr");
+                        builder.caseLevel(true);
+                        builder.collationCaseFirst(CollationCaseFirst.UPPER);
+                        builder.collationStrength(CollationStrength.PRIMARY);
+                        builder.numericOrdering(true);
+                        builder.collationAlternate(CollationAlternate.SHIFTED);
+                        builder.collationMaxVariable(CollationMaxVariable.PUNCT);
+                        builder.backwards(false);
+                    }
+                })
                 .build(mongo.newClient());
     }
 
@@ -51,7 +68,7 @@ public class PropertyQuerierTest {
         System.out.println("######################################");
         System.out.println("######################################");
         System.out.println("######################################");
-        for (Entity<MongoValueWithObject> entity :this.repository.all(0, 1000)){
+        for (Entity<MongoValueWithObject> entity : this.repository.all(0, 1000)) {
             System.out.println(entity);
         }
         System.out.println("######################################");
@@ -203,4 +220,41 @@ public class PropertyQuerierTest {
         );
     }
 
+    @Test
+    public void name() throws RepositoryException {
+        System.out.println("Debut test \n\n");
+        repository.deleteFrom(PropertyQuery.builder()
+                .filter("a != 'abc4posjjug'")
+                .build());
+
+        repository.create(MongoValueWithObject.builder()
+                .a("pl%ok")
+                .build());
+        repository.create(MongoValueWithObject.builder()
+                .a("pl#ok")
+                .build());
+        repository.create(MongoValueWithObject.builder()
+                .a("pl\\ok")
+                .build());
+        repository.create(MongoValueWithObject.builder()
+                .a("pl$ok")
+                .build());
+        repository.create(MongoValueWithObject.builder()
+                .a("pl*ok")
+                .build());
+        repository.create(MongoValueWithObject.builder()
+                .a("pl%uk")
+                .build());
+
+
+        PagedEntityList<MongoValueWithObject> page = repository.search(PropertyQuery.builder()
+                .filter("a == 'plok'")
+                .build(), 0, 10);
+
+        for (Entity<MongoValueWithObject> entity : page) {
+            System.out.println(entity.value().a());
+        }
+
+        assertThat(page.total(), is(1L));
+    }
 }
