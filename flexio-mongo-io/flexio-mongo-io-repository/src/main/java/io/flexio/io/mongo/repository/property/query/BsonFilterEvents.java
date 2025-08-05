@@ -364,7 +364,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
 
     @Override
     public Object not() throws FilterEventError {
-        this.stack.push(Filters.not(this.stack.pop()));
+        this.stack.push(Filters.nor(this.stack.pop()));
         return null;
     }
 
