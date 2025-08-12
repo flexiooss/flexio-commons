@@ -10,10 +10,12 @@ import com.mongodb.client.model.Collation;
 import com.mongodb.client.model.DeleteOptions;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import io.flexio.io.mongo.repository.property.query.PropertyQuerier;
 import io.flexio.io.mongo.repository.property.query.config.MongoFilterConfig;
+import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -27,9 +29,7 @@ import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
 import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -217,6 +217,37 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     @Override
     public Entity<V> create(V withValue) throws RepositoryException {
         return this.rawCreate(new ObjectId(), withValue, BigInteger.ONE);
+    }
+
+    @Override
+    public List<String> createMany(V... values) throws RepositoryException{
+        try {
+            MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
+            List<Document> listOfDocuments = new LinkedList<>();
+            List<String> listOfEntityIDs = new LinkedList<>();
+
+            for (V value : values) {
+                Document doc = this.toDocument(value);
+                doc.put("_id", new ObjectId());
+                doc.put(VERSION_FIELD, BigInteger.ONE.longValue());
+                listOfDocuments.add(doc);
+            }
+            InsertManyResult result = collection.insertMany(listOfDocuments);
+
+            result.getInsertedIds().forEach( (id,value) -> {
+                listOfEntityIDs.add(value.asObjectId().getValue().toHexString());
+            });
+            return listOfEntityIDs;
+
+        } catch (MongoWriteException e) {
+            System.out.println(e.getError());
+            if(e.getError().getCode() == 11000) {
+                throw new AlreadyExistsException("entity with same id already existts", e);
+            }
+            throw new RepositoryException("mongo write error while creating entity", e);
+        } catch (MongoException e) {
+            throw new RepositoryException("mongo exception while creating entity", e);
+        }
     }
 
     @Override
