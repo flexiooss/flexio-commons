@@ -19,6 +19,8 @@ import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 import org.junit.*;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.Matchers.*;
@@ -41,16 +43,23 @@ public class MongoCollectionRepositoryTest {
     private Repository<MongoValue, MongoQuery> repository;
 
     private final AtomicInteger collationConfigCalled = new AtomicInteger(0);
+    private MongoClient mongoClient;
 
     @Before
     public void setUp() throws Exception {
+        mongoClient = mongo.newClient();
         this.repository = MongoCollectionRepository.<MongoValue, MongoQuery>repository(DB, COLLECTION)
                 .withToDocument(value -> new MongoValueMongoMapper().toDocument(value))
                 .withToValue(document -> new MongoValueMongoMapper().toValue(document))
                 .withFilter(query -> query.opt().name().isPresent() ? Filters.eq("name", query.name()) : null)
                 .withCollationConfig(builder -> collationConfigCalled.incrementAndGet())
-                .build(mongo.newClient());
+                .build(mongoClient);
     }
+//
+//    @After
+//    public void endWith (){
+//        mongoClient.getDatabase(DB).getCollection(COLLECTION).drop();
+//    }
 
 
     @Test
@@ -119,6 +128,21 @@ public class MongoCollectionRepositoryTest {
         try(MongoClient client = this.mongo.newClient()) {
             Document doc = client.getDatabase(DB).getCollection(COLLECTION).find(Filters.eq("_id", new ObjectId(entity.id()))).first();
             assertThat(doc.get("name"), is("created"));
+        }
+    }
+
+    @Test
+    public void createMany() throws Exception {
+        List<String> entityIDs = this.repository.createMany(MongoValue.builder().name("created").build(),
+                MongoValue.builder().name("created").build(),
+                MongoValue.builder().name("created").build(),
+                MongoValue.builder().name("created").build());
+        for (String id : entityIDs) {
+            assertThat(id, is(notNullValue()));
+            try(MongoClient client = this.mongo.newClient()) {
+                Document doc = client.getDatabase(DB).getCollection(COLLECTION).find(Filters.eq("_id", new ObjectId(id))).first();
+                assertThat(doc.get("name"), is("created"));
+            }
         }
     }
 
