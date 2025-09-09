@@ -226,6 +226,10 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             List<Document> listOfDocuments = new LinkedList<>();
             List<String> listOfEntityIDs = new LinkedList<>();
 
+            if (values.length == 0) {
+                return listOfEntityIDs;
+            }
+
             for (V value : values) {
                 Document doc = this.toDocument(value);
                 doc.put("_id", new ObjectId());
