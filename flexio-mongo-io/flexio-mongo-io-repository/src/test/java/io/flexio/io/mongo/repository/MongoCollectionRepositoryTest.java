@@ -147,6 +147,12 @@ public class MongoCollectionRepositoryTest {
     }
 
     @Test
+    public void createMany_empty() throws Exception {
+        List<String> entityIDs = this.repository.createMany();
+        assertThat(entityIDs, empty());
+    }
+
+    @Test
     public void createWithId() throws Exception {
         Entity<MongoValue> entity = this.repository.createWithId("toto", MongoValue.builder().name("created").build());
 
