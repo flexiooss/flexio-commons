@@ -4,24 +4,24 @@ version: 1
 baseUri: https://api.codingmatters.org/test
 mediaType: application/json
 
-annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.26.0/apis/core/annotation-types/codingmatters.raml
+annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.35.0/apis/core/annotation-types/codingmatters.raml
 
 
 /:
   displayName: resource
   get:
-    (conforms-to): ["org.codingmatters.poom.etag.api.ETaggedReadRequest"]
-    is: [entityRetrieve: {entityType: object, error: Error}, etagged-read: {}]
+    (conforms-to): [ "org.codingmatters.poom.etag.api.ETaggedReadRequest" ]
+    is: [ entityRetrieve: { entityType: object, error: Error }, etagged-read: { } ]
 
   put:
-    (conforms-to): ["org.codingmatters.poom.etag.api.ETaggedChangeRequest"]
-    is: [entityRetrieve: {entityType: object, error: Error}, etagged-change: {}]
+    (conforms-to): [ "org.codingmatters.poom.etag.api.ETaggedChangeRequest" ]
+    is: [ entityRetrieve: { entityType: object, error: Error }, etagged-change: { } ]
 
 types:
-  Message: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.26.0/apis/core/types/message.raml
-  Error: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.26.0/apis/core/types/error-with-messages.raml
+  Message: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.35.0/apis/core/types/message.raml
+  Error: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.35.0/apis/core/types/error-with-messages.raml
 
 traits:
-  etagged-read: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.26.0/apis/core/traits/etagged/etagged-read.raml
-  etagged-change: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.26.0/apis/core/traits/etagged/etagged-change.raml
-  entityRetrieve: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.26.0/apis/core/traits/entity/retrieve.raml
+  etagged-read: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.35.0/apis/core/traits/etagged/etagged-read.raml
+  etagged-change: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.35.0/apis/core/traits/etagged/etagged-change.raml
+  entityRetrieve: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.35.0/apis/core/traits/entity/retrieve.raml
