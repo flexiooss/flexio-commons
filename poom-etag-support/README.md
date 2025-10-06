@@ -5,9 +5,9 @@ Generic support for etag requests (get, head, put and patch).
 Spec defined in two traits :
 
 * GET /
-  HEAD : https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.35.0/apis/core/traits/etagged/etagged-read.raml
+  HEAD : https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.36.0/apis/core/traits/etagged/etagged-read.raml
 * PUT /
-  PATCH : https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.35.0/apis/core/traits/etagged/etagged-change.raml
+  PATCH : https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.36.0/apis/core/traits/etagged/etagged-change.raml
 
 ## Usage
 
