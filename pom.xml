@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services</artifactId>
-        <version>1.261.0</version>
+        <version>1.262.0</version>
     </parent>
 
     <groupId>io.flexio.commons</groupId>
     <artifactId>flexio-commons</artifactId>
-    <version>1.266.0-SNAPSHOT</version>
+    <version>1.267.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Flexio Commons</name>
@@ -107,75 +107,75 @@
             <dependency>
                 <groupId>io.flexio.commons</groupId>
                 <artifactId>flexio-docker-client</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.flexio.commons</groupId>
                 <artifactId>flexio-mongo-tests</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.flexio.commons</groupId>
                 <artifactId>flexio-opentsdb-client</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>io.flexio.io</groupId>
                 <artifactId>flexio-mongo-io-generation</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.flexio.io</groupId>
                 <artifactId>flexio-mongo-io-maven-plugin</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.flexio.io</groupId>
                 <artifactId>flexio-mongo-io-repository</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.flexio.io</groupId>
                 <artifactId>flexio-mongo-io-values</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.flexio.io</groupId>
                 <artifactId>flexio-mongo-io-support</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.flexio.commons</groupId>
                 <artifactId>flexio-graylog-client</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>io.flexio.svg</groupId>
                 <artifactId>flexio-svg-generator</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
             <!--            ETAG-->
             <dependency>
                 <groupId>org.codingmatters.poom.etag</groupId>
                 <artifactId>poom-etag-support-api</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.etag</groupId>
                 <artifactId>poom-etag-support-handlers</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.etag</groupId>
                 <artifactId>poom-etag-support-repositories</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.etag</groupId>
                 <artifactId>poom-etag-test-support</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
             <!--            //ETAG-->
 
@@ -183,28 +183,28 @@
             <dependency>
                 <groupId>org.codingmatters.poom.services.io.mysql</groupId>
                 <artifactId>poom-services-mysql-io-test</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.services.io.mysql</groupId>
                 <artifactId>poom-services-mysql-io-repository</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codingmatters.poom.services.io.redis</groupId>
                 <artifactId>poom-services-redis-io-commons</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.services.io.redis.cache</groupId>
                 <artifactId>poom-services-redis-io-cache</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.services.io.redis.repository</groupId>
                 <artifactId>poom-services-redis-io-repository</artifactId>
-                <version>1.266.0-SNAPSHOT</version>
+                <version>1.267.0-SNAPSHOT</version>
             </dependency>
 
             <!--//BOM-->
@@ -217,7 +217,7 @@
                 <plugin>
                     <groupId>io.flexio.io</groupId>
                     <artifactId>flexio-mongo-io-maven-plugin</artifactId>
-                    <version>1.266.0-SNAPSHOT</version>
+                    <version>1.267.0-SNAPSHOT</version>
                 </plugin>
             </plugins>
         </pluginManagement>
