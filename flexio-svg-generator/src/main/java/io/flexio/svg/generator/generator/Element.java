@@ -9,8 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public abstract class Element<E extends Element> implements Attribute,
-        Identifiable<E>, Classifiable<E>, Stylable<E>
-{
+        Identifiable<E>, Classifiable<E>, Stylable<E> {
     private final Map<String, String> attributes = new LinkedHashMap<>();
 
     public abstract String name();
@@ -27,6 +26,6 @@ public abstract class Element<E extends Element> implements Attribute,
     public Map<String, String> attributesMap() {
         return attributes;
     }
-    
+
     public abstract void open(ElementWriter writer);
 }

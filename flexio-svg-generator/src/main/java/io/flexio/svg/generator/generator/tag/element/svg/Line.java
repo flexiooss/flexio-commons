@@ -7,9 +7,9 @@ import io.flexio.svg.generator.generator.tag.type.Point;
 import io.flexio.svg.generator.generator.writer.ElementWriter;
 
 public final class Line extends AutoClosableElement<Line> implements SVGElement<Line>,
-        Fillable<Line>, Strokable<Line>, StrokeWidthHolder<Line> , ClipPathHolder<Line>, OpacityHolder<Line>
-{
+        Fillable<Line>, Strokable<Line>, StrokeWidthHolder<Line>, ClipPathHolder<Line>, OpacityHolder<Line> {
     private static final String line = "line";
+
     @Override
     public String name() {
         return line;

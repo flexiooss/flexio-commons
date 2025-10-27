@@ -6,9 +6,9 @@ import io.flexio.svg.generator.generator.tag.property.ClipPathHolder;
 import io.flexio.svg.generator.generator.tag.property.OpacityHolder;
 
 public final class Group extends ClosableElement<Group> implements SVGElement<Group>,
-        ClipPathHolder<Group>, OpacityHolder<Group>
-{
+        ClipPathHolder<Group>, OpacityHolder<Group> {
     private static final String group = "g";
+
     @Override
     public String name() {
         return group;

@@ -1,5 +1,6 @@
 package io.flexio.io.mongo.gen;
 
+import org.apache.commons.io.FileUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.codingmatters.tests.compile.CompiledCode;
@@ -17,6 +18,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,8 +30,8 @@ import static org.codingmatters.value.objects.spec.AnonymousValueSpec.anonymousV
 import static org.codingmatters.value.objects.spec.PropertySpec.property;
 import static org.codingmatters.value.objects.spec.PropertyTypeSpec.type;
 import static org.codingmatters.value.objects.spec.ValueSpec.valueSpec;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class MongoMapperGeneratorTest {
 
@@ -96,7 +98,7 @@ public class MongoMapperGeneratorTest {
         Object value = classes.get("org.generated.Test").call("builder")
                 .call("p", String.class).with("value")
                 .call("build").get();
-        System.out.println("value=" + value);
+
         Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
         assertThat(
                 doc,
@@ -106,6 +108,11 @@ public class MongoMapperGeneratorTest {
         assertThat(
                 mapper.call("toValue", Document.class).with(doc).get(),
                 is(value)
+        );
+
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("StringProperty.txt").getFile()), "utf-8"))
         );
     }
 
@@ -123,6 +130,10 @@ public class MongoMapperGeneratorTest {
 
 
         assertThat(mapper.call("toValue", Document.class).with(doc).as("org.generated.Test").call("p").get(), is("12"));
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("automaticCastingOfSimpleTypes.txt").getFile()), "utf-8"))
+        );
     }
 
 
@@ -136,7 +147,7 @@ public class MongoMapperGeneratorTest {
         ObjectHelper mapper = classes.get("org.generated.mongo.TestMongoMapper").newInstance();
 
         Object value = classes.get("org.generated.Test").call("builder")
-                .call("p", String[].class).with(new Object[] {new String [] {"v1", "v2"}})
+                .call("p", String[].class).with(new Object[]{new String[]{"v1", "v2"}})
                 .call("build").get();
         Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
         assertThat(
@@ -147,6 +158,10 @@ public class MongoMapperGeneratorTest {
         assertThat(
                 mapper.call("toValue", Document.class).with(doc).get(),
                 is(value)
+        );
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("stringArrayProperty.txt").getFile()), "utf-8"))
         );
     }
 
@@ -162,12 +177,16 @@ public class MongoMapperGeneratorTest {
         ObjectHelper mapper = classes.get("org.generated.mongo.TestMongoMapper").newInstance();
 
         Object value = classes.get("org.generated.Test").call("builder")
-                .call("p", String[].class).with(new Object[] {new String [] {"v1"}})
+                .call("p", String[].class).with(new Object[]{new String[]{"v1"}})
                 .call("build").get();
 
         assertThat(
                 mapper.call("toValue", Document.class).with(Document.parse("{\"p\": \"v1\"}")).get(),
                 is(value)
+        );
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("stringArrayProperty_whenDocumentPropertyIsSingle.txt").getFile()), "utf-8"))
         );
     }
 
@@ -191,7 +210,7 @@ public class MongoMapperGeneratorTest {
         Object value = classes.get("org.generated.Test").call("builder")
                 .call("p", classes.get("org.generated.test.P").get()).with(pValue)
                 .call("build").get();
-        System.out.println("value=" + value);
+
         Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
         assertThat(
                 doc,
@@ -201,6 +220,10 @@ public class MongoMapperGeneratorTest {
         assertThat(
                 mapper.call("toValue", Document.class).with(doc).get(),
                 is(value)
+        );
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("embeddedProperty.txt").getFile()), "utf-8"))
         );
     }
 
@@ -215,6 +238,11 @@ public class MongoMapperGeneratorTest {
                 .build());
         this.fileHelper.printFile(this.dir.getRoot(), "TestMongoMapper.java");
 
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("EmbeddedList.txt").getFile()), "utf-8"))
+        );
+
         ObjectHelper mapper = classes.get("org.generated.mongo.TestMongoMapper").newInstance();
 
         Object pValue1 = classes.get("org.generated.test.P").call("builder")
@@ -226,9 +254,8 @@ public class MongoMapperGeneratorTest {
 
         Object value = classes.get("org.generated.Test").call("builder")
                 .call("p", classes.get("org.generated.test.P").array().get())
-                    .with(classes.get("org.generated.test.P").array().newArray(pValue1, pValue2).get())
+                .with(classes.get("org.generated.test.P").array().newArray(pValue1, pValue2).get())
                 .call("build").get();
-        System.out.println("value=" + value);
 
         Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
         assertThat(
@@ -262,7 +289,7 @@ public class MongoMapperGeneratorTest {
         Object value = classes.get("org.generated.Test").call("builder")
                 .call("p", classes.get("org.generated.Ref").get()).with(pValue)
                 .call("build").get();
-        System.out.println("value=" + value);
+
         Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
         assertThat(
                 doc,
@@ -272,6 +299,10 @@ public class MongoMapperGeneratorTest {
         assertThat(
                 mapper.call("toValue", Document.class).with(doc).get(),
                 is(value)
+        );
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("inSpecValueObjectProperty.txt").getFile()), "utf-8"))
         );
     }
 
@@ -289,7 +320,7 @@ public class MongoMapperGeneratorTest {
         Object value = classes.get("org.generated.Test").call("builder")
                 .call("p", String.class).with("value")
                 .call("build").get();
-        System.out.println("value=" + value);
+
         Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
         assertThat(
                 doc,
@@ -299,6 +330,10 @@ public class MongoMapperGeneratorTest {
         assertThat(
                 mapper.call("toValue", Document.class).with(doc).get(),
                 is(value)
+        );
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("mongoFieldHint.txt").getFile()), "utf-8"))
         );
     }
 
@@ -317,7 +352,7 @@ public class MongoMapperGeneratorTest {
                 .call("p", LocalDateTime.class)
                 .with(LocalDateTime.parse("2017-11-27T14:08:13.000Z", DateTimeFormatter.ISO_DATE_TIME))
                 .call("build").get();
-        System.out.println("value=" + value);
+
         Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
         assertThat(
                 doc,
@@ -327,6 +362,10 @@ public class MongoMapperGeneratorTest {
         assertThat(
                 mapper.call("toValue", Document.class).with(doc).get(),
                 is(value)
+        );
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("dateProperty.txt").getFile()), "utf-8"))
         );
     }
 
@@ -345,7 +384,7 @@ public class MongoMapperGeneratorTest {
                 .call("p", ZonedDateTime.class)
                 .with(ZonedDateTime.parse("2017-11-27T14:08:13.000Z", DateTimeFormatter.ISO_DATE_TIME))
                 .call("build").get();
-        System.out.println("value=" + value);
+
         Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
         assertThat(
                 doc,
@@ -355,6 +394,10 @@ public class MongoMapperGeneratorTest {
         assertThat(
                 mapper.call("toValue", Document.class).with(doc).get(),
                 is(value)
+        );
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("zonedDateProperty.txt").getFile()), "utf-8"))
         );
     }
 
@@ -370,9 +413,9 @@ public class MongoMapperGeneratorTest {
 
         Object value = classes.get("org.generated.Test").call("builder")
                 .call("p", LocalDateTime[].class)
-                .with(new Object[] {new LocalDateTime[] {LocalDateTime.parse("2017-11-27T14:08:13.000Z", DateTimeFormatter.ISO_DATE_TIME)}})
+                .with(new Object[]{new LocalDateTime[]{LocalDateTime.parse("2017-11-27T14:08:13.000Z", DateTimeFormatter.ISO_DATE_TIME)}})
                 .call("build").get();
-        System.out.println("value=" + value);
+
         Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
         assertThat(
                 doc,
@@ -382,6 +425,10 @@ public class MongoMapperGeneratorTest {
         assertThat(
                 mapper.call("toValue", Document.class).with(doc).get(),
                 is(value)
+        );
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("dateListProperty.txt").getFile()), "utf-8"))
         );
     }
 
@@ -403,7 +450,7 @@ public class MongoMapperGeneratorTest {
         Object value = classes.get("org.generated.Test").call("builder")
                 .call("p", String.class).with(oid.toString())
                 .call("build").get();
-        System.out.println("value=" + value);
+
         Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
         assertThat(
                 doc,
@@ -413,6 +460,10 @@ public class MongoMapperGeneratorTest {
         assertThat(
                 mapper.call("toValue", Document.class).with(doc).get(),
                 is(value)
+        );
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("objectIdProperty.txt").getFile()), "utf-8"))
         );
     }
 
@@ -431,9 +482,9 @@ public class MongoMapperGeneratorTest {
         ObjectId oid = new ObjectId();
 
         Object value = classes.get("org.generated.Test").call("builder")
-                .call("p", String[].class).with(new Object[] {new String[] {oid.toString()}})
+                .call("p", String[].class).with(new Object[]{new String[]{oid.toString()}})
                 .call("build").get();
-        System.out.println("value=" + value);
+
         Document doc = (Document) mapper.call("toDocument", classes.get("org.generated.Test").get()).with(value).get();
         assertThat(
                 doc,
@@ -444,6 +495,10 @@ public class MongoMapperGeneratorTest {
         assertThat(
                 actualValue,
                 is(value)
+        );
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("objectIdListProperty.txt").getFile()), "utf-8"))
         );
     }
 
@@ -476,8 +531,11 @@ public class MongoMapperGeneratorTest {
                         .call("stored", String.class).with("value")
                         .call("build").get())
         );
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("fieldWithTransientHitIsIgnored.txt").getFile()), "utf-8"))
+        );
     }
-
 
 
     @Test
@@ -507,6 +565,11 @@ public class MongoMapperGeneratorTest {
                 mapper.call("toValue", Document.class).with(doc).get(),
                 is(value)
         );
+
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("enumProperty.txt").getFile()), "utf-8"))
+        );
     }
 
     @Test
@@ -535,6 +598,10 @@ public class MongoMapperGeneratorTest {
         assertThat(
                 mapper.call("toValue", Document.class).with(doc).get(),
                 is(value)
+        );
+        assertThat(
+                FileUtils.readFileToString(new File(this.dir.getRoot(), "/org/generated/mongo/TestMongoMapper.java"), "utf-8"),
+                is(FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("enumArrayProperty.txt").getFile()), "utf-8"))
         );
     }
 

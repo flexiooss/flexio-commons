@@ -5,6 +5,7 @@ import io.flexio.svg.generator.generator.tag.element.SVGElement;
 
 public final class Link extends ClosableElement<Link> implements SVGElement<Link> {
     private static final String link = "a";
+
     @Override
     public String name() {
         return link;

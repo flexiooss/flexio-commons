@@ -10,9 +10,9 @@ import io.flexio.svg.generator.generator.tag.type.Point;
 
 
 public final class Tspan extends ClosableElement<Tspan> implements SVGElement<Tspan>,
-        Positionable<Tspan>, Rotatable<Tspan>, ClipPathHolder<Tspan>, OpacityHolder<Tspan>
-{
+        Positionable<Tspan>, Rotatable<Tspan>, ClipPathHolder<Tspan>, OpacityHolder<Tspan> {
     private static final String tspan = "tspan";
+
     @Override
     public String name() {
         return tspan;

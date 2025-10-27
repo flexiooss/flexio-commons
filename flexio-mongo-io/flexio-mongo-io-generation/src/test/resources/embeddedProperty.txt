@@ -1,0 +1,25 @@
+package org.generated.mongo;
+
+import org.bson.Document;
+import org.generated.Test;
+import org.generated.test.mongo.PMongoMapper;
+
+public class TestMongoMapper {
+  public Test toValue(Document document) {
+    Test.Builder builder = Test.builder();
+    if (document.get("p") != null) {
+      builder.p(new PMongoMapper().toValue((Document)document.get("p")));
+    }
+    return builder.build();
+  }
+
+  public Document toDocument(Test value) {
+    Document document = new Document();
+    if (value.p() != null) {
+      document.put("p", new PMongoMapper().toDocument(value.p()));
+    } else {
+      document.put("p", null);
+    }
+    return document;
+  }
+}

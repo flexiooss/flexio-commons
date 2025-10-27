@@ -1,8 +1,8 @@
 package io.flexio.svg.generator.generator.tag.element.svg;
 
 import io.flexio.svg.generator.generator.ClosableElement;
-import io.flexio.svg.generator.generator.tag.element.XHTMLElement;
 import io.flexio.svg.generator.generator.tag.element.SVGElement;
+import io.flexio.svg.generator.generator.tag.element.XHTMLElement;
 import io.flexio.svg.generator.generator.tag.property.ClipPathHolder;
 import io.flexio.svg.generator.generator.tag.property.OpacityHolder;
 import io.flexio.svg.generator.generator.tag.property.Positionable;
@@ -11,9 +11,9 @@ import io.flexio.svg.generator.generator.tag.property.Sizeable;
 import java.util.Locale;
 
 public final class Svg extends ClosableElement<Svg> implements SVGElement<Svg>, XHTMLElement<Svg>,
-        Sizeable<Svg>, Positionable<Svg>, ClipPathHolder<Svg>, OpacityHolder<Svg>
-{
+        Sizeable<Svg>, Positionable<Svg>, ClipPathHolder<Svg>, OpacityHolder<Svg> {
     private static final String svg = "svg";
+
     @Override
     public String name() {
         return svg;
@@ -38,7 +38,7 @@ public final class Svg extends ClosableElement<Svg> implements SVGElement<Svg>, 
     }
 
     public Svg viewBox(double width, double height) {
-        return this.viewBox("0 0 "+NUMERIC_FORMAT+" "+NUMERIC_FORMAT, width, height);
+        return this.viewBox("0 0 " + NUMERIC_FORMAT + " " + NUMERIC_FORMAT, width, height);
     }
 
     public Svg viewBox(int minX, int minY, int width, int height) {
@@ -51,7 +51,7 @@ public final class Svg extends ClosableElement<Svg> implements SVGElement<Svg>, 
 
     public Svg viewBox(double minX, double minY, double width, double height) {
         return this.viewBox(
-                NUMERIC_FORMAT+" "+NUMERIC_FORMAT+" "+NUMERIC_FORMAT+" "+NUMERIC_FORMAT,
+                NUMERIC_FORMAT + " " + NUMERIC_FORMAT + " " + NUMERIC_FORMAT + " " + NUMERIC_FORMAT,
                 minX, minY, width, height
         );
     }

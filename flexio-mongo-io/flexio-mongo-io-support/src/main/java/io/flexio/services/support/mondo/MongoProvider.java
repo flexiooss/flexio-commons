@@ -30,6 +30,7 @@ public class MongoProvider {
     static public MongoClient fromEnv() {
         return fromEnv("");
     }
+
     static public MongoClient fromEnv(String envPrefix) {
         MongoClientSettings.Builder settingsBuilder = MongoClientSettings.builder()
                 .applyToSocketSettings(b -> b.connectTimeout(Env.optional(envPrefix + MONGO_CONNECTION_TIMEOUT)
@@ -41,7 +42,7 @@ public class MongoProvider {
 
         if (Env.optional(envPrefix + MONGO_URL).isPresent()) {
             settingsBuilder = settingsBuilder.applyConnectionString(new ConnectionString(Env.mandatory(envPrefix + MONGO_URL).asString()));
-        } else if(Env.optional(envPrefix + MONGO_HOST).isPresent() && Env.optional(envPrefix + MONGO_PORT).isPresent()) {
+        } else if (Env.optional(envPrefix + MONGO_HOST).isPresent() && Env.optional(envPrefix + MONGO_PORT).isPresent()) {
             settingsBuilder = settingsBuilder.applyToClusterSettings(builder -> builder.hosts(addressListFromEnv(envPrefix)).build());
         }
         return MongoClients.create(settingsBuilder.build());

@@ -1,0 +1,36 @@
+package org.generated.mongo;
+
+import java.lang.Object;
+import java.lang.String;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+import org.generated.Test;
+
+public class TestMongoMapper {
+  public Test toValue(Document document) {
+    Test.Builder builder = Test.builder();
+    if (document.get("p") != null) {
+      Object pVal = document.get("p");
+      String pElmt = pVal.toString();
+      builder.p(pElmt);
+    }
+    return builder.build();
+  }
+
+  public Document toDocument(Test value) {
+    Document document = new Document();
+    if (value.p() != null) {
+      String pVal = value.p();
+      Object pElmt;
+      if (ObjectId.isValid(pVal)) {
+        pElmt = new ObjectId(pVal);
+      } else {
+        pElmt = pVal;
+      }
+      document.put("p", pElmt);
+    } else {
+      document.put("p", null);
+    }
+    return document;
+  }
+}

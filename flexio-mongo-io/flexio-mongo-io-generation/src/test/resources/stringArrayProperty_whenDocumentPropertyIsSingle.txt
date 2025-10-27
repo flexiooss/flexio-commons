@@ -1,0 +1,30 @@
+package org.generated.mongo;
+
+import java.util.Collection;
+import org.bson.Document;
+import org.generated.Test;
+import org.generated.ValueList;
+
+public class TestMongoMapper {
+  public Test toValue(Document document) {
+    Test.Builder builder = Test.builder();
+    if (document.get("p") != null) {
+      if (document.get("p") instanceof Collection) {
+        builder.p(new ValueList.Builder().with((Collection)document.get("p")).build());
+      } else {
+        builder.p(new ValueList.Builder().with(document.get("p")).build());
+      }
+    }
+    return builder.build();
+  }
+
+  public Document toDocument(Test value) {
+    Document document = new Document();
+    if (value.p() != null) {
+      document.put("p", value.p());
+    } else {
+      document.put("p", null);
+    }
+    return document;
+  }
+}

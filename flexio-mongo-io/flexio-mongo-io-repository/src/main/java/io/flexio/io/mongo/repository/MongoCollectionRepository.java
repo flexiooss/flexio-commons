@@ -11,25 +11,26 @@ import com.mongodb.client.model.DeleteOptions;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
-import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import io.flexio.io.mongo.repository.property.query.PropertyQuerier;
 import io.flexio.io.mongo.repository.property.query.config.MongoFilterConfig;
-import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.codingmatters.poom.services.domain.exceptions.AlreadyExistsException;
-import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
-import org.codingmatters.poom.services.domain.exceptions.OptimisticLockingException;
-import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
-import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.entities.Entity;
 import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
 import org.codingmatters.poom.services.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.exceptions.AlreadyExistsException;
+import org.codingmatters.poom.services.domain.exceptions.OptimisticLockingException;
+import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
+import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
+import org.codingmatters.poom.services.domain.repositories.Repository;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -56,15 +57,23 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
     public interface OptionalFilter<V, Q> {
         OptionalFilter<V, Q> withCheckedFilter(BsonFromQueryProvider<Q> filter);
+
         OptionalFilter<V, Q> withFilter(Function<Q, Bson> filter);
+
         OptionalFilter<V, Q> withMongoFilterConfig(MongoFilterConfig mongoFilterConfig);
+
         OptionalFilter<V, Q> withSort(Function<Q, Bson> sort);
+
         OptionalFilter<V, Q> withCheckedSort(BsonFromQueryProvider<Q> sort);
+
         OptionalFilter<V, Q> withCollationConfig(Consumer<Collation.Builder> collationConfig);
 
         Repository<V, Q> build(MongoClient mongoClient);
+
         Repository<V, Q> build(MongoClient mongoClient, boolean withOptimisticLocking);
+
         Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient);
+
         Repository<V, PropertyQuery> buildWithPropertyQuery(MongoClient mongoClient, boolean withOptimisticLocking);
     }
 
@@ -133,6 +142,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         public Repository<V, Q> build(MongoClient mongoClient) {
             return this.build(mongoClient, false);
         }
+
         public Repository<V, Q> build(MongoClient mongoClient, boolean withOptimisticLocking) {
             return new MongoCollectionRepository<>(
                     mongoClient,
@@ -220,7 +230,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     }
 
     @Override
-    public List<String> createMany(V... values) throws RepositoryException{
+    public List<String> createMany(V... values) throws RepositoryException {
         try {
             MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
             List<Document> listOfDocuments = new LinkedList<>();
@@ -238,15 +248,15 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             }
             InsertManyResult result = collection.insertMany(listOfDocuments);
 
-            result.getInsertedIds().forEach( (id,value) -> {
+            result.getInsertedIds().forEach((id, value) -> {
                 listOfEntityIDs.add(value.asObjectId().getValue().toHexString());
             });
             return listOfEntityIDs;
 
         } catch (MongoWriteException e) {
             System.out.println(e.getError());
-            if(e.getError().getCode() == 11000) {
-                throw new AlreadyExistsException("entity with same id already existts", e);
+            if (e.getError().getCode() == 11000) {
+                throw new AlreadyExistsException("entity with same id already exists", e);
             }
             throw new RepositoryException("mongo write error while creating entity", e);
         } catch (MongoException e) {
@@ -275,8 +285,8 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             return new ImmutableEntity<>(doc.get("_id").toString(), version, this.toValue(doc));
         } catch (MongoWriteException e) {
             System.out.println(e.getError());
-            if(e.getError().getCode() == 11000) {
-                throw new AlreadyExistsException("entity with same id already existts", e);
+            if (e.getError().getCode() == 11000) {
+                throw new AlreadyExistsException("entity with same id already exists", e);
             }
             throw new RepositoryException("mongo write error while creating entity", e);
         } catch (MongoException e) {
@@ -300,8 +310,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
     private Document rawRetrieve(String id) {
         MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
-        Document doc = collection.find(this.idFilter(id)).limit(1).first();
-        return doc;
+        return collection.find(this.idFilter(id)).limit(1).first();
     }
 
     private Long documentVersion(Document doc) {
@@ -311,27 +320,27 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
 
     @Override
     public Entity<V> update(Entity<V> entity, V withValue) throws RepositoryException {
-        if(this.withOptimisticLocking && entity.version() == null) {
+        if (this.withOptimisticLocking && entity.version() == null) {
             throw new RepositoryException("cannot update entity : since optimistic locking activated, must provide a version");
         }
         try {
             Document newDoc = this.toDocument(withValue);
             Long nextVersion = this.nextVersion(entity);
-            if(this.withOptimisticLocking && entity.version().longValue() != nextVersion - 1 ) {
+            if (this.withOptimisticLocking && entity.version().longValue() != nextVersion - 1) {
                 throw new OptimisticLockingException(String.format("optimistic locking error, version %s does not match", entity.version()));
             }
 
             newDoc.put(VERSION_FIELD, nextVersion);
 
             Bson filter = this.idFilter(entity.id());
-            if(this.withOptimisticLocking) {
+            if (this.withOptimisticLocking) {
                 filter = Filters.and(filter, Filters.eq(VERSION_FIELD, entity.version().longValue()));
             }
             UpdateResult results = this.resourceCollection(this.mongoClient).replaceOne(filter, newDoc);
             if (results.getModifiedCount() == 1) {
                 return new ImmutableEntity<>(entity.id(), BigInteger.valueOf(nextVersion), this.toValue(newDoc));
             } else {
-                if(this.withOptimisticLocking) {
+                if (this.withOptimisticLocking) {
                     throw new OptimisticLockingException(String.format("optimistic locking error, version %s does not match", entity.version()));
                 } else {
                     throw new RepositoryException("failed updating entity " + entity.id() + " (updated count was " + results.getModifiedCount() + ")");
@@ -348,7 +357,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
                 .find(this.idFilter(entity.id()))
                 .projection(new Document(VERSION_FIELD, 1))
                 .first();
-        if(currentVersionDoc != null && currentVersionDoc.containsKey(VERSION_FIELD)) {
+        if (currentVersionDoc != null && currentVersionDoc.containsKey(VERSION_FIELD)) {
             nextVersion = currentVersionDoc.getLong(VERSION_FIELD) + 1;
         } else {
             nextVersion = 2L;

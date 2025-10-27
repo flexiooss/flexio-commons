@@ -8,9 +8,9 @@ import java.util.Locale;
 
 public final class Polygon extends AutoClosableElement<Polygon> implements SVGElement<Polygon>,
         Fillable<Polygon>, Strokable<Polygon>, StrokeWidthHolder<Polygon>, PathLengthHolder<Polygon>,
-        ClipPathHolder<Polygon>, OpacityHolder<Polygon>
-{
+        ClipPathHolder<Polygon>, OpacityHolder<Polygon> {
     private static final String polygon = "polygon";
+
     @Override
     public String name() {
         return polygon;

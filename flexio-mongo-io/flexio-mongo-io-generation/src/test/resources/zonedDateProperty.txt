@@ -1,0 +1,32 @@
+package org.generated.mongo;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
+import org.bson.Document;
+import org.generated.Test;
+
+public class TestMongoMapper {
+  public Test toValue(Document document) {
+    Test.Builder builder = Test.builder();
+    if (document.get("p") != null) {
+      Date elmt = (document.get("p") instanceof Document) ? (Date) ((Document) document.get("p")).get("ts") : (Date)document.get("p");
+      ZoneId zone = (document.get("p") instanceof Document) ? ZoneId.of(((Document) document.get("p")).getString("tz")) : ZoneId.of("Z");
+      ZonedDateTime pElmt = ZonedDateTime.ofInstant(elmt.toInstant(), zone);
+      builder.p(pElmt);
+    }
+    return builder.build();
+  }
+
+  public Document toDocument(Test value) {
+    Document document = new Document();
+    if (value.p() != null) {
+      ZonedDateTime elmt = value.p();
+      Document pValue = new Document("tz", elmt.getZone().getId()).append("ts", Date.from(elmt.toInstant()));
+      document.put("p", pValue);
+    } else {
+      document.put("p", null);
+    }
+    return document;
+  }
+}

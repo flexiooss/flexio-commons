@@ -40,10 +40,10 @@ public class MongoIoGenerationMojo extends AbstractMojo {
     @Parameter(required = false, alias = "api-spec-resource")
     private String apiSpecResource;
 
-    @Parameter(defaultValue = "${basedir}/target/generated-sources/", alias="output-dir")
+    @Parameter(defaultValue = "${basedir}/target/generated-sources/", alias = "output-dir")
     private File outputDirectory;
 
-    @Parameter( defaultValue = "${plugin}", readonly = true )
+    @Parameter(defaultValue = "${plugin}", readonly = true)
     private PluginDescriptor plugin;
 
     public File getInputSpecification() {
@@ -70,7 +70,7 @@ public class MongoIoGenerationMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         this.getLog().info("generating mongo mapping for value object with configuration:");
         this.getLog().info("\t- destination package :" + this.getDestinationPackage());
-        if(this.getInputSpecification() != null) {
+        if (this.getInputSpecification() != null) {
             this.getLog().info("\t- specification file  :" + this.getInputSpecification().getAbsolutePath());
         } else {
             this.getLog().info("\t- specification resource  :" + this.getInputSpecificationResource());
@@ -92,7 +92,7 @@ public class MongoIoGenerationMojo extends AbstractMojo {
     }
 
     private Spec buildSpec() throws MojoFailureException, MojoExecutionException {
-        if(this.getInputSpecification() != null || this.getInputSpecificationResource() != null) {
+        if (this.getInputSpecification() != null || this.getInputSpecificationResource() != null) {
             SpecReader reader = new SpecReader();
             try {
                 try (InputStream in = this.specStream()) {
@@ -103,7 +103,7 @@ public class MongoIoGenerationMojo extends AbstractMojo {
             } catch (IOException e) {
                 throw new MojoFailureException("failure reading spec", e);
             }
-        } else if(this.getApiSpecResource() != null) {
+        } else if (this.getApiSpecResource() != null) {
             return this.loadSpecFromApi();
         } else {
             throw new MojoFailureException("must provide either an input-spec file path,  a input-spec-resource resource name or a api-spec-resource RAML API spec for loading spec");
@@ -111,16 +111,16 @@ public class MongoIoGenerationMojo extends AbstractMojo {
     }
 
     private InputStream specStream() throws IOException {
-        if(this.getInputSpecification() != null) {
+        if (this.getInputSpecification() != null) {
             return new FileInputStream(this.getInputSpecification());
-        } else if(this.getInputSpecificationResource() != null) {
+        } else if (this.getInputSpecificationResource() != null) {
             return Thread.currentThread().getContextClassLoader().getResourceAsStream(this.getInputSpecificationResource());
         } else {
             throw new IOException("must provide either an input-spec file path or a input-spec-resource resource name for loading spec");
         }
     }
 
-    private Spec loadSpecFromApi() throws MojoFailureException, MojoExecutionException{
+    private Spec loadSpecFromApi() throws MojoFailureException, MojoExecutionException {
         try {
             return new ApiTypesGenerator().generate(this.resolveRamlModel());
         } catch (RamlSpecException e) {
@@ -138,7 +138,7 @@ public class MongoIoGenerationMojo extends AbstractMojo {
         } catch (IOException e) {
             throw new MojoFailureException("error crawling project artifacts", e);
         }
-        try(RamlFileCollector collector = builder.build()) {
+        try (RamlFileCollector collector = builder.build()) {
             File apiFile = collector.specFile();
             this.getLog().info("API : " + apiFile.getAbsolutePath());
             return this.buildRamlModel(apiFile);
@@ -150,7 +150,7 @@ public class MongoIoGenerationMojo extends AbstractMojo {
     private RamlModelResult buildRamlModel(File apiFile) throws MojoExecutionException {
         RamlModelResult ramlModel;
         ramlModel = new RamlModelBuilder().buildApi(apiFile);
-        if(ramlModel.hasErrors()) {
+        if (ramlModel.hasErrors()) {
             for (ValidationResult validationResult : ramlModel.getValidationResults()) {
                 this.getLog().error(validationResult.getMessage());
             }

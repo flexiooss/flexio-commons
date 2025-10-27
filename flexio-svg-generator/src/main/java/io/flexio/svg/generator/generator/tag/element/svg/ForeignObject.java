@@ -6,8 +6,7 @@ import io.flexio.svg.generator.generator.tag.property.Positionable;
 import io.flexio.svg.generator.generator.tag.property.Sizeable;
 
 public final class ForeignObject extends ClosableElement<ForeignObject> implements SVGElement<ForeignObject>,
-        Positionable<ForeignObject>, Sizeable<ForeignObject>
-{
+        Positionable<ForeignObject>, Sizeable<ForeignObject> {
     @Override
     public String name() {
         return "foreignObject";

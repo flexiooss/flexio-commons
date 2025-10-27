@@ -8,13 +8,13 @@ import java.util.Base64;
 public interface SVGElement<A extends SVGElement> extends Attribute {
     @SuppressWarnings("unchecked")
     default A embed(String property, String data) {
-        if (property != null && ! property.trim().isEmpty() && data != null) {
+        if (property != null && !property.trim().isEmpty() && data != null) {
             this.attributesMap().put(property, encodeBase64(data));
         }
         return (A) this;
     }
 
-    private String encodeBase64(String data){
+    private String encodeBase64(String data) {
         return new String(Base64.getEncoder().encode(data.getBytes()));
     }
 }

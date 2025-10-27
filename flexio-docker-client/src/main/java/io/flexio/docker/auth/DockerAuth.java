@@ -20,15 +20,15 @@ public class DockerAuth {
         Optional<Env.Var> password = Env.optional(base + "_PASSWORD");
         Optional<Env.Var> email = Env.optional(base + "_EMAIL");
 
-        if(username.isEmpty()) {
+        if (username.isEmpty()) {
             System.out.printf("[docker registry auth] missing username for %s\n", serverOrImage);
             return null;
         }
-        if(password.isEmpty()) {
+        if (password.isEmpty()) {
             System.out.printf("[docker registry auth] missing password for %s\n", serverOrImage);
             return null;
         }
-        if(email.isEmpty()) {
+        if (email.isEmpty()) {
             System.out.printf("[docker registry auth] missing email for %s\n", serverOrImage);
             return null;
         }
@@ -45,20 +45,20 @@ public class DockerAuth {
     }
 
     private String server(String serverOrImage) {
-        if(serverOrImage.indexOf('/') != -1) {
+        if (serverOrImage.indexOf('/') != -1) {
             String candidate = serverOrImage.substring(0, serverOrImage.indexOf('/'));
-            if(candidate.indexOf('.') != -1) {
+            if (candidate.indexOf('.') != -1) {
                 return candidate;
             } else {
                 return DEFAULT_REGISTRY_SERVER_ADDRESS;
             }
         }
 
-        if(serverOrImage.indexOf(':') != -1) {
+        if (serverOrImage.indexOf(':') != -1) {
             return DEFAULT_REGISTRY_SERVER_ADDRESS;
         }
 
-        if(serverOrImage.indexOf('.') != -1) {
+        if (serverOrImage.indexOf('.') != -1) {
             return serverOrImage;
         } else {
             return DEFAULT_REGISTRY_SERVER_ADDRESS;
@@ -66,10 +66,10 @@ public class DockerAuth {
     }
 
     private String base(String serverOrImage) {
-        if(serverOrImage == null || serverOrImage.isEmpty()) {
+        if (serverOrImage == null || serverOrImage.isEmpty()) {
             serverOrImage = DEFAULT_REGISTRY_SERVER_ADDRESS;
         }
-        if(serverOrImage.equals(DEFAULT_REGISTRY_SERVER_ADDRESS)) {
+        if (serverOrImage.equals(DEFAULT_REGISTRY_SERVER_ADDRESS)) {
             serverOrImage = "docker.io";
         }
         return serverOrImage.replaceAll("\\.", "_").toUpperCase() + "_LOGIN";

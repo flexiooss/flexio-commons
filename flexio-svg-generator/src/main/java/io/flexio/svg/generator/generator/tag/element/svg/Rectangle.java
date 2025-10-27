@@ -7,9 +7,9 @@ import io.flexio.svg.generator.generator.tag.type.Radius;
 
 public final class Rectangle extends AutoClosableElement<Rectangle> implements SVGElement<Rectangle>,
         Fillable<Rectangle>, Strokable<Rectangle>, StrokeWidthHolder<Rectangle>, PathLengthHolder<Rectangle>,
-        Positionable<Rectangle>, Sizeable<Rectangle>, ClipPathHolder<Rectangle>, OpacityHolder<Rectangle>
-{
+        Positionable<Rectangle>, Sizeable<Rectangle>, ClipPathHolder<Rectangle>, OpacityHolder<Rectangle> {
     private static final String rectangle = "rect";
+
     @Override
     public String name() {
         return rectangle;
