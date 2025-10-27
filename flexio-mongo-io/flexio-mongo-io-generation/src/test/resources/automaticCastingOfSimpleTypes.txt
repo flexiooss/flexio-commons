@@ -8,7 +8,7 @@ public class TestMongoMapper {
   public Test toValue(Document document) {
     Test.Builder builder = Test.builder();
     if (document.get("p") != null) {
-      builder.p(new String(document.get("p", String.class).toString()));
+      builder.p(new String(document.get("p").toString()));
     }
     return builder.build();
   }
