@@ -21,6 +21,7 @@ public interface DockerResource extends TestRule {
     }
 
     ContainerInitialStatus with(String containerName, ContainerCreationData container);
+
     ContainerInitialStatus with(String containerName, Function<ContainerCreationData.Builder, ContainerCreationData.Builder> container);
 
     OptionalContainer containerInfo(String containerName);
@@ -33,13 +34,17 @@ public interface DockerResource extends TestRule {
 
     interface ContainerInitialStatus {
         ContainerFinalStatus stopped();
+
         ContainerFinalStatus started();
+
         ContainerFinalStatus deleted();
     }
 
     interface ContainerFinalStatus {
         DockerResource finallyStopped();
+
         DockerResource finallyStarted();
+
         DockerResource finallyDeleted();
     }
 
@@ -140,7 +145,7 @@ public interface DockerResource extends TestRule {
 
         public DockerResourceImpl add(String containerName, ContainerStates containerStates) {
             this.managedContainers.put(containerName, containerStates);
-            if(this.status.equals(Status.STARTED)) {
+            if (this.status.equals(Status.STARTED)) {
                 this.ensureStatus(containerName, containerStates, containerStates.inintialStatus);
             }
             return this;

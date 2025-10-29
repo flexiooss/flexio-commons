@@ -13,6 +13,7 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class ObjectValueMongoMapper {
     static private final Logger log = LoggerFactory.getLogger(ObjectValueMongoMapper.class);
@@ -22,8 +23,8 @@ public class ObjectValueMongoMapper {
     public ObjectValue toValue(Document document) {
         ObjectValue.Builder valueBuilder = ObjectValue.builder();
 
-        for (String propertyName : document.keySet()) {
-            this.addPropertyToValue(valueBuilder, propertyName, document.get(propertyName));
+        for (Map.Entry<String, Object> entry : document.entrySet()) {
+            this.addPropertyToValue(valueBuilder, entry.getKey(), entry.getValue());
         }
 
         return valueBuilder.build();
@@ -35,52 +36,60 @@ public class ObjectValueMongoMapper {
 
     private void addPropertyToValue(ObjectValue.Builder builder, String name, Object value) {
         try {
-            if(value instanceof List) {
-                List<PropertyValue.Value> values = new LinkedList<>();
-                PropertyValue.Type propertyType = null;
-                for (Object element : ((List) value)) {
-                    PropertyValue.Type elementType;
-                    if (element instanceof Document) {
-                        elementType = PropertyValue.Type.OBJECT;
-                    } else if (element instanceof Date) {
-                        elementType = PropertyValue.Type.DATETIME;
-                    } else {
-                        elementType = PropertyValue.Type.fromObject(element);
-                    }
-                    if (propertyType == null) {
-                        propertyType = elementType;
-                    }
-
-                    PropertyValue.Builder elementBuilder = PropertyValue.builder();
-                    if(element instanceof Document) {
-                        elementType.set(elementBuilder, this.toValue((Document) element));
-                    } else if (element instanceof Date) {
-                        LocalDateTime ldt = LocalDateTime.ofInstant(((Date) element).toInstant(), ZoneOffset.UTC);
-                        elementType.set(elementBuilder, ldt);
-                    } else {
-                        propertyType.set(elementBuilder, element);
-                    }
-                    values.add(elementBuilder.buildValue());
-                }
-
-                builder.property(name, PropertyValue.multiple(propertyType, values.toArray(new PropertyValue.Value[((List) value).size()])));
+            if (value instanceof List list) {
+                this.propertyMultiple(builder, name, list);
             } else {
-                if(value instanceof Document) {
-                    builder.property(name, p -> p.objectValue(this.toValue((Document) value)));
-                } else if(value instanceof ObjectId) {
-                    builder.property(name, p -> p.stringValue(((ObjectId) value).toString()));
-                } else if(value instanceof Date) {
-                    PropertyValue.Type type = PropertyValue.Type.DATETIME;
-                    LocalDateTime ldt = LocalDateTime.ofInstant(((Date) value).toInstant(), ZoneOffset.UTC);
-                    builder.property(name, v -> type.set(v, ldt));
-                } else {
-                    PropertyValue.Type type = PropertyValue.Type.fromObject(value);
-                    builder.property(name, v -> type.set(v, value));
-                }
+                this.propertySingle(builder, name, value);
             }
         } catch (PropertyValue.Type.UnsupportedTypeException e) {
             log.error("failed to read mongo property " + name + " with value " + value, e);
         }
+    }
+
+    private void propertySingle(ObjectValue.Builder builder, String name, Object value) throws PropertyValue.Type.UnsupportedTypeException {
+        if (value instanceof Document document) {
+            builder.property(name, p -> p.objectValue(this.toValue(document)));
+        } else if (value instanceof ObjectId id) {
+            builder.property(name, p -> p.stringValue((id).toString()));
+        } else if (value instanceof Date date) {
+            PropertyValue.Type type = PropertyValue.Type.DATETIME;
+            LocalDateTime ldt = LocalDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC);
+            builder.property(name, v -> type.set(v, ldt));
+        } else {
+            PropertyValue.Type type = PropertyValue.Type.fromObject(value);
+            builder.property(name, v -> type.set(v, value));
+        }
+    }
+
+    private void propertyMultiple(ObjectValue.Builder builder, String name, List<Object> list) throws PropertyValue.Type.UnsupportedTypeException {
+        List<PropertyValue.Value> values = new LinkedList<>();
+        PropertyValue.Type propertyType = null;
+        for (Object element : list) {
+            PropertyValue.Type elementType;
+            if (element instanceof Document) {
+                elementType = PropertyValue.Type.OBJECT;
+            } else if (element instanceof Date) {
+                elementType = PropertyValue.Type.DATETIME;
+            } else {
+                elementType = PropertyValue.Type.fromObject(element);
+            }
+            if (propertyType == null) {
+                propertyType = elementType;
+            }
+
+            PropertyValue.Builder elementBuilder = PropertyValue.builder();
+            if (element instanceof Document document) {
+                elementType.set(elementBuilder, this.toValue(document));
+            } else if (element instanceof Date date) {
+                LocalDateTime ldt = LocalDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC);
+                elementType.set(elementBuilder, ldt);
+            } else {
+                propertyType.set(elementBuilder, element);
+            }
+            values.add(elementBuilder.buildValue());
+        }
+
+        builder.property(name, PropertyValue.multiple(propertyType, values.toArray(new PropertyValue.Value[list.size()])));
     }
 
     public Document toDocument(ObjectValue value) {
@@ -94,7 +103,7 @@ public class ObjectValueMongoMapper {
                 document.put(propertyName, null);
             } else {
                 if (PropertyValue.Cardinality.SINGLE.equals(property.cardinality())) {
-                    if(propertyName.equals("_id") && PropertyValue.Type.STRING.equals(property.type())) {
+                    if (propertyName.equals("_id") && PropertyValue.Type.STRING.equals(property.type())) {
                         document.put("_id", this.objectId(property.single().stringValue()));
                     } else {
                         this.addSinglePropertyToDocument(document, propertyName, property.single());
@@ -120,13 +129,13 @@ public class ObjectValueMongoMapper {
             } else {
                 document.put(name, value.rawValue());
             }
-        }else{
+        } else {
             document.put(name, null);
         }
     }
 
     private void addMultiplePropertyToDocument(Document document, String name, PropertyValue.Value[] values) {
-        List v = new LinkedList();
+        List<Object> v = new LinkedList<>();
         for (PropertyValue.Value value : values) {
             if (value != null && !value.isNull()) {
                 if (PropertyValue.Type.OBJECT.equals(value.type())) {

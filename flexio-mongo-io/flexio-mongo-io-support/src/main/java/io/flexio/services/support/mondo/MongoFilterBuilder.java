@@ -28,11 +28,11 @@ public class MongoFilterBuilder {
     }
 
     public Bson build() {
-        if(this.criteria.isEmpty()) {
+        if (this.criteria.isEmpty()) {
             return null;
         }
-        if(this.criteria.size() == 1) {
-            return this.criteria.get(0);
+        if (this.criteria.size() == 1) {
+            return this.criteria.getFirst();
         }
         return Filters.and(this.criteria);
     }

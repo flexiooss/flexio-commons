@@ -2,16 +2,16 @@ package io.flexio.docker;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import io.flexio.docker.api.*;
-import io.flexio.docker.api.types.ContainerCreationData;
-import io.flexio.docker.auth.DockerAuth;
-import io.flexio.docker.client.DockerEngineAPIClient;
-import io.flexio.docker.client.DockerEngineAPIRequesterClient;
 import io.flexio.docker.api.optional.OptionalStartPostResponse;
 import io.flexio.docker.api.types.Container;
+import io.flexio.docker.api.types.ContainerCreationData;
 import io.flexio.docker.api.types.ContainerCreationResult;
 import io.flexio.docker.api.types.Image;
 import io.flexio.docker.api.types.container.State;
 import io.flexio.docker.api.types.optional.OptionalContainer;
+import io.flexio.docker.auth.DockerAuth;
+import io.flexio.docker.client.DockerEngineAPIClient;
+import io.flexio.docker.client.DockerEngineAPIRequesterClient;
 import io.flexio.docker.descriptors.ContainerCreationLog;
 import io.flexio.docker.descriptors.ContainerDeletionLog;
 import io.flexio.docker.descriptors.ContainerStartLog;
@@ -32,6 +32,7 @@ public class DockerClient {
     public DockerClient(HttpClientWrapper http, String baseUrl) {
         this(http, baseUrl, null);
     }
+
     public DockerClient(HttpClientWrapper http, String baseUrl, String authToken) {
         this.client = new DockerEngineAPIRequesterClient(new OkHttpRequesterFactory(http, () -> baseUrl), new JsonFactory(), baseUrl);
         this.baseUrl = baseUrl;
@@ -44,7 +45,7 @@ public class DockerClient {
 
     public ContainerDeletionLog ensureContainerDeleted(Container container) {
         OptionalContainer runningContainer = this.runningContainer(container);
-        if(runningContainer.isPresent()) {
+        if (runningContainer.isPresent()) {
             String idOrName = container.opt().id().orElse(container.opt().names().get(0)
                     .orElseThrow(assertFails("cannot stop without at least a name or an id")));
             try {
@@ -56,7 +57,7 @@ public class DockerClient {
                 this.client.containers().container().delete(req -> req.containerId(idOrName));
 
                 return ContainerDeletionLog.builder()
-                        .container(Container.from(container).state(state->state.status(State.Status.unexistent)).build())
+                        .container(Container.from(container).state(state -> state.status(State.Status.unexistent)).build())
                         .action(ContainerDeletionLog.Action.DELETE)
                         .success(true)
                         .build();
@@ -65,7 +66,7 @@ public class DockerClient {
             }
         } else {
             return ContainerDeletionLog.builder()
-                    .container(Container.from(container).state(state->state.status(State.Status.unexistent)).build())
+                    .container(Container.from(container).state(state -> state.status(State.Status.unexistent)).build())
                     .action(ContainerDeletionLog.Action.NONE)
                     .success(true)
                     .build();
@@ -73,11 +74,11 @@ public class DockerClient {
 
     }
 
-    public ContainerCreationLog ensureContainerCreated(Container container, String ... cmd) {
+    public ContainerCreationLog ensureContainerCreated(Container container, String... cmd) {
         this.ensureImageIsUpToDate(container.image());
 
         OptionalContainer runningContainer = this.runningContainer(container);
-        if(runningContainer.isPresent()) {
+        if (runningContainer.isPresent()) {
             return this.ensureRunningContainerIsUpToDate(container, runningContainer);
         } else {
             return this.ensureNewContainerIsCreated(container, cmd);
@@ -90,7 +91,7 @@ public class DockerClient {
         Container container = this.container(containerName, containerCreationData);
 
         OptionalContainer runningContainer = this.runningContainer(container);
-        if(runningContainer.isPresent()) {
+        if (runningContainer.isPresent()) {
             return this.ensureRunningContainerIsUpToDate(container, runningContainer);
         } else {
             return this.ensureNewContainerIsCreated(containerName, containerCreationData);
@@ -112,7 +113,7 @@ public class DockerClient {
                     .fromImage(imageTag)
                     .xRegistryAuth(this.dockerAuth.xRegistryAuth(imageTag))
             );
-            if(! response.opt().status200().isPresent()) {
+            if (!response.opt().status200().isPresent()) {
                 // TODO should a policy be used ?
                 log.warn("couldn't update image {} : {}", imageTag, response);
             }
@@ -130,7 +131,7 @@ public class DockerClient {
             ValueList<io.flexio.docker.api.types.ContainerInList> runningContainers = listResponse.opt().status200().payload()
                     .orElseThrow(assertFails("couldn't list containers : %s", listResponse));
 
-            if(! runningContainers.isEmpty()) {
+            if (!runningContainers.isEmpty()) {
                 return this.containerFor(runningContainers.get(0).id());
             }
         } catch (IOException e) {
@@ -162,7 +163,7 @@ public class DockerClient {
     }
 
     private ContainerCreationLog ensureRunningContainerIsUpToDate(Container container, OptionalContainer runningContainer) {
-        if(runningContainer.get().image().equals(container.image())) {
+        if (runningContainer.get().image().equals(container.image())) {
             return ContainerCreationLog.builder()
                     .container(runningContainer.get())
                     .action(ContainerCreationLog.Action.NONE)
@@ -184,8 +185,8 @@ public class DockerClient {
     }
 
     private ContainerCreationLog ensureNewContainerIsCreated(String containerName, ContainerCreationData containerCreationData) {
-        OptionalContainer runningContainer= this.createContainer(containerName, containerCreationData);
-        if(runningContainer.isPresent()) {
+        OptionalContainer runningContainer = this.createContainer(containerName, containerCreationData);
+        if (runningContainer.isPresent()) {
             return ContainerCreationLog.builder()
                     .container(this.containerFor(runningContainer.id().get()).get())
                     .action(ContainerCreationLog.Action.CREATION)
@@ -204,9 +205,9 @@ public class DockerClient {
         }
     }
 
-    private ContainerCreationLog ensureNewContainerIsCreated(Container container, String ... cmd) {
-        OptionalContainer runningContainer= this.createContainer(container, cmd);
-        if(runningContainer.isPresent()) {
+    private ContainerCreationLog ensureNewContainerIsCreated(Container container, String... cmd) {
+        OptionalContainer runningContainer = this.createContainer(container, cmd);
+        if (runningContainer.isPresent()) {
             return ContainerCreationLog.builder()
                     .container(this.containerFor(runningContainer.id().get()).get())
                     .action(ContainerCreationLog.Action.CREATION)
@@ -239,7 +240,7 @@ public class DockerClient {
         return OptionalContainer.of(null);
     }
 
-    private OptionalContainer createContainer(Container container, String ... cmd) {
+    private OptionalContainer createContainer(Container container, String... cmd) {
         try {
             CreateContainerPostResponse response = this.client.containers().createContainer()
                     .post(req -> req.name(container.names().get(0)).payload(payload -> payload.image(container.image()).cmd(cmd)));
@@ -256,8 +257,8 @@ public class DockerClient {
 
     public ContainerStartLog ensureContainerStarted(Container container) {
         OptionalContainer runningContainer = this.runningContainer(container);
-        if(runningContainer.isPresent()) {
-            if(! runningContainer.state().running().orElse(false)) {
+        if (runningContainer.isPresent()) {
+            if (!runningContainer.state().running().orElse(false)) {
                 return this.startContainer(runningContainer);
             } else {
                 return ContainerStartLog.builder()
@@ -281,7 +282,7 @@ public class DockerClient {
 
     public ContainerStopLog ensureContainerStopped(Container container) {
         OptionalContainer runningContainer = this.runningContainer(container);
-        if(runningContainer.state().running().orElse(false)) {
+        if (runningContainer.state().running().orElse(false)) {
             try {
                 this.client.containers().container().kill().post(req -> req.containerId(runningContainer.id().get()));
                 return ContainerStopLog.builder()
@@ -308,17 +309,17 @@ public class DockerClient {
                     .action(ContainerStartLog.Action.START)
                     .container(this.containerFor(runningContainer.id().get()).get());
 
-            if(startResponse.status309().isPresent() || startResponse.status404().isPresent() || startResponse.status500().isPresent()) {
+            if (startResponse.status309().isPresent() || startResponse.status404().isPresent() || startResponse.status500().isPresent()) {
                 log.success(false)
                         .message(String.format("",
                                 startResponse.status309().payload()
                                         .orElse(startResponse.status404().payload()
                                                 .orElse(startResponse.status500().payload()
                                                         .orElseThrow(assertFails("unexpected response : %s", startResponse.get()))))
-                                .message()
+                                        .message()
                         ));
             } else {
-                while(! this.containerFor(runningContainer.id().get()).state().running().orElse(false)) {
+                while (!this.containerFor(runningContainer.id().get()).state().running().orElse(false)) {
                     try {
                         Thread.sleep(500L);
                     } catch (InterruptedException e) {
@@ -334,7 +335,7 @@ public class DockerClient {
     }
 
 
-    static private Supplier<AssertionError> assertFails(String message, Object ... vals) {
+    static private Supplier<AssertionError> assertFails(String message, Object... vals) {
         return () -> new AssertionError(String.format("[docker client] " + message, vals));
     }
 
@@ -343,7 +344,7 @@ public class DockerClient {
     }
 
     static private AssertionError communicationError(String baseUrl, IOException ioe) {
-        if(ioe != null) {
+        if (ioe != null) {
             return new AssertionError("failed communicating with docker engine at " + baseUrl, ioe);
         } else {
             return new AssertionError("failed communicating with docker engine at " + baseUrl);

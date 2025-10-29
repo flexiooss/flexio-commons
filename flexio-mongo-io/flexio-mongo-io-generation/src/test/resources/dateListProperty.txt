@@ -1,0 +1,41 @@
+package org.generated.mongo;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Collection;
+import java.util.Date;
+import java.util.LinkedList;
+import org.bson.Document;
+import org.generated.Test;
+
+public class TestMongoMapper {
+  public Test toValue(Document document) {
+    Test.Builder builder = Test.builder();
+    if (document.get("p") != null) {
+      LinkedList<LocalDateTime> pElmts = new LinkedList<>();
+      for (Date elmt : (Collection<Date>)document.get("p")) {
+        ZonedDateTime pZoned = ZonedDateTime.ofInstant(elmt.toInstant(), ZoneId.of("Z"));
+        LocalDateTime pElmt = pZoned.toLocalDateTime();
+        pElmts.add(pElmt);
+      }
+      builder.p(pElmts);
+    }
+    return builder.build();
+  }
+
+  public Document toDocument(Test value) {
+    Document document = new Document();
+    if (value.p() != null) {
+      LinkedList<Date> pValues = new LinkedList<>();
+      for (LocalDateTime elmt : value.p()) {
+        Date pValue = Date.from(elmt.atZone(ZoneId.of("Z")).toInstant());
+        pValues.add(pValue);
+      }
+      document.put("p", pValues);
+    } else {
+      document.put("p", null);
+    }
+    return document;
+  }
+}

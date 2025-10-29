@@ -2,7 +2,7 @@ package io.flexio.svg.generator.generator.writer;
 
 import io.flexio.svg.generator.generator.Attribute;
 
-import java.io.*;
+import java.io.PrintWriter;
 
 public class SvgWriter implements ElementWriter {
     private PrintWriter outputStream;
@@ -18,7 +18,7 @@ public class SvgWriter implements ElementWriter {
 
     @Override
     public void autoClosed(String name, Attribute attributes) {
-        this.outputStream.write("<" + name +  printAttributes(attributes) + "/>");
+        this.outputStream.write("<" + name + printAttributes(attributes) + "/>");
     }
 
     @Override

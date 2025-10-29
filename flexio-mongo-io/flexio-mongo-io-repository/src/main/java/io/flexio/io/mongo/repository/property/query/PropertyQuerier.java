@@ -7,12 +7,7 @@ import org.codingmatters.poom.services.domain.property.query.FilterEvents;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.property.query.PropertyQueryParser;
 import org.codingmatters.poom.services.domain.property.query.SortEvents;
-import org.codingmatters.poom.services.domain.property.query.events.FilterEventException;
-import org.codingmatters.poom.services.domain.property.query.events.SortEventException;
-import org.codingmatters.poom.services.domain.property.query.validation.InvalidPropertyException;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
-
-import java.util.function.Function;
 
 public class PropertyQuerier {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(PropertyQuerier.class);
@@ -24,6 +19,7 @@ public class PropertyQuerier {
                 .potentialOids("_id")
                 .build());
     }
+
     public PropertyQuerier(MongoFilterConfig filterConfig) {
         this.filterConfig = filterConfig;
     }
@@ -35,8 +31,7 @@ public class PropertyQuerier {
     private Bson filter(PropertyQuery query) throws Exception {
         BsonFilterEvents events = new BsonFilterEvents(this.filterConfig);
         PropertyQueryParser.builder().build(events, SortEvents.noop()).parse(query);
-        Bson filter = events.filter();
-        return filter;
+        return events.filter();
     }
 
     public BsonFromQueryProvider<PropertyQuery> sorter() {

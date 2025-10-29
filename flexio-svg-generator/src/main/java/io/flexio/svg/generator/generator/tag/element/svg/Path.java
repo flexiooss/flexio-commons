@@ -6,10 +6,10 @@ import io.flexio.svg.generator.generator.tag.property.*;
 import io.flexio.svg.generator.generator.writer.ElementWriter;
 
 public final class Path extends AutoClosableElement<Path> implements SVGElement<Path>,
-        Fillable<Path>, Strokable<Path>, StrokeWidthHolder<Path>, PathLengthHolder<Path> , ClipPathHolder<Path>,
-        OpacityHolder<Path>
-{
+        Fillable<Path>, Strokable<Path>, StrokeWidthHolder<Path>, PathLengthHolder<Path>, ClipPathHolder<Path>,
+        OpacityHolder<Path> {
     private static final String path = "path";
+
     @Override
     public String name() {
         return path;

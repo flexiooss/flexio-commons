@@ -21,7 +21,7 @@ public class BsonSortEvents implements SortEvents {
     }
 
     public Bson sort() {
-        if(this.list.isEmpty()) {
+        if (this.list.isEmpty()) {
             return null;
         }
         return Sorts.orderBy(this.list);

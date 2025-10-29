@@ -8,9 +8,9 @@ import java.util.Locale;
 
 public final class Polyline extends AutoClosableElement<Polyline> implements SVGElement<Polyline>,
         Fillable<Polyline>, Strokable<Polyline>, StrokeWidthHolder<Polyline>, ClipPathHolder<Polyline>,
-        OpacityHolder<Polyline>
-{
+        OpacityHolder<Polyline> {
     private static final String polyline = "polyline";
+
     @Override
     public String name() {
         return polyline;

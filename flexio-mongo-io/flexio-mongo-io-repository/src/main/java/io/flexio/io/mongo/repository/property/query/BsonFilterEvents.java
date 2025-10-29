@@ -32,15 +32,15 @@ public class BsonFilterEvents implements FilterEvents<Object> {
         this.config = config != null ?
                 config.withPotentialOids(config.opt().potentialOids().safe()) :
                 MongoFilterConfig.builder()
-                    .potentialOids(Collections.emptyList())
-                    .build()
+                        .potentialOids(Collections.emptyList())
+                        .build()
         ;
     }
 
     @Override
     public Object isEquals(String left, Object right) throws FilterEventError {
         Bson filter;
-        if(this.config.potentialOids().contains(left)) {
+        if (this.config.potentialOids().contains(left)) {
             try {
                 Object rightWithOids = new ObjectId(right.toString());
                 filter = Filters.or(
@@ -66,7 +66,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     @Override
     public Object isNotEquals(String left, Object right) throws FilterEventError {
         Bson filter;
-        if(this.config.potentialOids().contains(left)) {
+        if (this.config.potentialOids().contains(left)) {
             try {
                 ObjectId rightAsObjectId = new ObjectId(right.toString());
                 filter = Filters.and(
@@ -175,7 +175,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
 
     private Bson startsWithRegex(String left, Object right) {
         String value = (String) this.value(right);
-        if(value != null) {
+        if (value != null) {
             return Filters.regex(this.property(left, right), "^" + Pattern.quote(value) + ".*");
         } else {
             return Filters.eq(left, null);
@@ -190,7 +190,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
 
     private Bson endsWithRegex(String left, Object right) {
         String value = (String) this.value(right);
-        if(value != null) {
+        if (value != null) {
             return Filters.regex(this.property(left, right), ".*" + Pattern.quote(value) + "$");
         } else {
             return Filters.eq(left, null);
@@ -200,9 +200,9 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     @Override
     public Object in(String left, List right) throws FilterEventError {
         Bson filter;
-        if(this.config.potentialOids().contains(left)) {
-            List oids = new ArrayList();
-            List raw = new ArrayList();
+        if (this.config.potentialOids().contains(left)) {
+            List<Object> oids = new ArrayList<>();
+            List<Object> raw = new ArrayList<>();
             for (Object o : right) {
                 try {
                     Object oid = new ObjectId(o.toString());
@@ -211,9 +211,9 @@ public class BsonFilterEvents implements FilterEvents<Object> {
                     raw.add(this.value(o));
                 }
             }
-            if(raw.isEmpty()) {
+            if (raw.isEmpty()) {
                 filter = Filters.in(this.property(left, right), oids);
-            } else if(oids.isEmpty()) {
+            } else if (oids.isEmpty()) {
                 filter = Filters.in(this.property(left, right), raw);
             } else {
                 filter = Filters.or(
@@ -231,9 +231,9 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     @Override
     public Object anyIn(String left, List right) throws FilterEventError {
         Bson filter;
-        if(this.config.potentialOids().contains(left)) {
-            List oids = new ArrayList();
-            List raw = new ArrayList();
+        if (this.config.potentialOids().contains(left)) {
+            List<Object> oids = new ArrayList<>();
+            List<Object> raw = new ArrayList<>();
             for (Object o : right) {
                 try {
                     Object oid = new ObjectId(o.toString());
@@ -242,9 +242,9 @@ public class BsonFilterEvents implements FilterEvents<Object> {
                     raw.add(this.value(o));
                 }
             }
-            if(raw.isEmpty()) {
+            if (raw.isEmpty()) {
                 filter = Filters.in(this.property(left, right), oids);
-            } else if(oids.isEmpty()) {
+            } else if (oids.isEmpty()) {
                 filter = Filters.in(this.property(left, right), raw);
             } else {
                 filter = Filters.or(
@@ -262,7 +262,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     @Override
     public Object startsWithAny(String left, List right) throws FilterEventError {
         List<Bson> any = new LinkedList<>();
-        if(right != null && ! right.isEmpty()) {
+        if (right != null && !right.isEmpty()) {
             for (Object value : right) {
                 any.add(this.startsWithRegex(left, value));
             }
@@ -276,7 +276,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     @Override
     public Object endsWithAny(String left, List right) throws FilterEventError {
         List<Bson> any = new LinkedList<>();
-        if(right != null && ! right.isEmpty()) {
+        if (right != null && !right.isEmpty()) {
             for (Object value : right) {
                 any.add(this.endsWithRegex(left, value));
             }
@@ -296,7 +296,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     @Override
     public Object containsAny(String left, List right) throws FilterEventError {
         List<Bson> any = new LinkedList<>();
-        if(right != null && ! right.isEmpty()) {
+        if (right != null && !right.isEmpty()) {
             for (Object value : right) {
                 any.add(this.containsRegex(left, value));
             }
@@ -310,7 +310,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     @Override
     public Object containsAll(String left, List right) throws FilterEventError {
         List<Bson> all = new LinkedList<>();
-        if(right != null && ! right.isEmpty()) {
+        if (right != null && !right.isEmpty()) {
             for (Object value : right) {
                 all.add(this.containsRegex(left, value));
             }
@@ -323,7 +323,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
 
     @Override
     public Object isMatchingPattern(String left, String pattern, List<PatternOption> options) throws FilterEventError {
-        if(! options.isEmpty() && options.contains(PatternOption.CASE_INSENSITIVE)) {
+        if (!options.isEmpty() && options.contains(PatternOption.CASE_INSENSITIVE)) {
             this.stack.push(Filters.regex(left, pattern, "i"));
         } else {
             this.stack.push(Filters.regex(left, pattern));
@@ -332,7 +332,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     }
 
     private Bson containsRegex(String left, Object right) {
-        if(right instanceof String) {
+        if (right instanceof String) {
             String value = (String) this.value(right);
             if (value != null) {
                 return Filters.regex(this.property(left, right), "^.*" + Pattern.quote(value) + ".*$");
@@ -383,33 +383,37 @@ public class BsonFilterEvents implements FilterEvents<Object> {
         throw new FilterEventError("cannot apply contains to property");
     }
 
-    private List values(List v) {
-        if(v == null || v.isEmpty()) return v;
-        List result = new ArrayList(v.size());
+    private List<Object> values(List<Object> v) {
+        if (v == null || v.isEmpty()) return v;
+        List<Object> result = new ArrayList<>(v.size());
         for (Object o : v) {
             result.add(this.value(o));
         }
 
         return result;
     }
+
     private Object value(Object v) {
-        if(v != null) {
-            if(v instanceof Temporal) {
-                if(v instanceof ZonedDateTime) {
-                    return Date.from(((ZonedDateTime)v).toInstant());
-                } if(v instanceof LocalDateTime) {
-                    return Date.from(((LocalDateTime)v).atZone(ZoneId.of("Z")).toInstant());
-                } if(v instanceof LocalDate) {
-                    return Date.from(((LocalDate)v).atStartOfDay().atZone(ZoneId.of("Z")).toInstant());
-                } if(v instanceof LocalTime) {
-                    return Date.from(((LocalTime)v).atDate(LocalDate.of(1970, 1, 1)).atZone(ZoneId.of("Z")).toInstant());
+        if (v != null) {
+            if (v instanceof Temporal) {
+                if (v instanceof ZonedDateTime zdt) {
+                    return Date.from(zdt.toInstant());
+                }
+                if (v instanceof LocalDateTime ldt) {
+                    return Date.from(ldt.atZone(ZoneId.of("Z")).toInstant());
+                }
+                if (v instanceof LocalDate ld) {
+                    return Date.from(ld.atStartOfDay().atZone(ZoneId.of("Z")).toInstant());
+                }
+                if (v instanceof LocalTime lt) {
+                    return Date.from(lt.atDate(LocalDate.of(1970, 1, 1)).atZone(ZoneId.of("Z")).toInstant());
                 }
             }
-            if(v instanceof Number) {
+            if (v instanceof Number) {
                 return new BigDecimal(v.toString());
             }
-            if(v instanceof FilterEventsGenerator.SpecialValues) {
-                switch (((FilterEventsGenerator.SpecialValues)v)) {
+            if (v instanceof FilterEventsGenerator.SpecialValues values) {
+                switch (values) {
                     case NULL:
                         return null;
                 }
@@ -420,14 +424,14 @@ public class BsonFilterEvents implements FilterEvents<Object> {
 
 
     public Bson filter() {
-        if(this.stack.isEmpty()) {
+        if (this.stack.isEmpty()) {
             return null;
         }
         return this.stack.peek();
     }
 
     private String property(String name, Object comparedToValue) {
-        if(comparedToValue instanceof ZonedDateTime) {
+        if (comparedToValue instanceof ZonedDateTime) {
             return name + ".ts";
         }
         return name;

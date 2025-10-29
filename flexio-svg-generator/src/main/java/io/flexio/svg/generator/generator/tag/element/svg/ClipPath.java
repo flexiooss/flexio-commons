@@ -5,6 +5,7 @@ import io.flexio.svg.generator.generator.tag.element.SVGElement;
 
 public final class ClipPath extends ClosableElement<ClipPath> implements SVGElement<ClipPath> {
     private static final String clipPath = "clipPath";
+
     @Override
     public String name() {
         return clipPath;

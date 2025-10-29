@@ -1,0 +1,28 @@
+package org.generated.mongo;
+
+import java.lang.String;
+import org.bson.Document;
+import org.generated.Test;
+
+public class TestMongoMapper {
+  public Test toValue(Document document) {
+    Test.Builder builder = Test.builder();
+    if (document.get("stored") != null) {
+      builder.stored(new String(document.get("stored").toString()));
+    }
+    if (document.get("notStored") != null) {
+      builder.notStored(new String(document.get("notStored").toString()));
+    }
+    return builder.build();
+  }
+
+  public Document toDocument(Test value) {
+    Document document = new Document();
+    if (value.stored() != null) {
+      document.put("stored", value.stored());
+    } else {
+      document.put("stored", null);
+    }
+    return document;
+  }
+}

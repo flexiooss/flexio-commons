@@ -1,0 +1,38 @@
+package org.generated.mongo;
+
+import java.util.LinkedList;
+import java.util.List;
+import org.bson.Document;
+import org.generated.Test;
+import org.generated.test.P;
+import org.generated.test.mongo.PMongoMapper;
+
+public class TestMongoMapper {
+  public Test toValue(Document document) {
+    Test.Builder builder = Test.builder();
+    if (document.get("p") != null) {
+      List<P> values = new LinkedList<>();
+      PMongoMapper mapper = new PMongoMapper();
+      for (Document doc : document.getList("p", Document.class)) {
+        values.add(mapper.toValue(doc));
+      }
+      builder.p(values);
+    }
+    return builder.build();
+  }
+
+  public Document toDocument(Test value) {
+    Document document = new Document();
+    if (value.p() != null) {
+      List<Document> docs = new LinkedList<>();
+      PMongoMapper mapper = new PMongoMapper();
+      for (P v : value.p()) {
+        docs.add(mapper.toDocument(v));
+      }
+      document.put("p", docs);
+    } else {
+      document.put("p", null);
+    }
+    return document;
+  }
+}
