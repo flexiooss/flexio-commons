@@ -6,7 +6,9 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.exceptions.JedisException;
 
+import java.io.IOException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -18,12 +20,12 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
     private final JedisPool pool;
     private final String keyPrefix;
 
-    private final Function<K, String> keyToString;
-    private final Function<String, K> stringToKey;
-    private final Function<V, String> valueToString;
-    private final Function<String, V> stringToValue;
+    private final FunctionThrowingIOException<K, String> keyToString;
+    private final FunctionThrowingIOException<String, K> stringToKey;
+    private final FunctionThrowingIOException<V, String> valueToString;
+    private final FunctionThrowingIOException<String, V> stringToValue;
 
-    public SimpleRedisCacheStore(JedisPool pool, String keyPrefix, Function<K, String> keyToString, Function<String, K> stringToKey, Function<V, String> valueToString, Function<String, V> stringToValue) {
+    public SimpleRedisCacheStore(JedisPool pool, String keyPrefix, FunctionThrowingIOException<K, String> keyToString, FunctionThrowingIOException<String, K> stringToKey, FunctionThrowingIOException<V, String> valueToString, FunctionThrowingIOException<String, V> stringToValue) {
         this.pool = pool;
         this.keyPrefix = keyPrefix;
         this.keyToString = keyToString;
@@ -41,7 +43,7 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
             } else {
                 return Optional.ofNullable(this.stringToValue.apply(redisValue));
             }
-        } catch (JedisException e) {
+        } catch (JedisException | IOException e) {
             log.error("error reaching redis cache", e);
             return null;
         }
@@ -51,7 +53,7 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
     public void store(K k, V v) {
         try (Jedis client = pool.getResource()) {
             client.set(this.redisKey(k), this.valueToString.apply(v));
-        } catch (JedisException e) {
+        } catch (JedisException | IOException e) {
             log.error("error storing to redis cache", e);
         }
     }
@@ -91,9 +93,15 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
     public Set<K> keys() {
         try (Jedis client = pool.getResource()) {
             Set<String> redisKeys = client.keys(this.keyPrefix + ":*");
-            return redisKeys.stream()
-                    .map(rk -> this.stringToKey.apply(rk.substring(this.keyPrefix.length() + 1)))
-                    .collect(Collectors.toSet());
+            Set<K> result = new HashSet<>();
+            for (String rk : redisKeys) {
+                try {
+                    result.add(this.stringToKey.apply(rk.substring(this.keyPrefix.length() + 1)));
+                } catch (IOException e) {
+                    log.error("error reading key {}, ignoring", rk);
+                }
+            }
+            return result;
         } catch (JedisException e) {
             log.error("error listing key from redis cache", e);
             return Collections.emptySet();
@@ -101,6 +109,11 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
     }
 
     private String redisKey(K k) {
-        return String.format("%s:%s", this.keyPrefix, this.keyToString.apply(k));
+        try {
+            return String.format("%s:%s", this.keyPrefix, this.keyToString.apply(k));
+        } catch (IOException e) {
+            log.error("error computing key {}, return null", k);
+            return null;
+        }
     }
 }
