@@ -7,6 +7,7 @@ import io.flexio.docker.api.types.Container;
 import io.flexio.docker.api.types.ContainerCreationData;
 import io.flexio.docker.api.types.ContainerCreationResult;
 import io.flexio.docker.api.types.Image;
+import io.flexio.docker.api.types.container.NetworkSettings;
 import io.flexio.docker.api.types.container.State;
 import io.flexio.docker.api.types.optional.OptionalContainer;
 import io.flexio.docker.auth.DockerAuth;
@@ -145,7 +146,7 @@ public class DockerClient {
             Container container = this.client.containers().container().inspect().get(req -> req.containerId(id))
                     .opt().status200().payload()
                     .orElseThrow(assertFails("no such container %s", id));
-
+            NetworkSettings ns = this.networkSettingsFromNetworks(container);
 
             InspectImageGetResponse imageGetResponse = this.client.images().inspectImage().get(req -> req
                     .imageId(container.image())
@@ -155,11 +156,30 @@ public class DockerClient {
                     .opt().status200().payload()
                     .orElseThrow(assertFails("no such image %s", container.image()));
 
-            return OptionalContainer.of(Container.from(container).image(image.repoTags().get(0)).build());
+            return OptionalContainer.of(Container.from(container)
+                    .image(image.repoTags().get(0)).build()
+                    .withNetworkSettings(ns));
         } catch (IOException e) {
             e.printStackTrace();
             throw communicationError(this.baseUrl);
         }
+    }
+
+    private NetworkSettings networkSettingsFromNetworks(Container container) {
+        final NetworkSettings originNetworkSettings = container.networkSettings();
+        if (originNetworkSettings.opt().iPAddress().isPresent()
+                && originNetworkSettings.iPAddress() != null
+                && !originNetworkSettings.iPAddress().isBlank()) {
+            return originNetworkSettings;
+        }
+        if (originNetworkSettings.networks().propertyNames().length < 1) {
+            return originNetworkSettings;
+        }
+        final String firstNetworkName = originNetworkSettings.networks().propertyNames()[0];
+        return originNetworkSettings.withIPAddress(originNetworkSettings.opt().networks().property(firstNetworkName)
+                .single().objectValue().property(NetworkSettings.names_().iPAddress()).single().stringValue()
+                .orElse(null)
+        );
     }
 
     private ContainerCreationLog ensureRunningContainerIsUpToDate(Container container, OptionalContainer runningContainer) {

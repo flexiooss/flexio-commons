@@ -7,7 +7,7 @@
     <parent>
         <artifactId>flexio-commons</artifactId>
         <groupId>io.flexio.commons</groupId>
-        <version>1.276.0</version>
+        <version>1.277.0</version>
         <relativePath>../</relativePath>
     </parent>
 
