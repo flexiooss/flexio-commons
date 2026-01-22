@@ -2,6 +2,7 @@ package io.flexio.services.tests.mongo;
 
 import io.flexio.docker.DockerResource;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class MongoTest {
@@ -24,7 +25,13 @@ public class MongoTest {
 
     static public MongoResource mongo(Supplier<DockerResource> dockerSupplier) {
         return new MongoResource(
-                () -> dockerSupplier.get().containerInfo(MONGO).networkSettings().iPAddress().orElseThrow(() -> new AssertionError("no ip address for container")),
+                () -> {
+                    Optional<String> ipAddressForContainer = dockerSupplier.get().containerInfo(MONGO).networkSettings().iPAddress();
+                    if (ipAddressForContainer.isEmpty() || ipAddressForContainer.get().isBlank()) {
+                        throw new AssertionError("no ip address for container");
+                    }
+                    return ipAddressForContainer.get();
+                },
                 27017);
     }
 

@@ -72,163 +72,163 @@ public class MySQLJsonRepositoryWithPropertyQueryAcceptanceTest extends Property
 
     @Override
     public void givenFilterOnManyDateProperty__whenContainsAny__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyDateProperty__whenContainsAny__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyDateProperty__whenContainsAny__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyTZDatetimeProperty__whenContainsAll__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyTZDatetimeProperty__whenContainsAll__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyTZDatetimeProperty__whenContainsAll__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyTimeProperty__whenContainsAll__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyTimeProperty__whenContainsAll__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyTimeProperty__whenContainsAll__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyDatetimeProperty__whenContainsAll__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyDatetimeProperty__whenContainsAll__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyDatetimeProperty__whenContainsAll__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyLongProperty__whenContains__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyLongProperty__whenContains__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyLongProperty__whenContains__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyStringProperty__whenContainsAny__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyStringProperty__whenContainsAny__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyStringProperty__whenContainsAny__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyDoubleProperty__whenContainsAll__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyDoubleProperty__whenContainsAll__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyDoubleProperty__whenContainsAll__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyLongProperty__whenContainsAll__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyLongProperty__whenContainsAll__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyLongProperty__whenContainsAll__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyIntegerProperty__whenContains__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyIntegerProperty__whenContains__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyIntegerProperty__whenContains__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyTimeProperty__whenContains__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyTimeProperty__whenContains__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyTimeProperty__whenContains__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyBooleanProperty__whenContainsAll__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyBooleanProperty__whenContainsAll__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyBooleanProperty__whenContainsAll__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyDateProperty__whenContainsAll__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyDateProperty__whenContainsAll__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyDateProperty__whenContainsAll__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyFloatProperty__whenContainsAny__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyFloatProperty__whenContainsAny__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyFloatProperty__whenContainsAny__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyIntegerProperty__whenContainsAny__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyIntegerProperty__whenContainsAny__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyIntegerProperty__whenContainsAny__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyStringProperty__whenContains__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyStringProperty__whenContains__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyStringProperty__whenContains__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyDoubleProperty__whenContains__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyDoubleProperty__whenContains__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyDoubleProperty__whenContains__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyBooleanProperty__whenContains__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyBooleanProperty__whenContains__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyBooleanProperty__whenContains__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyStringProperty__whenContainsAll__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyStringProperty__whenContainsAll__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyStringProperty__whenContainsAll__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyFloatProperty__whenContains__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyFloatProperty__whenContains__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyFloatProperty__whenContains__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyTZDatetimeProperty__whenContainsAny__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyTZDatetimeProperty__whenContainsAny__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyTZDatetimeProperty__whenContainsAny__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyTimeProperty__whenContainsAny__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyTimeProperty__whenContainsAny__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyTimeProperty__whenContainsAny__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyTZDatetimeProperty__whenContains__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyTZDatetimeProperty__whenContains__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyTZDatetimeProperty__whenContains__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyDatetimeProperty__whenContains__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyDatetimeProperty__whenContains__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyDatetimeProperty__whenContains__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyDatetimeProperty__whenContainsAny__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyDatetimeProperty__whenContainsAny__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyDatetimeProperty__whenContainsAny__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyDoubleProperty__whenContainsAny__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyDoubleProperty__whenContainsAny__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyDoubleProperty__whenContainsAny__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyLongProperty__whenContainsAny__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyLongProperty__whenContainsAny__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyLongProperty__whenContainsAny__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyFloatProperty__whenContainsAll__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyFloatProperty__whenContainsAll__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyFloatProperty__whenContainsAll__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyIntegerProperty__whenContainsAll__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyIntegerProperty__whenContainsAll__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyIntegerProperty__whenContainsAll__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyBooleanProperty__whenContainsAny__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyBooleanProperty__whenContainsAny__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyBooleanProperty__whenContainsAny__thenSelectedValueReturned");
     }
     @Override
     public void givenFilterOnManyDateProperty__whenContains__thenSelectedValueReturned() {
-        System.err.println("NOT IMPELENTED givenFilterOnManyDateProperty__whenContains__thenSelectedValueReturned");
+        System.err.println("NOT IMPLEMENTED givenFilterOnManyDateProperty__whenContains__thenSelectedValueReturned");
     }
 
     @Override
     public void givenFilterOnStringProperty__whenIsIn_andEmptyList__thenSelectedValueReturned() throws Exception {
-        System.out.println("NOT IMPELENTED givenFilterOnStringProperty__whenIsIn_andEmptyList__thenSelectedValueReturned");
+        System.out.println("NOT IMPLEMENTED givenFilterOnStringProperty__whenIsIn_andEmptyList__thenSelectedValueReturned");
     }
 
     @Override
     public void givenFilterOnStringProperty__whenIsIn_andNullInList__thenSelectedValueReturned() throws Exception {
-        System.out.println("NOT IMPELENTED givenFilterOnStringProperty__whenIsIn_andNullInList__thenSelectedValueReturned");
+        System.out.println("NOT IMPLEMENTED givenFilterOnStringProperty__whenIsIn_andNullInList__thenSelectedValueReturned");
     }
 
     @Override
     public void givenFilterOnStringProperty__whenStartsWithAny_andEmptyList__thenSelectedValueReturned() throws Exception {
-        System.out.println("NOT IMPELENTED givenFilterOnStringProperty__whenStartsWithAny_andEmptyList__thenSelectedValueReturned");
+        System.out.println("NOT IMPLEMENTED givenFilterOnStringProperty__whenStartsWithAny_andEmptyList__thenSelectedValueReturned");
     }
 
     @Override
     public void givenFilterOnStringProperty__whenEndsWithAny_andEmptyList__thenSelectedValueReturned() throws Exception {
-        System.out.println("NOT IMPELENTED givenFilterOnStringProperty__whenEndsWithAny_andEmptyList__thenSelectedValueReturned");
+        System.out.println("NOT IMPLEMENTED givenFilterOnStringProperty__whenEndsWithAny_andEmptyList__thenSelectedValueReturned");
     }
 
     @Override
     public void givenFilterOnStringProperty__whenContainsAll_andEmptyList__thenSelectedValueReturned() throws Exception {
-        System.out.println("NOT IMPELENTED givenFilterOnStringProperty__whenContainsAll_andEmptyList__thenSelectedValueReturned");
+        System.out.println("NOT IMPLEMENTED givenFilterOnStringProperty__whenContainsAll_andEmptyList__thenSelectedValueReturned");
     }
 
     @Override
     public void givenFilterOnStringProperty__whenContainsAny_andEmptyList__thenSelectedValueReturned() throws Exception {
-        System.out.println("NOT IMPELENTED givenFilterOnStringProperty__whenContainsAll_andEmptyList__thenSelectedValueReturned");
+        System.out.println("NOT IMPLEMENTED givenFilterOnStringProperty__whenContainsAll_andEmptyList__thenSelectedValueReturned");
     }
 
     @Override
     public void givenFilterOnStringPropertyProperty__whenRegexAndInsensitive__thenSelectedValueReturned() throws Exception {
-        System.out.println("NOT IMPELENTED givenFilterOnStringPropertyProperty__whenRegexAndInsensitive__thenSelectedValueReturned");
+        System.out.println("NOT IMPLEMENTED givenFilterOnStringPropertyProperty__whenRegexAndInsensitive__thenSelectedValueReturned");
     }
 
     @Override
     public void givenFilterOnStringPropertyProperty__whenRegexAndSensitive__thenSelectedValueReturned() throws Exception {
-        System.out.println("NOT IMPELENTED givenFilterOnStringPropertyProperty__whenRegexAndSensitive__thenSelectedValueReturned");
+        System.out.println("NOT IMPLEMENTED givenFilterOnStringPropertyProperty__whenRegexAndSensitive__thenSelectedValueReturned");
     }
 
 
