@@ -1,18 +1,20 @@
 package io.flexio.docker;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.flexio.docker.api.ContainerListGetResponse;
 import io.flexio.docker.api.CreateImagePostResponse;
 import io.flexio.docker.api.ValueList;
+import io.flexio.docker.api.types.Container;
+import io.flexio.docker.api.types.container.NetworkSettings;
+import io.flexio.docker.api.types.container.State;
+import io.flexio.docker.api.types.json.ContainerReader;
 import io.flexio.docker.auth.DockerAuth;
 import io.flexio.docker.client.DockerEngineAPIClient;
 import io.flexio.docker.client.DockerEngineAPIRequesterClient;
-import io.flexio.docker.api.types.Container;
-import io.flexio.docker.api.types.container.State;
 import io.flexio.docker.descriptors.ContainerCreationLog;
 import io.flexio.docker.descriptors.ContainerStartLog;
-import org.codingmatters.poom.services.support.Env;
 import org.codingmatters.rest.api.client.okhttp.HttpClientWrapper;
 import org.codingmatters.rest.api.client.okhttp.OkHttpClientWrapper;
 import org.codingmatters.rest.api.client.okhttp.OkHttpRequesterFactory;
@@ -23,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -67,13 +68,13 @@ public class DockerClientTest {
                 req1.name("not-started").payload(payload -> payload.image(ALPINE_IMAGE).cmd("/bin/sh", "-c", "while true; do sleep 1000; done"))
         ).status201().payload().id();
 
-        client.containers().container().stop().post(req->req.containerId(notStartedId));
+        client.containers().container().stop().post(req -> req.containerId(notStartedId));
 
         String startedId = client.containers().createContainer().post(req ->
                 req.name("already-started").payload(payload -> payload.image(ALPINE_IMAGE).cmd("/bin/sh", "-c", "while true; do sleep 1000; done"))
         ).status201().payload().id();
 
-        client.containers().container().start().post(req->req.containerId(startedId));
+        client.containers().container().start().post(req -> req.containerId(startedId));
     }
 
     @After
@@ -176,6 +177,15 @@ public class DockerClientTest {
     }
 
 
+    @Test
+    public void name() throws IOException {
+        JsonFactory jsonFactory = new JsonFactory();
+        try (JsonParser parser = jsonFactory.createParser(Thread.currentThread().getContextClassLoader().getResourceAsStream("containerDump.json"))) {
+            Container container = new ContainerReader().read(parser);
+            NetworkSettings ns = dockerClient.networkSettingsFromNetworks(container);
+            assertThat(ns.iPAddress(), is("172.17.0.4"));
+        }
+    }
 
     private void cleanUpContainers(DockerEngineAPIClient client) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
@@ -187,7 +197,7 @@ public class DockerClientTest {
                 //"{\"name\": [\"not-created\"]}"
         ));
         for (io.flexio.docker.api.types.ContainerInList container : resp.opt().status200().payload().orElse(new ValueList.Builder<io.flexio.docker.api.types.ContainerInList>().build())) {
-            client.containers().container().kill().post(req->req.containerId(container.id()));
+            client.containers().container().kill().post(req -> req.containerId(container.id()));
             client.containers().container().delete(req -> req.containerId(container.id()));
         }
     }
