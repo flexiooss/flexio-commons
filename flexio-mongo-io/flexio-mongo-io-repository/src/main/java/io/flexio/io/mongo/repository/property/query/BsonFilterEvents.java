@@ -198,7 +198,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     }
 
     @Override
-    public Object in(String left, List right) throws FilterEventError {
+    public Object in(String left, List<Object> right) throws FilterEventError {
         Bson filter;
         if (this.config.potentialOids().contains(left)) {
             List<Object> oids = new ArrayList<>();
@@ -229,7 +229,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     }
 
     @Override
-    public Object anyIn(String left, List right) throws FilterEventError {
+    public Object anyIn(String left, List<Object> right) throws FilterEventError {
         Bson filter;
         if (this.config.potentialOids().contains(left)) {
             List<Object> oids = new ArrayList<>();
@@ -260,7 +260,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     }
 
     @Override
-    public Object startsWithAny(String left, List right) throws FilterEventError {
+    public Object startsWithAny(String left, List<Object> right) throws FilterEventError {
         List<Bson> any = new LinkedList<>();
         if (right != null && !right.isEmpty()) {
             for (Object value : right) {
@@ -274,7 +274,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     }
 
     @Override
-    public Object endsWithAny(String left, List right) throws FilterEventError {
+    public Object endsWithAny(String left, List<Object> right) throws FilterEventError {
         List<Bson> any = new LinkedList<>();
         if (right != null && !right.isEmpty()) {
             for (Object value : right) {
@@ -294,7 +294,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     }
 
     @Override
-    public Object containsAny(String left, List right) throws FilterEventError {
+    public Object containsAny(String left, List<Object> right) throws FilterEventError {
         List<Bson> any = new LinkedList<>();
         if (right != null && !right.isEmpty()) {
             for (Object value : right) {
@@ -308,7 +308,7 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     }
 
     @Override
-    public Object containsAll(String left, List right) throws FilterEventError {
+    public Object containsAll(String left, List<Object> right) throws FilterEventError {
         List<Bson> all = new LinkedList<>();
         if (right != null && !right.isEmpty()) {
             for (Object value : right) {
@@ -381,6 +381,65 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     @Override
     public Object containsProperty(String left, String right) throws FilterEventError {
         throw new FilterEventError("cannot apply contains to property");
+    }
+
+    @Override
+    public Object isEqualsList(String left, List<Object> right) throws FilterEventError {
+        Bson filter;
+        if (this.config.potentialOids().contains(left)) {
+            List<Object> oids = this.toObjectIds(right);
+            if (oids != null) {
+                filter = Filters.or(
+                        Filters.eq(left, this.values(right)),
+                        Filters.eq(left, oids)
+                );
+            } else {
+                filter = Filters.eq(left, this.values(right));
+            }
+        } else {
+            filter = Filters.eq(left, this.values(right));
+        }
+        this.stack.push(filter);
+        return null;
+    }
+
+    @Override
+    public Object isNotEqualsList(String left, List<Object> right) throws FilterEventError {
+        Bson filter;
+        if (this.config.potentialOids().contains(left)) {
+            List<Object> oids = this.toObjectIds(right);
+            if (oids != null) {
+                filter = Filters.and(
+                        Filters.ne(left, this.values(right)),
+                        Filters.ne(left, oids)
+                );
+            } else {
+                filter = Filters.ne(left, this.values(right));
+            }
+        } else {
+            filter = Filters.ne(left, this.values(right));
+        }
+        this.stack.push(filter);
+        return null;
+    }
+
+    /**
+     * Converts all elements in the list to ObjectIds.
+     * Returns null if any element cannot be converted.
+     */
+    private List<Object> toObjectIds(List<Object> values) {
+        if (values == null || values.isEmpty()) {
+            return null;
+        }
+        List<Object> oids = new ArrayList<>(values.size());
+        for (Object o : values) {
+            try {
+                oids.add(new ObjectId(o.toString()));
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        }
+        return oids;
     }
 
     private List<Object> values(List<Object> v) {

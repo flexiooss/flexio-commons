@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -21,8 +20,8 @@ public class DocFilterEvents implements FilterEvents {
 
     @Override
     public Object isEquals(String left, Object right) throws FilterEventError {
-        if(right != null && right instanceof Boolean) {
-            if(! ((Boolean) right).booleanValue()) {
+        if (right != null && right instanceof Boolean b) {
+            if (!b) {
                 this.appendIsFalsePredicate(left, "=");
                 return null;
             }
@@ -133,7 +132,7 @@ public class DocFilterEvents implements FilterEvents {
 
     @Override
     public Object startsWithProperty(String left, String right) throws FilterEventError {
-        this.appendPropertySurroundedPrepicate(left, "LIKE", "", right, "%");
+        this.appendPropertySurroundedPredicate(left, "LIKE", "", right, "%");
         return null;
     }
 
@@ -145,13 +144,13 @@ public class DocFilterEvents implements FilterEvents {
 
     @Override
     public Object endsWithProperty(String left, String right) throws FilterEventError {
-        this.appendPropertySurroundedPrepicate(left, "LIKE", "%", right, "");
+        this.appendPropertySurroundedPredicate(left, "LIKE", "%", right, "");
         return null;
     }
 
     @Override
     public Object contains(String left, Object right) throws FilterEventError {
-        if(right instanceof String) {
+        if (right instanceof String) {
             this.appendSimplePredicate(left, "LIKE", "%" + right + "%");
         } else {
             this.stack.push(String.format("JSON_CONTAINS(JSON_EXTRACT(doc, \"$.%s\"), ?, \"$\")", left));
@@ -162,7 +161,7 @@ public class DocFilterEvents implements FilterEvents {
 
     @Override
     public Object containsProperty(String left, String right) throws FilterEventError {
-        this.appendPropertySurroundedPrepicate(left, "LIKE", "%", right, "%");
+        this.appendPropertySurroundedPredicate(left, "LIKE", "%", right, "%");
         return null;
     }
 
@@ -222,7 +221,7 @@ public class DocFilterEvents implements FilterEvents {
     public Object in(String left, List right) throws FilterEventError {
         StringBuilder clause = new StringBuilder(String.format("JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") IN (", left));
         for (int i = 0; i < right.size(); i++) {
-            if(i != 0) {
+            if (i != 0) {
                 clause.append(", ");
             }
             clause.append("?");
@@ -232,6 +231,39 @@ public class DocFilterEvents implements FilterEvents {
         clause.append(")");
         this.stack.push(clause.toString());
         return null;
+    }
+
+    @Override
+    public Object isEqualsList(String left, List right) throws FilterEventError {
+        this.appendListComparison(left, "=", right);
+        return null;
+    }
+
+    @Override
+    public Object isNotEqualsList(String left, List right) throws FilterEventError {
+        this.appendListComparison(left, "!=", right);
+        return null;
+    }
+
+    private void appendListComparison(String property, String operator, List<Object> values) {
+        if (values == null || values.isEmpty()) {
+            this.stack.push(String.format("JSON_EXTRACT(doc, \"$.%s\") %s JSON_ARRAY()", property, operator));
+        } else {
+            StringBuilder placeholders = new StringBuilder();
+            for (int i = 0; i < values.size(); i++) {
+                if (i > 0) placeholders.append(", ");
+                Object rawValue = values.get(i);
+                Object element = this.prepared(rawValue);
+                if (rawValue instanceof Boolean b) {
+                    // Use SQL literal for booleans to preserve true/false in JSON_ARRAY
+                    placeholders.append(b ? "true" : "false");
+                } else {
+                    placeholders.append("?");
+                    this.paramsSetters.add((statement, index) -> statement.setObject(index, element));
+                }
+            }
+            this.stack.push(String.format("JSON_EXTRACT(doc, \"$.%s\") %s JSON_ARRAY(%s)", property, operator, placeholders));
+        }
     }
 
     @Override
@@ -262,19 +294,19 @@ public class DocFilterEvents implements FilterEvents {
     }
 
     private Object prepared(Object value) {
-        if(value == null) return null;
+        if (value == null) return null;
 
-        if(value instanceof LocalTime) {
-            return DateTimeFormatter.ISO_LOCAL_TIME.format((TemporalAccessor) value);
+        if (value instanceof LocalTime time) {
+            return DateTimeFormatter.ISO_LOCAL_TIME.format(time);
         }
-        if(value instanceof LocalDate) {
-            return DateTimeFormatter.ISO_LOCAL_DATE.format((TemporalAccessor) value);
+        if (value instanceof LocalDate date) {
+            return DateTimeFormatter.ISO_LOCAL_DATE.format(date);
         }
-        if(value instanceof LocalDateTime) {
-            return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format((TemporalAccessor) value);
+        if (value instanceof LocalDateTime dt) {
+            return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(dt);
         }
-        if(value instanceof ZonedDateTime) {
-            return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format((TemporalAccessor) value);
+        if (value instanceof ZonedDateTime zdt) {
+            return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(zdt);
         }
 
         return value;
@@ -300,7 +332,7 @@ public class DocFilterEvents implements FilterEvents {
                 leftProperty, operator, rightProperty));
     }
 
-    private void appendPropertySurroundedPrepicate(String leftProperty, String operator, String prefix, String rightProperty, String postfix) {
+    private void appendPropertySurroundedPredicate(String leftProperty, String operator, String prefix, String rightProperty, String postfix) {
         this.stack.push(String.format(
                 "JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\") %s CONCAT(\"%s\", JSON_VALUE(JSON_EXTRACT(doc, \"$.%s\"), \"$\"), \"%s\")",
                 leftProperty, operator, prefix, rightProperty, postfix));
