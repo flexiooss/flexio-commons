@@ -165,7 +165,7 @@ public class DockerClient {
         }
     }
 
-    private NetworkSettings networkSettingsFromNetworks(Container container) {
+    public NetworkSettings networkSettingsFromNetworks(Container container) {
         final NetworkSettings originNetworkSettings = container.networkSettings();
         if (originNetworkSettings.opt().iPAddress().isPresent()
                 && originNetworkSettings.iPAddress() != null
