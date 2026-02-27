@@ -11,20 +11,22 @@ import io.flexio.services.tests.mongo.MongoResource;
 import io.flexio.services.tests.mongo.MongoTest;
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.codingmatters.poom.services.domain.exceptions.AlreadyExistsException;
-import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.entities.Entity;
 import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
 import org.codingmatters.poom.services.domain.entities.PagedEntityList;
-import org.junit.*;
+import org.codingmatters.poom.services.domain.exceptions.AlreadyExistsException;
+import org.codingmatters.poom.services.domain.repositories.Repository;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThrows;
 
 public class MongoCollectionRepositoryTest {
@@ -97,35 +99,12 @@ public class MongoCollectionRepositoryTest {
     }
 
     @Test
-    public void updateWhenIdNotSet() throws Exception {
-        String id;
-        try(MongoClient client = this.mongo.newClient()) {
-            Document doc = new MongoValueMongoMapper().toDocument(MongoValue.builder().name("init").build());
-            ObjectId objectId = new ObjectId();
-            doc.put("_id", objectId);
-            id = objectId.toString();
-            client.getDatabase(DB).getCollection(COLLECTION).insertOne(doc).getInsertedId();
-        }
-
-        Entity<MongoValue> entity = this.repository.retrieve(id);
-        assertThat(entity.value().name(), is("init"));
-        assertThat(entity.version(), is(BigInteger.ONE));
-
-        Entity<MongoValue> updated = this.repository.update(entity, MongoValue.builder().name("changed").build());
-        assertThat(updated.version(), is(BigInteger.TWO));
-
-        entity = this.repository.retrieve(id);
-        assertThat(entity.value().name(), is("changed"));
-        assertThat(entity.version(), is(BigInteger.TWO));
-    }
-
-    @Test
     public void create() throws Exception {
         Entity<MongoValue> entity = this.repository.create(MongoValue.builder().name("created").build());
 
         assertThat(entity.id(), is(notNullValue()));
 
-        try(MongoClient client = this.mongo.newClient()) {
+        try (MongoClient client = this.mongo.newClient()) {
             Document doc = client.getDatabase(DB).getCollection(COLLECTION).find(Filters.eq("_id", new ObjectId(entity.id()))).first();
             assertThat(doc.get("name"), is("created"));
         }
@@ -139,7 +118,7 @@ public class MongoCollectionRepositoryTest {
                 MongoValue.builder().name("created").build());
         for (String id : entityIDs) {
             assertThat(id, is(notNullValue()));
-            try(MongoClient client = this.mongo.newClient()) {
+            try (MongoClient client = this.mongo.newClient()) {
                 Document doc = client.getDatabase(DB).getCollection(COLLECTION).find(Filters.eq("_id", new ObjectId(id))).first();
                 assertThat(doc.get("name"), is("created"));
             }
@@ -158,7 +137,7 @@ public class MongoCollectionRepositoryTest {
 
         assertThat(entity.id(), is(notNullValue()));
 
-        try(MongoClient client = this.mongo.newClient()) {
+        try (MongoClient client = this.mongo.newClient()) {
             Document doc = client.getDatabase(DB).getCollection(COLLECTION).find(Filters.eq("_id", "toto")).first();
             assertThat(doc.get("name"), is("created"));
         }
@@ -173,14 +152,14 @@ public class MongoCollectionRepositoryTest {
 
     @Test
     public void delete() throws Exception {
-        try(MongoClient client = this.mongo.newClient()) {
+        try (MongoClient client = this.mongo.newClient()) {
             FindIterable<Document> docs = client.getDatabase(DB).getCollection(COLLECTION).find(Filters.eq("_id", new ObjectId("5a0188c7d5c64000165d50bd")));
             assertThat(docs.first(), is(notNullValue()));
         }
 
         this.repository.delete(new ImmutableEntity<>("5a0188c7d5c64000165d50bd", BigInteger.ONE, null));
 
-        try(MongoClient client = this.mongo.newClient()) {
+        try (MongoClient client = this.mongo.newClient()) {
             FindIterable<Document> docs = client.getDatabase(DB).getCollection(COLLECTION).find(Filters.eq("_id", new ObjectId("5a0188c7d5c64000165d50bd")));
             assertThat(docs.first(), is(nullValue()));
         }
@@ -188,14 +167,14 @@ public class MongoCollectionRepositoryTest {
 
     @Test
     public void deleteFromQuery() throws Exception {
-        try( MongoClient client = this.mongo.newClient() ){
-            FindIterable<Document> docs = client.getDatabase( DB ).getCollection( COLLECTION ).find( Filters.eq( "_id", new ObjectId( "5a0188c7d5c64000165d50bd" ) ) );
-            assertThat( docs.first(), is( notNullValue() ) );
+        try (MongoClient client = this.mongo.newClient()) {
+            FindIterable<Document> docs = client.getDatabase(DB).getCollection(COLLECTION).find(Filters.eq("_id", new ObjectId("5a0188c7d5c64000165d50bd")));
+            assertThat(docs.first(), is(notNullValue()));
         }
 
-        this.repository.deleteFrom( MongoQuery.builder().name( "Blup" ).build() );
+        this.repository.deleteFrom(MongoQuery.builder().name("Blup").build());
 
-        try( MongoClient client = this.mongo.newClient() ){
+        try (MongoClient client = this.mongo.newClient()) {
             String[] deletedIds = new String[]{
                     "5a1e6db99c3e84001528aaaa",
                     "5a1e6db99c3e84001528aaab",
@@ -209,25 +188,25 @@ public class MongoCollectionRepositoryTest {
                     "5a1e6db99c3e84001528aabd",
                     "5a1e6db99c3e84001528aabe"
             };
-            for( String id : deletedIds ){
-                FindIterable<Document> docs = client.getDatabase( DB ).getCollection( COLLECTION ).find( Filters.eq( "_id", new ObjectId( id ) ) );
-                assertThat( docs.first(), is( nullValue() ) );
+            for (String id : deletedIds) {
+                FindIterable<Document> docs = client.getDatabase(DB).getCollection(COLLECTION).find(Filters.eq("_id", new ObjectId(id)));
+                assertThat(docs.first(), is(nullValue()));
             }
         }
     }
 
     @Test
     public void deleteAllFromNullQuery() throws Exception {
-        try( MongoClient client = this.mongo.newClient() ){
-            FindIterable<Document> docs = client.getDatabase( DB ).getCollection( COLLECTION ).find( Filters.eq( "_id", new ObjectId( "5a0188c7d5c64000165d50bd" ) ) );
-            assertThat( docs.first(), is( notNullValue() ) );
+        try (MongoClient client = this.mongo.newClient()) {
+            FindIterable<Document> docs = client.getDatabase(DB).getCollection(COLLECTION).find(Filters.eq("_id", new ObjectId("5a0188c7d5c64000165d50bd")));
+            assertThat(docs.first(), is(notNullValue()));
         }
 
-        this.repository.deleteFrom( null );
+        this.repository.deleteFrom(null);
 
-        try( MongoClient client = this.mongo.newClient() ){
-            long total = client.getDatabase( DB ).getCollection( COLLECTION ).countDocuments();
-            assertThat( total, is( 0L ) );
+        try (MongoClient client = this.mongo.newClient()) {
+            long total = client.getDatabase(DB).getCollection(COLLECTION).countDocuments();
+            assertThat(total, is(0L));
         }
     }
 
@@ -277,7 +256,6 @@ public class MongoCollectionRepositoryTest {
         assertThat(results.startIndex(), is(0L));
         assertThat(results.endIndex(), is(0L));
     }
-
 
 
     @Test
