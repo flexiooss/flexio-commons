@@ -6,12 +6,9 @@ import com.mongodb.WriteConcern;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Collation;
-import com.mongodb.client.model.DeleteOptions;
-import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
-import com.mongodb.client.result.UpdateResult;
 import io.flexio.io.mongo.repository.property.query.PropertyQuerier;
 import io.flexio.io.mongo.repository.property.query.config.MongoFilterConfig;
 import org.bson.Document;
@@ -25,16 +22,16 @@ import org.codingmatters.poom.services.domain.exceptions.OptimisticLockingExcept
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
+import org.codingmatters.poom.services.logging.CategorizedLogger;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
+    private static final CategorizedLogger log = CategorizedLogger.getLogger(MongoCollectionRepository.class);
 
     public static final String VERSION_FIELD = "__version";
 
@@ -233,8 +230,8 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
     public List<String> createMany(V... values) throws RepositoryException {
         try {
             MongoCollection<Document> collection = this.resourceCollection(this.mongoClient);
-            List<Document> listOfDocuments = new LinkedList<>();
-            List<String> listOfEntityIDs = new LinkedList<>();
+            List<Document> listOfDocuments = new ArrayList<>(values.length);
+            List<String> listOfEntityIDs = new ArrayList<>(values.length);
 
             if (values.length == 0) {
                 return listOfEntityIDs;
@@ -254,7 +251,8 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             return listOfEntityIDs;
 
         } catch (MongoWriteException e) {
-            System.out.println(e.getError());
+            log.error("Cannot create documents", e);
+            ;
             if (e.getError().getCode() == 11000) {
                 throw new AlreadyExistsException("entity with same id already exists", e);
             }
@@ -284,7 +282,7 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
             collection.insertOne(doc);
             return new ImmutableEntity<>(doc.get("_id").toString(), version, this.toValue(doc));
         } catch (MongoWriteException e) {
-            System.out.println(e.getError());
+            log.error("Cannot create document", e);
             if (e.getError().getCode() == 11000) {
                 throw new AlreadyExistsException("entity with same id already exists", e);
             }
@@ -325,44 +323,37 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
         }
         try {
             Document newDoc = this.toDocument(withValue);
-            Long nextVersion = this.nextVersion(entity);
-            if (this.withOptimisticLocking && entity.version().longValue() != nextVersion - 1) {
-                throw new OptimisticLockingException(String.format("optimistic locking error, version %s does not match", entity.version()));
-            }
-
-            newDoc.put(VERSION_FIELD, nextVersion);
+            newDoc.remove(VERSION_FIELD);
 
             Bson filter = this.idFilter(entity.id());
             if (this.withOptimisticLocking) {
                 filter = Filters.and(filter, Filters.eq(VERSION_FIELD, entity.version().longValue()));
             }
-            UpdateResult results = this.resourceCollection(this.mongoClient).replaceOne(filter, newDoc);
-            if (results.getModifiedCount() == 1) {
-                return new ImmutableEntity<>(entity.id(), BigInteger.valueOf(nextVersion), this.toValue(newDoc));
+
+            Document update = new Document()
+                    .append("$set", newDoc)
+                    .append("$inc", new Document(VERSION_FIELD, 1L));
+
+            FindOneAndUpdateOptions options = new FindOneAndUpdateOptions()
+                    .returnDocument(ReturnDocument.AFTER);
+
+            Document updatedDoc = this.resourceCollection(this.mongoClient)
+                    .findOneAndUpdate(filter, update, options);
+
+            if (updatedDoc != null) {
+                return new ImmutableEntity<>(entity.id(), BigInteger.valueOf(documentVersion(updatedDoc)), this.toValue(updatedDoc));
             } else {
                 if (this.withOptimisticLocking) {
-                    throw new OptimisticLockingException(String.format("optimistic locking error, version %s does not match", entity.version()));
+                    throw new OptimisticLockingException(
+                            String.format("Optimistic locking error for entity %s: expected version %s but document was modified or not found",
+                                    entity.id(), entity.version()));
                 } else {
-                    throw new RepositoryException("failed updating entity " + entity.id() + " (updated count was " + results.getModifiedCount() + ")");
+                    throw new RepositoryException("Entity not found: " + entity.id());
                 }
             }
         } catch (MongoException e) {
             throw new RepositoryException("mongo exception while updating entity", e);
         }
-    }
-
-    private Long nextVersion(Entity<V> entity) {
-        Long nextVersion;
-        Document currentVersionDoc = this.resourceCollection(this.mongoClient)
-                .find(this.idFilter(entity.id()))
-                .projection(new Document(VERSION_FIELD, 1))
-                .first();
-        if (currentVersionDoc != null && currentVersionDoc.containsKey(VERSION_FIELD)) {
-            nextVersion = currentVersionDoc.getLong(VERSION_FIELD) + 1;
-        } else {
-            nextVersion = 2L;
-        }
-        return nextVersion;
     }
 
     @Override
@@ -410,13 +401,14 @@ public class MongoCollectionRepository<V, Q> implements Repository<V, Q> {
                 return new PagedEntityList.DefaultPagedEntityList<>(0L, 0L, totalCount, new ArrayList<>());
             }
 
+            int limit = (int) (endIndex - startIndex + 1);
             FindIterable<Document> result = (filter != null ? collection.find(filter) : collection.find())
                     .collation(this.buildCollation())
                     .sort(sort)
                     .skip((int) startIndex)
-                    .limit((int) (endIndex - startIndex + 1));
+                    .limit(limit);
 
-            Collection<Entity<V>> found = new LinkedList<>();
+            List<Entity<V>> found = new ArrayList<>(limit);
             for (Document document : result) {
                 found.add(new ImmutableEntity<>(this.documentId(document), BigInteger.valueOf(documentVersion(document)), this.toValue(document)));
             }
