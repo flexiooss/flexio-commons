@@ -5,12 +5,11 @@ import org.codingmatters.poom.services.logging.CategorizedLogger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.exceptions.JedisException;
+import redis.clients.jedis.params.ScanParams;
+import redis.clients.jedis.resps.ScanResult;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -61,7 +60,7 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
     @Override
     public boolean has(K k) {
         try (Jedis client = pool.getResource()) {
-            return !client.keys(this.redisKey(k)).isEmpty();
+            return client.exists(this.redisKey(k));
         } catch (JedisException e) {
             log.warn("error looking up key in redis cache", e);
             return false;
@@ -80,30 +79,50 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
     @Override
     public void clear() {
         try (Jedis client = pool.getResource()) {
-            String[] keys = client.keys(this.keyPrefix + ":*").toArray(new String[0]);
-            if (keys.length > 0) {
-                client.del(keys);
-            }
+            String cursor = ScanParams.SCAN_POINTER_START;
+            ScanParams scanParams = new ScanParams().match(this.keyPrefix + ":*").count(100);
+
+            do {
+                ScanResult<String> scanResult = client.scan(cursor, scanParams);
+                List<String> keys = scanResult.getResult();
+
+                if (!keys.isEmpty()) {
+                    client.del(keys.toArray(new String[0]));
+                }
+
+                cursor = scanResult.getCursor();
+            } while (!cursor.equals(ScanParams.SCAN_POINTER_START));
+
         } catch (JedisException e) {
-            log.error("error clearing redis cache", e);
+            log.error("Error clearing redis cache with SCAN", e);
         }
     }
 
     @Override
     public Set<K> keys() {
+        Set<K> result = new HashSet<>();
         try (Jedis client = pool.getResource()) {
-            Set<String> redisKeys = client.keys(this.keyPrefix + ":*");
-            Set<K> result = new HashSet<>();
-            for (String rk : redisKeys) {
-                try {
-                    result.add(this.stringToKey.apply(rk.substring(this.keyPrefix.length() + 1)));
-                } catch (IOException e) {
-                    log.error("error reading key {}, ignoring", rk);
+            String cursor = ScanParams.SCAN_POINTER_START;
+            ScanParams scanParams = new ScanParams().match(this.keyPrefix + ":*").count(100);
+            do {
+                ScanResult<String> scanResult = client.scan(cursor, scanParams);
+                List<String> redisKeys = scanResult.getResult();
+
+                for (String rk : redisKeys) {
+                    try {
+                        String rawKey = rk.substring(this.keyPrefix.length() + 1);
+                        result.add(this.stringToKey.apply(rawKey));
+                    } catch (IOException e) {
+                        log.error("error reading key {}, ignoring", rk, e);
+                    }
                 }
-            }
+
+                cursor = scanResult.getCursor();
+            } while (!cursor.equals(ScanParams.SCAN_POINTER_START));
+
             return result;
         } catch (JedisException e) {
-            log.error("error listing key from redis cache", e);
+            log.error("error listing keys from redis cache via SCAN", e);
             return Collections.emptySet();
         }
     }
