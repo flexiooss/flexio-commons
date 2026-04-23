@@ -274,4 +274,24 @@ public class MySQLJsonRepositoryWithPropertyQueryAcceptanceTest extends Property
     public void givenFilterOnManyStringProperty__whenAnyIn_andNullInList__thenSelectedValueReturned() throws Exception {
         System.out.println("NOT IMPLEMENTED FEATURE : AnyIn");
     }
+
+    @Override
+    public void givenFilterOnEnumProp__whenEquals__thenMatchingValuesReturned() throws Exception {
+        System.out.println("NOT IMPLEMENTED FEATURE : equals on enum prop");
+    }
+
+    @Override
+    public void givenFilterOnEnumListProp__whenContains__thenMatchingValuesReturned() throws Exception {
+        System.out.println("NOT IMPLEMENTED FEATURE : contains on enum prop");
+    }
+
+    @Override
+    public void givenFilterOnEnumSetProp__whenContains__thenMatchingValuesReturned() throws Exception {
+        System.out.println("NOT IMPLEMENTED FEATURE : contains on enum set prop");
+    }
+
+    @Override
+    public void givenFilterSetStringProp__whenContains__thenMatchingValuesReturned() throws Exception {
+        System.out.println("NOT IMPLEMENTED FEATURE : contains on string set prop");
+    }
 }
