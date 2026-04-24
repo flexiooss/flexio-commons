@@ -222,4 +222,43 @@ public class SimpleRedisCacheStoreTest {
 
         assertThat(this.store.keys(), is(empty()));
     }
+/*
+    @Test
+    public void testConcurrent() throws InterruptedException {
+        int concurrent = 30;
+        try (ExecutorService exec = Executors.newFixedThreadPool(30)) {
+            String[] prefix = new String[]{"prefix", "prefix2", "prefix3"};
+            Map<String, String> map = new HashMap<>();
+            for (int i = 0; i < 10000; i++) {
+                String uuid = UUID.randomUUID().toString();
+                String key = prefix[i % 3] + ":" + uuid;
+                jedis.set(key, uuid);
+                if (i % 3 == 0) {
+                    map.put(key, uuid);
+                }
+            }
+            for (int j = 0; j < concurrent; j++) {
+                exec.submit(() -> this.retrieve(map));
+            }
+            exec.shutdown();
+            if (!exec.awaitTermination(60, TimeUnit.SECONDS)) {
+                exec.shutdownNow();
+            }
+        }
+    }
+
+    private double retrieve(Map<String, String> map) {
+        double total = 0;
+//        System.out.println("got " + map.keySet().size());
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            long start = System.currentTimeMillis();
+            store.has(entry.getKey());
+            long end = System.currentTimeMillis();
+            long time = end - start;
+            total += time;
+        }
+        System.out.println((total / map.keySet().size()) + "ms");
+        return total;
+    }
+*/
 }
