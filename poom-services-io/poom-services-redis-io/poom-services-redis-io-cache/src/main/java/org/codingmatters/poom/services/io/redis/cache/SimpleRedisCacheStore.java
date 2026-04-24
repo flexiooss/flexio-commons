@@ -10,8 +10,6 @@ import redis.clients.jedis.resps.ScanResult;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(SimpleRedisCacheStore.class);
@@ -37,14 +35,14 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
     public Optional<V> get(K k) {
         try (Jedis client = pool.getResource()) {
             String redisValue = client.get(this.redisKey(k));
-            if(redisValue == null || redisValue.equals("nil")) {
+            if (redisValue == null || redisValue.equals("nil")) {
                 return Optional.empty();
             } else {
                 return Optional.ofNullable(this.stringToValue.apply(redisValue));
             }
         } catch (JedisException | IOException e) {
             log.error("error reaching redis cache", e);
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -61,7 +59,7 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
     public boolean has(K k) {
         try (Jedis client = pool.getResource()) {
             return client.exists(this.redisKey(k));
-        } catch (JedisException e) {
+        } catch (JedisException | IOException e) {
             log.warn("error looking up key in redis cache", e);
             return false;
         }
@@ -71,7 +69,7 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
     public void remove(K k) {
         try (Jedis client = pool.getResource()) {
             client.del(this.redisKey(k));
-        } catch (JedisException e) {
+        } catch (JedisException | IOException e) {
             log.error("error removing key from redis cache", e);
         }
     }
@@ -127,12 +125,7 @@ public class SimpleRedisCacheStore<K, V> implements CacheStore<K, V> {
         }
     }
 
-    private String redisKey(K k) {
-        try {
-            return String.format("%s:%s", this.keyPrefix, this.keyToString.apply(k));
-        } catch (IOException e) {
-            log.error("error computing key {}, return null", k);
-            return null;
-        }
+    private String redisKey(K k) throws IOException {
+        return String.format("%s:%s", this.keyPrefix, this.keyToString.apply(k));
     }
 }
