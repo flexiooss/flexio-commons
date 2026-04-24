@@ -25,14 +25,14 @@ public class SimpleRedisCacheStoreTest {
             ;
 
     private Jedis jedis;
-    private SimpleRedisCacheStoreWithScan<String, String> store;
+    private SimpleRedisCacheStore<String, String> store;
 
     @Before
     public void setUp() throws Exception {
         this.jedis = new Jedis(this.docker.containerInfo("redis-ut").get().networkSettings().iPAddress(), 6379);
         this.jedis.flushAll();
 
-        this.store = new SimpleRedisCacheStoreWithScan<>(
+        this.store = new SimpleRedisCacheStore<>(
                 new JedisPool(this.docker.containerInfo("redis-ut").get().networkSettings().iPAddress(), 6379),
                 "prefix",
                 s -> s, s -> s, s -> s, s -> s
@@ -222,8 +222,8 @@ public class SimpleRedisCacheStoreTest {
 
         assertThat(this.store.keys(), is(empty()));
     }
-
-//    @Test
+/*
+    @Test
     public void testConcurrent() throws InterruptedException {
         int concurrent = 30;
         try (ExecutorService exec = Executors.newFixedThreadPool(30)) {
@@ -260,5 +260,5 @@ public class SimpleRedisCacheStoreTest {
         System.out.println((total / map.keySet().size()) + "ms");
         return total;
     }
-
+*/
 }
