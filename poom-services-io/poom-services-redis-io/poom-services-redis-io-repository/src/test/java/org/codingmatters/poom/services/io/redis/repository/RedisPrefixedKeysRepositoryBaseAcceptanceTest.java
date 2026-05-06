@@ -41,6 +41,7 @@ public class RedisPrefixedKeysRepositoryBaseAcceptanceTest extends RepositoryBas
     @Before
     public void setUp() throws Exception {
         this.jedis = new Jedis(this.docker.containerInfo("redis-ut").get().networkSettings().iPAddress(), 6379);
+        RedisReadiness.waitUntilReady(this.jedis);
         this.pool = new JedisPool(this.docker.containerInfo("redis-ut").get().networkSettings().iPAddress(), 6379);
         this.jedis.flushAll();
         super.setUp();
