@@ -43,10 +43,12 @@ public class RedisHashRepositoryTest {
 
     @Before
     public void setUp() throws Exception {
-        this.jedis = new Jedis(this.docker.containerInfo("redis-ut").get().networkSettings().iPAddress(), 6379);
+        String host = this.docker.containerInfo("redis-ut").get().networkSettings().iPAddress();
+        this.jedis = new Jedis(host, 6379);
+        RedisReadiness.waitUntilReady(this.jedis);
         this.jedis.flushAll();
 
-        this.jedisPool = new JedisPool(this.docker.containerInfo("redis-ut").get().networkSettings().iPAddress(), 6379);
+        this.jedisPool = new JedisPool(host, 6379);
 
         this.repository = new RedisHashRepository<>(this.jedisPool, hashName) {
             @Override

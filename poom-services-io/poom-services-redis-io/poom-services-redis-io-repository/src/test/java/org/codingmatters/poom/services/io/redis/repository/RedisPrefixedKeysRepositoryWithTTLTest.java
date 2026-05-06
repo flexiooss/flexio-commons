@@ -1,11 +1,9 @@
 package org.codingmatters.poom.services.io.redis.repository;
 
 import io.flexio.docker.DockerResource;
-import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.entities.Entity;
 import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
-import org.codingmatters.poom.services.domain.entities.PagedEntityList;
-import org.codingmatters.poom.services.tests.Eventually;
+import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -14,14 +12,10 @@ import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Comparator;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThrows;
 
 public class RedisPrefixedKeysRepositoryWithTTLTest {
 
@@ -31,8 +25,7 @@ public class RedisPrefixedKeysRepositoryWithTTLTest {
             .with("redis-ut", c -> c
                     .image("harbor.ci.flexio.io/ci/" + "redis:" + System.getProperty(REDIS_VERSION_ENV))
             ).started()
-            .finallyDeleted()
-            ;
+            .finallyDeleted();
 
     private final String keyPrefix = UUID.randomUUID().toString();
 
@@ -43,6 +36,7 @@ public class RedisPrefixedKeysRepositoryWithTTLTest {
     @Before
     public void setUp() throws Exception {
         this.jedis = new Jedis(this.docker.containerInfo("redis-ut").get().networkSettings().iPAddress(), 6379);
+        RedisReadiness.waitUntilReady(this.jedis);
         this.jedis.flushAll();
 
         this.jedisPool = new JedisPool(this.docker.containerInfo("redis-ut").get().networkSettings().iPAddress(), 6379);
@@ -95,7 +89,6 @@ public class RedisPrefixedKeysRepositoryWithTTLTest {
                 is(greaterThan(1L))
         );
     }
-
 
 
     @Test
