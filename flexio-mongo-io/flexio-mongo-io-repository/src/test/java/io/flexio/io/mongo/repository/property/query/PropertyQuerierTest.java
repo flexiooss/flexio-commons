@@ -4,8 +4,10 @@ import io.flexio.docker.DockerResource;
 import io.flexio.io.mongo.repository.MongoCollectionRepository;
 import io.flexio.io.mongo.repository.domain.MongoValueWithObject;
 import io.flexio.io.mongo.repository.domain.mongo.MongoValueWithObjectMongoMapper;
+import io.flexio.io.mongo.repository.property.query.config.MongoFilterConfig;
 import io.flexio.services.tests.mongo.MongoResource;
 import io.flexio.services.tests.mongo.MongoTest;
+import org.bson.conversions.Bson;
 import org.codingmatters.poom.services.domain.entities.Entity;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
@@ -200,5 +202,16 @@ public class PropertyQuerierTest {
                         .stream().map(MongoValueWithObject::b).toList(),
                 contains(6, 5, 4, 3, 2, 1)
         );
+    }
+
+    @Test
+    public void givenIsEmpty__whenFilter__thenNullOrEmptyStringOrEmptyTable() throws Exception {
+        String query = "queryId is empty";
+
+        PropertyQuerier propertyQuerier = new PropertyQuerier(MongoFilterConfig.builder().build());
+        Bson bson = propertyQuerier.filterer().from(PropertyQuery.builder()
+                .filter(query)
+                .build());
+        assertThat(bson.toBsonDocument().toJson(), is("{\"$or\": [{\"queryId\": null}, {\"queryId\": \"\"}, {\"$and\": [{\"queryId\": {\"$type\": 4}}, {\"queryId\": {\"$size\": 0}}]}]}"));
     }
 }

@@ -2,6 +2,7 @@ package io.flexio.io.mongo.repository.property.query;
 
 import com.mongodb.client.model.Filters;
 import io.flexio.io.mongo.repository.property.query.config.MongoFilterConfig;
+import org.bson.BsonType;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -153,7 +154,9 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     public Object isEmpty(String property) throws FilterEventError {
         this.stack.push(Filters.or(
                 Filters.eq(property, null),
-                Filters.eq(property, "")
+                Filters.eq(property, ""),
+                Filters.and(Filters.type(property, BsonType.ARRAY),
+                        Filters.size(property, 0))
         ));
         return null;
     }
@@ -162,11 +165,12 @@ public class BsonFilterEvents implements FilterEvents<Object> {
     public Object isNotEmpty(String property) throws FilterEventError {
         this.stack.push(Filters.and(
                 Filters.ne(property, null),
-                Filters.ne(property, "")
+                Filters.ne(property, ""),
+                Filters.not(Filters.and(Filters.type(property, BsonType.ARRAY),
+                        Filters.size(property, 0)))
         ));
         return null;
     }
-
     @Override
     public Object startsWith(String left, Object right) throws FilterEventError {
         this.stack.push(this.startsWithRegex(left, right));
