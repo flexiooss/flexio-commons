@@ -166,8 +166,8 @@ public class BsonFilterEvents implements FilterEvents<Object> {
         this.stack.push(Filters.and(
                 Filters.ne(property, null),
                 Filters.ne(property, ""),
-                Filters.not(Filters.and(Filters.type(property, BsonType.ARRAY),
-                        Filters.size(property, 0)))
+                Filters.or(Filters.not(Filters.type(property, BsonType.ARRAY)),
+                        Filters.not(Filters.size(property, 0)))
         ));
         return null;
     }

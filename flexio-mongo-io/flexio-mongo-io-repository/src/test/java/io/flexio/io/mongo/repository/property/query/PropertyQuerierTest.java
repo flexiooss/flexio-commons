@@ -214,4 +214,15 @@ public class PropertyQuerierTest {
                 .build());
         assertThat(bson.toBsonDocument().toJson(), is("{\"$or\": [{\"queryId\": null}, {\"queryId\": \"\"}, {\"$and\": [{\"queryId\": {\"$type\": 4}}, {\"queryId\": {\"$size\": 0}}]}]}"));
     }
+
+    @Test
+    public void givenIsNotEmpty__whenFilter__thenNotNullOrEmptyStringOrEmptyTable() throws Exception {
+        String query = "queryId is not empty";
+
+        PropertyQuerier propertyQuerier = new PropertyQuerier(MongoFilterConfig.builder().build());
+        Bson bson = propertyQuerier.filterer().from(PropertyQuery.builder()
+                .filter(query)
+                .build());
+        assertThat(bson.toBsonDocument().toJson(), is("{\"$and\": [{\"queryId\": {\"$ne\": null}}, {\"queryId\": {\"$ne\": \"\"}}, {\"$or\": [{\"queryId\": {\"$not\": {\"$type\": 4}}}, {\"queryId\": {\"$not\": {\"$size\": 0}}}]}]}"));
+    }
 }
