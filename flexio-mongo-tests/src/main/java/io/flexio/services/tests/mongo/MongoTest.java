@@ -15,7 +15,7 @@ public class MongoTest {
     private static final CategorizedLogger log = CategorizedLogger.getLogger(MongoTest.class);
 
     static public final String MONGO = System.getProperty("ut.container.prefix", "") + "mongo-ut";
-    static public final String MONGO_IMAGE = "harbor.ci.flexio.io/flexio/mongo-6.0:" + System.getProperty("ut.mongo.version", "1.2.0");
+    static public final String MONGO_IMAGE = "harbor.ci.flexio.io/flexio/mongo-8.0:" + System.getProperty("ut.mongo.version", "1.3.0");
 
     static private final JsonFactory jsonFactory = new JsonFactory();
 
